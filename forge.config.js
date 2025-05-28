@@ -33,12 +33,13 @@ module.exports = {
       name: '@electron-forge/plugin-webpack',
       config: {
         mainConfig: './webpack.main.config.js',
+        devContentSecurityPolicy: "connect-src 'self' * 'unsafe-eval'",
         renderer: {
           config: './webpack.renderer.config.js',
           entryPoints: [
             {
-              html: './src/index.html',
-              js: './src/renderer.js',
+              html: './src/pages/index.html',
+              js: './src/js/renderer.js',
               name: 'main_window',
               preload: {
                 js: './src/preload.js',

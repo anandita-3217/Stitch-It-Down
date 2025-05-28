@@ -12,7 +12,7 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      preload: path.join(__dirname,'preload.js'),
     },
   });
 
@@ -49,3 +49,8 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+if (isDev) {
+  mainWindow.loadURL('http://localhost:3000/main_window');
+} else {
+  mainWindow.loadFile(path.join(__dirname, '../renderer/main_window/index.html'));
+}
