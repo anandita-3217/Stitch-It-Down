@@ -2,7 +2,7 @@
   "name": "stitch-it-down",
   "productName": "stitch-it-down",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A productivity app inspired  Stitch from Lilo and Stitch",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",

@@ -141,8 +141,7 @@ function updateDate() {
     const currentDate = now.getDate();
     
     // Get month
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                  'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const currentMonth = months[now.getMonth()];
     
     // Update the HTML elements
