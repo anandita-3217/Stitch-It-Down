@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Stitch It Down</title>
 </head>
-<body>
+<!-- <body>
   <div class="app-conatiner">
     <header class="app-header">
       <div class="logo-container">
@@ -33,5 +33,94 @@
     </div>
   </div>
   
+</body> -->
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-container">
+              <img id="icon-stitch" alt="icon-stitch" class="logo">
+              <h1>Stitch It Down</h1>
+                <label class="switch">
+                  <input type="checkbox" id="themeToggle" />
+                      <span class="slider"></span>
+                      <span class="clouds_stars"></span>
+                </label>
+            </div>
+        </header>
+    <div class="main-content">
+      <div class="upper">
+          <div class="upper-left">
+              <div class="date-time">
+                  <div class="day" id="current-day"></div>
+                  <div class="date" id="current-date"></div>
+                  <div class="month" id="current-month"></div>
+                  <div class="digital-clock" id="digital-clock">00:00:00</div>
+  
+  
+              </div>
+          </div>
+          <div class="upper-right">
+              <div class="progress">
+                  <!-- Progress bar HTML structure -->
+  <div class="progress-title">
+      <span>Today's Progress</span>
+      <span class="completed-tasks">3/7 tasks</span>
+  </div>
+  
+  <div class="progress-bar-container">
+      <div class="progress-bar" style="width: 42%;"></div>
+  </div>
+  
+  <div class="task-categories">
+      <div class="category">
+          <span class="category-icon">📝</span>
+          <span>Notes</span>
+      </div>
+      <div class="category">
+          <span class="category-icon">📌</span>
+          <span>Tasks</span>
+      </div>
+      <div class="category">
+          <span class="category-icon">⭐</span>
+          <span>Important</span>
+      </div>
+  </div>
+  
+  <div class="stats">
+      <div class="stat-item">
+          <div class="stat-value">7</div>
+          <div class="stat-label">Total Tasks</div>
+      </div>
+      <div class="stat-item">
+          <div class="stat-value">3</div>
+          <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-item">
+          <div class="stat-value">4</div>
+          <div class="stat-label">Remaining</div>
+      </div>
+  </div>
+  
+  <div class="daily-quote">
+      "Ohana means family. Family means nobody gets left behind or forgotten."
+  </div>
+  
+              </div>
+          </div>
+      </div>
+      <div class="lower">
+          <div class="add-note">
+              <input class="addNote" id="noteInput" placeholder="Add a quick note">
+              <button type="submit" class="AddNote" id="addNoteBtn">+</button>
+          </div>
+          <div class="notes-container" id="notesContainer">
+              <!-- Notes will be added here -->
+          </div>
+      </div>
+      
+      </div>
+
+    </div>
 </body>
+
 </html>

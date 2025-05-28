@@ -1,9 +1,10 @@
+/* Lilo & Stitch custom color palette - Light Theme */
 :root[data-theme="light"] {
     --primary-purple: #e1a3e5;     /* Light purple */
     --medium-purple: #9e73a0;      /* Medium purple */
     --dark-purple: #6735e8;        /* Bright purple */
     --dark-blue: #1b467b;          /* Dark blue */
-    --darker-blue: #28096b;        /* Darker blue */
+    --darker-blue: #102c47;        /* Darker blue */
     --white: #ffffff;
     --light-bg: #f8f4f8;
     --text-primary: var(--darker-blue);
@@ -13,14 +14,16 @@
     --shadow: rgba(0, 0, 0, 0.1);
     --shadow-hover: rgba(103, 53, 232, 0.2);
 }
-root[data-theme="dark"] {
+
+/* Dark Theme */
+:root[data-theme="dark"] {
     --primary-purple: #c575c9;     /* Adjusted for dark theme */
     --medium-purple: #8b5f8d;      /* Adjusted for dark theme */
     --dark-purple: #8854ff;        /* Brighter for dark theme */
     --dark-blue: #4d7ab8;          /* Lighter blue for dark theme */
     --darker-blue: #3b5e82;        /* Lighter for text readability */
     --white: #ffffff;
-    --light-bg: #28096b;           /* Dark background */
+    --light-bg: #0f1419;           /* Dark background */
     --text-primary: #e7e9ea;       /* Light text */
     --text-secondary: #a2a7ad;     /* Secondary light text */
     --border-color: var(--medium-purple);
@@ -60,41 +63,34 @@ body {
     min-height: 100vh;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
 .app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: var(--medium-purple);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    margin-bottom: 12px;
 }
+
 .logo-container {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 .logo {
-  height: 50px;
-  margin-right: 1rem;
-  
+    height: 50px;
+    margin-right: 1rem;
+    animation: bounce 2s infinite;
 }
 
-footer {
-  padding: 1rem;
-  background-color: var(--medium-purplez);
-  text-align: center;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
-}
-.switch {
+/* Custom theme toggle */
+.logo-container .switch {
     font-size: 17px;
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 40px;
+    right: 40px;
     display: inline-block;
     width: 3.5em;
     height: 2em;
@@ -204,6 +200,7 @@ footer {
         opacity: 0.5;
     }
 }
+
 .upper {
     display: flex;
     justify-content: space-between;
@@ -219,6 +216,7 @@ footer {
     box-shadow: 0 8px 16px var(--shadow);
     text-align: center;
     min-width: 180px;
+    /* transition: transform 0.3s ease; */
 }
 
 
@@ -241,4 +239,317 @@ footer {
     text-transform: uppercase;
     letter-spacing: 1px;
     opacity: 0.9;
+}
+
+.lower {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.add-note {
+    display: flex;
+    gap: 12px;
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--shadow);
+    margin-bottom: 24px;
+    transition: background-color 0.3s ease;
+}
+
+.addNote {
+    flex: 1;
+    padding: 14px 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.addNote::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.addNote:focus {
+    border-color: var(--dark-purple);
+    box-shadow: 0 0 0 3px rgba(103, 53, 232, 0.1);
+}
+
+[data-theme="dark"] .addNote:focus {
+    box-shadow: 0 0 0 3px rgba(136, 84, 255, 0.2);
+}
+
+.AddNote {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.AddNote:hover {
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 6px 16px var(--shadow-hover);
+}
+
+.AddNote:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.notes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.note-item {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--medium-purple);
+    position: relative;
+}
+
+.note-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px var(--shadow);
+}
+
+.note-content {
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.note-timestamp {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 10px;
+}
+
+.delete-note {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: var(--medium-purple);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.delete-note:hover {
+    background-color: var(--primary-purple);
+    color: var(--white);
+    transform: scale(1.1);
+}
+
+/* Add stitch character decoration (optional) */
+/* .upper::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    background-image: url('./assets/images/stitch-wink.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+    pointer-events: none;
+} */
+.upper-right {
+    flex: 1;
+    margin-left: 20px;
+}
+.progress {
+    background-color: var(--card-bg);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 16px var(--shadow);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.progress-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.progress-title .completed-tasks {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 25px;
+    background-color: rgba(225, 163, 229, 0.2);
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    border-radius: 30px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+/* Stitch ears on progress bar */
+.progress-bar::before,
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    width: 15px;
+    height: 15px;
+    background-color: var(--dark-purple);
+    border-radius: 50%;
+    transition: all 0.5s ease;
+}
+
+.progress-bar::before {
+    right: 5px;
+    transform: rotate(-30deg);
+}
+
+.progress-bar::after {
+    right: 20px;
+    transform: rotate(30deg);
+}
+
+/* Task categories */
+.task-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.category {
+    background-color: rgba(225, 163, 229, 0.2);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.category:hover {
+    background-color: var(--primary-purple);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.category-icon {
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+/* Motivational quote styling */
+.daily-quote {
+    margin-top: 15px;
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
+    padding-left: 20px;
+    border-left: 3px solid var(--primary-purple);
+}
+
+/* Stats display */
+.stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--dark-purple);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .upper {
+        flex-direction: column;
+    }
+    
+    .upper-right {
+        margin-left: 0;
+        margin-top: 20px;
+    }
+}
+/* .digital-clock {
+    font-size: 24px;
+    font-weight: 500;
+    color: white;
+    margin-top: 5px;
+    font-family: monospace;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    letter-spacing: 2px;
+} */
+.digital-clock {
+    font-size: 24px;
+    font-weight: 500;
+    color: white;
+    margin-top: 12px;
+    font-family: 'Orbitron', monospace;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    letter-spacing: 2px;
+    /* Optional: Add a subtle glow effect */
+    text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }
