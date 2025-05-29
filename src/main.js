@@ -71,10 +71,10 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: false, // Security best practice
-      contextIsolation: true, // Security best practice
-      enableRemoteModule: false, // Security best practice
-      preload: path.join(__dirname, 'preload.js') // Optional: if you have a preload script
+      nodeIntegration: false, 
+      contextIsolation: true, 
+      enableRemoteModule: false, 
+      preload: path.join(__dirname, 'preload.js') 
     },
     icon: path.join(__dirname, 'assets/images/characters/stitch-icon.png'), // Optional: app icon
     show: false // Don't show until ready

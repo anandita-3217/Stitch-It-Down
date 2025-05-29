@@ -219,14 +219,20 @@ body {
     /* transition: transform 0.3s ease; */
 }
 
-
 .day {
     font-size: 20px;
     font-weight: 500;
     margin-bottom: 8px;
     opacity: 0.9;
 }
-
+/* TODO: Make the date circle pop */
+/* 
+.date-circle{
+    height: 50px;
+    width: 50px;
+    background-color: var(--light-bg);
+    border-radius: 50%;
+} */
 .date {
     font-size: 48px;
     font-weight: bold;
