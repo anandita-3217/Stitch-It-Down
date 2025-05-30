@@ -77,6 +77,8 @@ body {
 .logo-container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .logo {
@@ -86,17 +88,15 @@ body {
 }
 
 /* Custom theme toggle */
-.logo-container .switch {
+.switch {
     font-size: 17px;
-    position: fixed;
-    top: 40px;
-    right: 40px;
+    position: relative;
+    margin-left: auto;
     display: inline-block;
-    width: 3.5em;
-    height: 2em;
-    z-index: 1000;
-}
+    width: 3.5rem;
+    height: 2rem;
 
+}
 .switch input {
     opacity: 0;
     width: 0;
