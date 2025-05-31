@@ -1,19 +1,37 @@
-
+/* 
 :root[data-theme="light"] {
-    --primary-purple: #ff9fcf;        /* Playful Lilo pink */
-    --medium-purple: #ffd4eb;         /* Light bubblegum */
-    --dark-purple: #5b9aff;           /* Stitch blue */
-    --dark-blue: #3ba4e3;             /* Vibrant sky */
-    --darker-blue: #247ba0;           /* Deep teal blue */
+    --primary-purple: #ff9fcf;        
+    --medium-purple: #ffd4eb;         
+    --dark-purple: #5b9aff;           
+    --dark-blue: #3ba4e3;             
+    --darker-blue: #247ba0;           
     --white: #ffffff;
-    --light-bg: #d6f1ff;              /* Sky background */
-    --text-primary: #20394c;          /* Navy slate */
-    --text-secondary: #3ba4e3;        /* Sky pop */
+    --light-bg: #d6f1ff;              
+    --text-primary: #20394c;          
+    --text-secondary: #3ba4e3;        
     --border-color: var(--primary-purple);
-    --card-bg: #e6f6ff;               /* 🌊 Soft airy blue */
+    --card-bg: #e6f6ff;               
     --shadow: rgba(0, 0, 0, 0.08);
     --shadow-hover: rgba(91, 154, 255, 0.2);
+} */
+
+:root[data-theme="light"] {
+    --primary-purple: #a1e0ff;       /* Clear coastal blue */
+    --medium-purple: #d6f3ff;        /* Light sea foam */
+    --dark-purple: #6ab6ff;          /* Ocean blue */
+    --dark-blue: #9ddfff;            /* Gentle beach sky */
+    --darker-blue: #3c8bc4;          /* Horizon navy */
+    --white: #f2faff;                /* Very pale blue-white */
+    --light-bg: #eef9ff;             /* Clouded mist blue */
+    --text-primary: #244c5a;         /* Deep ocean gray */
+    --text-secondary: #6ab6ff;
+    --border-color: var(--primary-purple);
+    --card-bg: #f6fbff;              /* Blue-tinted card background */
+    --shadow: rgba(0, 0, 0, 0.05);
+    --shadow-hover: rgba(106, 182, 255, 0.12);
 }
+
+
 
 
 
@@ -35,21 +53,37 @@
 
 
 /* Default to light theme if no preference is set */
-:root {
-    --primary-purple: #ff9fcf;        /* Playful Lilo pink */
-    --medium-purple: #ffd4eb;         /* Light bubblegum */
-    --dark-purple: #5b9aff;           /* Stitch blue */
-    --dark-blue: #3ba4e3;             /* Vibrant sky */
-    --darker-blue: #247ba0;           /* Deep teal blue */
-    --white: #ffffff;
-    --light-bg: #d6f1ff;              /* Sky background */
-    --text-primary: #20394c;          /* Navy slate */
-    --text-secondary: #3ba4e3;        /* Sky pop */
+/* :root {
+    --primary-purple: #ff9fcf;        
+    --medium-purple: #ffd4eb;         
+    --dark-purple: #5b9aff;           
+    --dark-blue: #3ba4e3;             
+    --darker-blue: #247ba0;           
+    --white: #ffffff
+    --light-bg: #d6f1ff;              
+    --text-primary: #20394c;          
+    --text-secondary: #3ba4e3;        
     --border-color: var(--primary-purple);
-    --card-bg: #e6f6ff;               /* 🌊 Soft airy blue */
+    --card-bg: #e6f6ff;               
     --shadow: rgba(0, 0, 0, 0.08);
     --shadow-hover: rgba(91, 154, 255, 0.2);
+} */
+:root {
+    --primary-purple: #a1e0ff;       /* Clear coastal blue */
+    --medium-purple: #d6f3ff;        /* Light sea foam */
+    --dark-purple: #6ab6ff;          /* Ocean blue */
+    --dark-blue: #9ddfff;            /* Gentle beach sky */
+    --darker-blue: #3c8bc4;          /* Horizon navy */
+    --white: #f2faff;                /* Very pale blue-white */
+    --light-bg: #eef9ff;             /* Clouded mist blue */
+    --text-primary: #244c5a;         /* Deep ocean gray */
+    --text-secondary: #6ab6ff;
+    --border-color: var(--primary-purple);
+    --card-bg: #f6fbff;              /* Blue-tinted card background */
+    --shadow: rgba(0, 0, 0, 0.05);
+    --shadow-hover: rgba(106, 182, 255, 0.12);
 }
+
 
 
 * {
