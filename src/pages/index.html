@@ -19,7 +19,7 @@
             </div>
         </header>
         <!-- <img id="clothes-stitch" alt="icon-stitch" class="logo"> -->
-    <div class="main-content">
+    <!-- <div class="main-content">
     <div class="upper">
         <div class="upper-left">
             <div class="date-time">
@@ -86,11 +86,93 @@
                 <button type="submit" class="AddNote" id="addNoteBtn">+</button>
             </div>
             <div class="notes-container" id="notesContainer">
-                <!-- Notes will be added here -->
+                
             </div>
         </div>
 
+        </div> -->
+        <div class="main-content">
+            <div class="upper">
+                <div class="upper-left">
+                    <div class="date-time">
+                        <div class="day" id="current-day">Saturday</div>
+                        <div class="date-circle">
+                            <div class="date" id="current-date">31</div>
+                        </div>
+                        <div class="month" id="current-month">May</div>
+                        <div class="digital-clock" id="digital-clock">14:30:45</div>
+                    </div>
+                </div>
+                <div class="upper-right">
+                    <div class="progress">
+                        <div class="progress-title">
+                            <span>Today's Progress</span>
+                            <span class="completed-tasks">3/7 tasks</span>
+                        </div>
+                        
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 42%;"></div>
+                        </div>
+                        
+                        <div class="task-categories">
+                            <div class="category">
+                                <span class="category-icon">📝</span>
+                                <span>Notes</span>
+                            </div>
+                            <div class="category">
+                                <span class="category-icon">📌</span>
+                                <span>Tasks</span>
+                            </div>
+                            <div class="category">
+                                <span class="category-icon">⭐</span>
+                                <span>Important</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stats">
+                            <div class="stat-item">
+                                <div class="stat-value">7</div>
+                                <div class="stat-label">Total Tasks</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">Completed</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">4</div>
+                                <div class="stat-label">Remaining</div>
+                            </div>
+                        </div>
+                        
+                        <div class="daily-quote">
+                            "Ohana means family. Family means nobody gets left behind or forgotten."
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lower">
+                <div class="add-note">
+                    <input class="addNote" id="noteInput" placeholder="Add a quick note">
+                    <button type="submit" class="AddNote" id="addNoteBtn">+</button>
+                </div>
+                <div class="notes-container" id="notesContainer">
+                    <!-- Sample notes for demonstration -->
+                    <div class="note-item">
+                        <div class="note-content">Remember to call mom about the family dinner this weekend!</div>
+                        <span class="note-timestamp">Today at 2:30 PM</span>
+                        <button class="delete-note">×</button>
+                    </div>
+                    <div class="note-item">
+                        <div class="note-content">Pick up groceries: bananas, pineapple, coconut milk</div>
+                        <span class="note-timestamp">Today at 1:15 PM</span>
+                        <button class="delete-note">×</button>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+
     </div>
 </body>
 </html>

@@ -1,90 +1,51 @@
-/* 
 :root[data-theme="light"] {
-    --primary-purple: #ff9fcf;        
-    --medium-purple: #ffd4eb;         
-    --dark-purple: #5b9aff;           
-    --dark-blue: #3ba4e3;             
-    --darker-blue: #247ba0;           
-    --white: #ffffff;
-    --light-bg: #d6f1ff;              
-    --text-primary: #20394c;          
-    --text-secondary: #3ba4e3;        
-    --border-color: var(--primary-purple);
-    --card-bg: #e6f6ff;               
-    --shadow: rgba(0, 0, 0, 0.08);
-    --shadow-hover: rgba(91, 154, 255, 0.2);
-} */
-
-:root[data-theme="light"] {
-    --primary-purple: #a1e0ff;       /* Clear coastal blue */
-    --medium-purple: #d6f3ff;        /* Light sea foam */
-    --dark-purple: #6ab6ff;          /* Ocean blue */
-    --dark-blue: #9ddfff;            /* Gentle beach sky */
-    --darker-blue: #3c8bc4;          /* Horizon navy */
-    --white: #f2faff;                /* Very pale blue-white */
-    --light-bg: #eef9ff;             /* Clouded mist blue */
-    --text-primary: #244c5a;         /* Deep ocean gray */
+    --primary-purple: #a1e0ff;       
+    --medium-purple: #d6f3ff;        
+    --dark-purple: #6ab6ff;          
+    --dark-blue: #9ddfff;            
+    --darker-blue: #3c8bc4;          
+    --white: #f2faff;                
+    --light-bg: #eef9ff;             
+    --text-primary: #244c5a;         
     --text-secondary: #6ab6ff;
     --border-color: var(--primary-purple);
-    --card-bg: #f6fbff;              /* Blue-tinted card background */
+    --card-bg: #f6fbff;              
     --shadow: rgba(0, 0, 0, 0.05);
     --shadow-hover: rgba(106, 182, 255, 0.12);
 }
 
-
-
-
-
 :root[data-theme="dark"] {
-    --primary-purple: #2f1b70;        /* Galactic indigo */
-    --medium-purple: #5c33a9;         /* Cosmic violet */
-    --dark-purple: #0dd1ff;           /* Neon blue (Stitch energy) */
-    --dark-blue: #183d67;             /* Deep ocean blue */
-    --darker-blue: #0f1b2c;           /* Midnight navy */
+    --primary-purple: #2f1b70;        
+    --medium-purple: #5c33a9;         
+    --dark-purple: #0dd1ff;           
+    --dark-blue: #183d67;             
+    --darker-blue: #0f1b2c;           
     --white: #ffffff;
-    --light-bg: #0b0f14;              /* Deep space black */
-    --text-primary: #e1ecf5;          /* Icy white-blue */
-    --text-secondary: #94a3b8;        /* Subtle gray-blue */
+    --light-bg: #0b0f14;              
+    --text-primary: #e1ecf5;          
+    --text-secondary: #94a3b8;        
     --border-color: var(--medium-purple);
-    --card-bg: #151b24;              /* Soft deep blue */
+    --card-bg: #151b24;              
     --shadow: rgba(0, 0, 0, 0.4);
     --shadow-hover: rgba(13, 209, 255, 0.2);
 }
 
-
 /* Default to light theme if no preference is set */
-/* :root {
-    --primary-purple: #ff9fcf;        
-    --medium-purple: #ffd4eb;         
-    --dark-purple: #5b9aff;           
-    --dark-blue: #3ba4e3;             
-    --darker-blue: #247ba0;           
-    --white: #ffffff
-    --light-bg: #d6f1ff;              
-    --text-primary: #20394c;          
-    --text-secondary: #3ba4e3;        
-    --border-color: var(--primary-purple);
-    --card-bg: #e6f6ff;               
-    --shadow: rgba(0, 0, 0, 0.08);
-    --shadow-hover: rgba(91, 154, 255, 0.2);
-} */
 :root {
-    --primary-purple: #a1e0ff;       /* Clear coastal blue */
-    --medium-purple: #d6f3ff;        /* Light sea foam */
-    --dark-purple: #6ab6ff;          /* Ocean blue */
-    --dark-blue: #9ddfff;            /* Gentle beach sky */
-    --darker-blue: #3c8bc4;          /* Horizon navy */
-    --white: #f2faff;                /* Very pale blue-white */
-    --light-bg: #eef9ff;             /* Clouded mist blue */
-    --text-primary: #244c5a;         /* Deep ocean gray */
+    --primary-purple: #a1e0ff;       
+    --medium-purple: #d6f3ff;        
+    --dark-purple: #6ab6ff;          
+    --dark-blue: #9ddfff;            
+    --darker-blue: #3c8bc4;          
+    --white: #f2faff;                
+    --light-bg: #eef9ff;             
+    --text-primary: #244c5a;         
     --text-secondary: #6ab6ff;
     --border-color: var(--primary-purple);
-    --card-bg: #f6fbff;              /* Blue-tinted card background */
+    --card-bg: #f6fbff;             
     --shadow: rgba(0, 0, 0, 0.05);
     --shadow-hover: rgba(106, 182, 255, 0.12);
 }
-
-
 
 * {
     margin: 0;
@@ -108,7 +69,7 @@ body {
     border-radius: 12px;
     background-color: var(--card-bg);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-    margin-bottom: 12px;
+    margin-bottom: 24px;
 }
 
 .logo-container {
@@ -123,7 +84,6 @@ body {
     margin-right: 1rem;
     animation: bounce 2s infinite;
 }
-
 
 .switch {
     font-size: 17px;
@@ -241,40 +201,50 @@ body {
 .upper {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 4px;
     margin-bottom: 30px;
+    
 }
-
+.upper-left{
+    flex: 0 0 25%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+.upper-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 .date-time {
     background: linear-gradient(135deg, var(--dark-purple) 0%, var(--medium-purple) 100%);
     color: white;
-    padding: 25px 30px;
+    padding: 30px 35px; /* Increase from 25px 30px */
     border-radius: 20px;
     box-shadow: 0 8px 16px var(--shadow);
     text-align: center;
     min-width: 180px;
-    max-height: 200px;
+    max-height: 240px; /* Increase from 200px */
+    height: 240px; /* Increase from 200px */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-
 .day {
     font-size: 20px;
     font-weight: 500;
     margin-bottom: 8px;
     opacity: 0.9;
 }
-/* TODO: Make the date circle pop */
-/* 
-.date-circle{
-    height: 50px;
-    width: 50px;
-    background-color: var(--light-bg);
-    border-radius: 50%;
-} */
+
 .date {
-    font-size: 48px;
+    font-size: 52px; /* Increase from 48px */
     font-weight: bold;
     line-height: 1;
-    margin-bottom: 8px;
+    margin-bottom: 10px; /* Increase from 8px */
 }
 
 .month {
@@ -282,13 +252,141 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     opacity: 0.9;
+    margin-bottom: 12px;
+}
+.digital-clock {
+    font-size: 20px; /* Increase from 18px */
+    font-weight: 500;
+    color: white;
+    font-family: 'Orbitron', monospace;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(255,255,255,0.3);
+}
+
+.progress {
+    background-color: var(--card-bg);
+    border-radius: 20px;
+    padding: 25px; /* Increase from 20px */
+    box-shadow: 0 8px 16px var(--shadow);
+    transition: all 0.3s ease;
+    max-height: 240px; /* Increase from 200px */
+    height: 240px; /* Increase from 200px */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.progress-title {
+    font-size: 19px; /* Increase from 18px */
+    font-weight: 600;
+    margin-bottom: 12px; /* Increase from 10px */
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.progress-title .completed-tasks {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 24px; /* Increase from 20px */
+    background-color: rgba(225, 163, 229, 0.2);
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 12px; /* Increase from 10px */
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    border-radius: 30px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+/* Task categories */
+.task-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Increase from 8px */
+    margin-bottom: 12px; /* Increase from 10px */
+}
+
+.category {
+    background-color: rgba(225, 163, 229, 0.2);
+    color: var(--text-primary);
+    padding: 5px 10px; /* Increase from 4px 8px */
+    border-radius: 15px;
+    font-size: 12px; /* Increase from 11px */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.category:hover {
+    background-color: var(--primary-purple);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.category-icon {
+    margin-right: 5px; /* Increase from 4px */
+    font-size: 13px; /* Increase from 12px */
+}
+/* Motivational quote styling */
+.daily-quote {
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 13px; /* Increase from 12px */
+    line-height: 1.4; /* Increase from 1.3 */
+    position: relative;
+    padding-left: 18px; /* Increase from 15px */
+    border-left: 3px solid var(--primary-purple);
+}
+
+/* Stats display */
+.stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px; /* Increase from 8px */
+}
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 20px; /* Increase from 18px */
+    font-weight: bold;
+    color: var(--dark-purple);
+}
+
+.stat-label {
+    font-size: 11px; /* Increase from 10px */
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .upper {
+        flex-direction: column;
+    }
+    
+    .upper-right {
+        margin-left: 0;
+        margin-top: 20px;
+    }
 }
 
 .lower {
     max-width: 800px;
     margin: 0 auto;
 }
-
 .add-note {
     display: flex;
     gap: 12px;
@@ -409,191 +507,4 @@ body {
     background-color: var(--primary-purple);
     color: var(--white);
     transform: scale(1.1);
-}
-
-/* Add stitch character decoration (optional) */
-/* .upper::after {
-    content: '';
-    position: absolute;
-    bottom: -40px;
-    right: 20px;
-    width: 80px;
-    height: 80px;
-    background-image: url('./assets/images/stitch-wink.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.7;
-    pointer-events: none;
-} */
-.upper-right {
-    flex: 1;
-    margin-left: 20px;
-}
-.progress {
-    background-color: var(--card-bg);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 8px 16px var(--shadow);
-    transition: all 0.3s ease;
-    /* height: 100%; */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    max-height: 200px;
-}
-
-.progress-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.progress-title .completed-tasks {
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
-.progress-bar-container {
-    width: 100%;
-    height: 25px;
-    background-color: rgba(225, 163, 229, 0.2);
-    border-radius: 30px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 15px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
-    border-radius: 30px;
-    transition: width 0.5s ease;
-    position: relative;
-}
-
-/* Stitch ears on progress bar */
-.progress-bar::before,
-.progress-bar::after {
-    content: '';
-    position: absolute;
-    top: -10px;
-    width: 15px;
-    height: 15px;
-    background-color: var(--dark-purple);
-    border-radius: 50%;
-    transition: all 0.5s ease;
-}
-
-.progress-bar::before {
-    right: 5px;
-    transform: rotate(-30deg);
-}
-
-.progress-bar::after {
-    right: 20px;
-    transform: rotate(30deg);
-}
-
-/* Task categories */
-.task-categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.category {
-    background-color: rgba(225, 163, 229, 0.2);
-    color: var(--text-primary);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.category:hover {
-    background-color: var(--primary-purple);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.category-icon {
-    margin-right: 5px;
-    font-size: 14px;
-}
-
-/* Motivational quote styling */
-.daily-quote {
-    margin-top: 15px;
-    font-style: italic;
-    color: var(--text-secondary);
-    font-size: 14px;
-    line-height: 1.4;
-    position: relative;
-    padding-left: 20px;
-    border-left: 3px solid var(--primary-purple);
-}
-
-/* Stats display */
-.stats {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-}
-
-.stat-item {
-    text-align: center;
-    flex: 1;
-}
-
-.stat-value {
-    font-size: 22px;
-    font-weight: bold;
-    color: var(--dark-purple);
-}
-
-.stat-label {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .upper {
-        flex-direction: column;
-    }
-    
-    .upper-right {
-        margin-left: 0;
-        margin-top: 20px;
-    }
-}
-/* .digital-clock {
-    font-size: 24px;
-    font-weight: 500;
-    color: white;
-    margin-top: 5px;
-    font-family: monospace;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    letter-spacing: 2px;
-} */
-.digital-clock {
-    font-size: 24px;
-    font-weight: 500;
-    color: white;
-    margin-top: 12px;
-    font-family: 'Orbitron', monospace;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    letter-spacing: 2px;
-    /* Optional: Add a subtle glow effect */
-    text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }
