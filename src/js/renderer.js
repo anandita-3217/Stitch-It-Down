@@ -80,12 +80,24 @@ const quotes = [
     "Just because we look different doesn't mean we aren't family."
 ];
 
+const gifKeys = [
+    'clothes',
+    'dancing',
+    'eating',
+    'frustrated',
+    'hyping',
+    'love',
+    'shocked',
+    'singing',
+    'sleeping',
+    'tantrum'
+];
 
 function setImage(elementId, category, imageName) {
-  const element = document.getElementById(elementId);
-  if (element && images[category] && images[category][imageName]) {
+    const element = document.getElementById(elementId);
+    if (element && images[category] && images[category][imageName]) {
     element.src = images[category][imageName];
-  }
+    }
 }
 
 // Themes - Fixed and improved
@@ -213,6 +225,12 @@ function setDailyQuote() {
     localStorage.setItem('dailyQuote', JSON.stringify({ date: today, quote: newQuote }));
     quoteElement.textContent = newQuote;
 }
+function setRandomGif() {
+    const gifId = 'stitch-mood-gif'; // Your <img> ID
+    const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
+    setImage(gifId, 'gifs', randomKey);
+}
+
 
 
 // Initialize everything when DOM is loaded
@@ -242,6 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize date and time
     updateDate();
     setDailyQuote();
+    setRandomGif();
+
 });
 
 // Alternative initialization in case DOMContentLoaded has already fired

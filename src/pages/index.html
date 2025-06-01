@@ -10,7 +10,9 @@
         <header class="app-header">
             <div class="logo-container">
                 <img id="icon-stitch" alt="icon-stitch" class="logo">
-                <h1>Stitch It Down</h1>
+                <h2>Stitch It Down</h2>
+                <!-- TODO: align the daily quote properly -->
+                <div class="daily-quote"></div>
                 <label class="switch">
                     <input type="checkbox" id="themeToggle" />
                     <span class="slider"></span>
@@ -22,12 +24,13 @@
             <div class="upper">
                 <div class="upper-left">
                     <div class="date-time">
-                        <div class="day" id="current-day">Saturday</div>
+                        <div class="day" id="current-day"></div>
                         <div class="date-circle">
-                            <div class="date" id="current-date">31</div>
+                            <div class="date" id="current-date"></div>
                         </div>
-                        <div class="month" id="current-month">May</div>
-                        <div class="digital-clock" id="digital-clock">14:30:45</div>
+                        <div class="month" id="current-month"></div>
+                        <div class="digital-clock" id="digital-clock"></div>
+                        <img id="stitch-mood-gif" alt="stitch-mood-gif" class="random-gif">
                     </div>
                 </div>
                 <div class="upper-right">
@@ -71,9 +74,6 @@
                             </div>
                         </div>
                         
-                        <div class="daily-quote">
-                            "Ohana means family. Family means nobody gets left behind or forgotten."
-                        </div>
                     </div>
                 </div>
             </div>

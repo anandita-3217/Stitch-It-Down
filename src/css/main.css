@@ -82,9 +82,14 @@ body {
 .logo {
     height: 50px;
     margin-right: 1rem;
-    animation: bounce 2s infinite;
+    
 }
+.random-gif{
+    height: 24px;
+    width: 24px;
+    margin-right: 1rem;
 
+}
 .switch {
     font-size: 17px;
     position: relative;
@@ -291,9 +296,14 @@ body {
     height: 24px; 
     background-color: rgba(225, 163, 229, 0.2);
     border-radius: 30px;
-    overflow: hidden;
+    /* overflow: hidden; */
     position: relative;
     margin-bottom: 12px;
+    min-height: 20px;
+    height: 24px; /* already set, but re-confirm */
+    margin-bottom: 12px;
+    flex-shrink: 0; /* Prevent shrinking */
+
 }
 
 .progress-bar {
