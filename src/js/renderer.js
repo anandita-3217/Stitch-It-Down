@@ -47,14 +47,14 @@ import stitchTantrum from '@assets/gifs/stitch-tantrum.gif';
 
 // Create an image registry
 const images = {
-  characters: {
+    characters: {
     happy: stitchHappy,
     icon: stitchIcon,
     wink: stitchWink,
     corner1: stitchCorner1,
     corner2: stitchCorner2
-  },
-  gifs: {
+    },
+    gifs: {
     clothes: stitchClothes,
     dancing: stitchDancing,
     eating: stitchEating,
@@ -65,7 +65,7 @@ const images = {
     singing: stitchSinging,
     sleeping: stitchSleeping,
     tantrum: stitchTantrum
-  }
+    }
 };
 
 const quotes = [
@@ -92,6 +92,7 @@ const gifKeys = [
     'sleeping',
     'tantrum'
 ];
+
 
 function setImage(elementId, category, imageName) {
     const element = document.getElementById(elementId);
@@ -230,8 +231,337 @@ function setRandomGif() {
     const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
     setImage(gifId, 'gifs', randomKey);
 }
+// Note/Task management system
+function initNoteSystem() {
+    const noteInput = document.getElementById('noteInput');
+    const addNoteBtn = document.getElementById('addNoteBtn');
+    
+    if (addNoteBtn) {
+        addNoteBtn.addEventListener('click', handleAddNote);
+    }
+    
+    if (noteInput) {
+        noteInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleAddNote();
+        });
+    }
+    
+    loadNotes();
+    setupProgressTracking();
+}
 
+function handleAddNote() {
+    const noteInput = document.getElementById('noteInput');
+    const noteText = noteInput.value.trim();
+    
+    if (!noteText) return;
+    
+    // Show modal to select note type
+    showNoteTypeModal(noteText);
+    noteInput.value = '';
+}
 
+function showNoteTypeModal(noteText) {
+    // Create modal elements dynamically
+    const modal = document.createElement('div');
+    modal.className = 'note-type-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>What type is this?</h3>
+            <button onclick="createNote('${noteText}', 'note')">📝 Note</button>
+            <button onclick="createNote('${noteText}', 'task')">📌 Task</button>
+            <button onclick="createNote('${noteText}', 'important')">⭐ Important</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+function createNote(text, type, selectedDate = null) {
+    const noteData = {
+        id: Date.now(),
+        text: text,
+        type: type,
+        timestamp: new Date().toISOString(),
+        completed: false,
+        dueDate: selectedDate || new Date().toISOString().split('T')[0]
+    };
+    
+    if (type === 'task') {
+        showFrequencyModal(noteData);
+    } else {
+        saveNote(noteData);
+        closeModal();
+    }
+}
+
+function showFrequencyModal(noteData) {
+    const modal = document.querySelector('.note-type-modal');
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Task Frequency</h3>
+            <button onclick="setTaskFrequency('${JSON.stringify(noteData)}', 'daily')">Daily</button>
+            <button onclick="setTaskFrequency('${JSON.stringify(noteData)}', 'weekly')">Weekly</button>
+            <button onclick="setTaskFrequency('${JSON.stringify(noteData)}', 'biweekly')">Bi-weekly</button>
+            <button onclick="setTaskFrequency('${JSON.stringify(noteData)}', 'monthly')">Monthly</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    `;
+}
+
+function setTaskFrequency(noteDataStr, frequency) {
+    const noteData = JSON.parse(noteDataStr);
+    noteData.frequency = frequency;
+    noteData.nextReset = calculateNextReset(frequency);
+    saveNote(noteData);
+    closeModal();
+}
+
+function calculateNextReset(frequency) {
+    const now = new Date();
+    switch(frequency) {
+        case 'daily': return new Date(now.getTime() + 24*60*60*1000);
+        case 'weekly': return new Date(now.getTime() + 7*24*60*60*1000);
+        case 'biweekly': return new Date(now.getTime() + 14*24*60*60*1000);
+        case 'monthly': return new Date(now.setMonth(now.getMonth() + 1));
+        default: return new Date(now.getTime() + 24*60*60*1000);
+    }
+}
+function saveNote(noteData) {
+    try {
+        let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        notes.push(noteData);
+        localStorage.setItem('stitchNotes', JSON.stringify(notes));
+        displayNotes();
+        updateProgress();
+    } catch (error) {
+        console.warn('Could not save note to localStorage');
+    }
+}
+
+function loadNotes() {
+    try {
+        const notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        displayNotes(notes);
+        updateProgress();
+    } catch (error) {
+        console.warn('Could not load notes from localStorage');
+    }
+}
+
+function displayNotes(notes = null) {
+    if (!notes) {
+        try {
+            notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        } catch (error) {
+            notes = [];
+        }
+    }
+    
+    const container = document.getElementById('notesContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    notes.forEach(note => {
+        const noteElement = createNoteElement(note);
+        container.appendChild(noteElement);
+    });
+}
+
+function createNoteElement(note) {
+    const div = document.createElement('div');
+    div.className = `note-item ${note.type}`;
+    div.innerHTML = `
+        <div class="note-content">
+            ${note.type === 'task' ? 
+                `<input type="checkbox" ${note.completed ? 'checked' : ''} 
+                 onchange="toggleTask(${note.id})"> ` : ''
+            }
+            ${note.text}
+            ${note.frequency ? ` (${note.frequency})` : ''}
+        </div>
+        <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
+        <button class="delete-note" onclick="deleteNote(${note.id})">×</button>
+    `;
+    return div;
+}
+function toggleTask(taskId) {
+    try {
+        let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const taskIndex = notes.findIndex(note => note.id === taskId);
+        
+        if (taskIndex !== -1) {
+            notes[taskIndex].completed = !notes[taskIndex].completed;
+            localStorage.setItem('stitchNotes', JSON.stringify(notes));
+            updateProgress();
+            displayNotes();
+        }
+    } catch (error) {
+        console.warn('Could not update task');
+    }
+}
+
+function updateProgress() {
+    try {
+        const notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const tasks = notes.filter(note => note.type === 'task');
+        const completedTasks = tasks.filter(task => task.completed);
+        
+        const progressBar = document.querySelector('.progress-bar');
+        const completedTasksSpan = document.querySelector('.completed-tasks');
+        const totalTasksSpan = document.querySelector('.stat-value');
+        
+        if (progressBar && completedTasksSpan) {
+            const percentage = tasks.length > 0 ? (completedTasks.length / tasks.length) * 100 : 0;
+            progressBar.style.width = `${percentage}%`;
+            completedTasksSpan.textContent = `${completedTasks.length}/${tasks.length} tasks`;
+        }
+        
+        // Update stats
+        const statValues = document.querySelectorAll('.stat-value');
+        if (statValues.length >= 3) {
+            statValues[0].textContent = tasks.length;
+            statValues[1].textContent = completedTasks.length;
+            statValues[2].textContent = tasks.length - completedTasks.length;
+        }
+    } catch (error) {
+        console.warn('Could not update progress');
+    }
+}
+
+function setupProgressTracking() {
+    // Check for task resets every minute
+    setInterval(checkTaskResets, 60000);
+    checkTaskResets(); // Run immediately
+}
+
+function checkTaskResets() {
+    try {
+        let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const now = new Date();
+        let updated = false;
+        
+        notes = notes.map(note => {
+            if (note.type === 'task' && note.nextReset && new Date(note.nextReset) <= now) {
+                note.completed = false;
+                note.nextReset = calculateNextReset(note.frequency);
+                updated = true;
+            }
+            return note;
+        });
+        
+        if (updated) {
+            localStorage.setItem('stitchNotes', JSON.stringify(notes));
+            displayNotes();
+            updateProgress();
+        }
+    } catch (error) {
+        console.warn('Could not check task resets');
+    }
+}
+function initDateClickHandler() {
+    const dateCircle = document.querySelector('.date-circle');
+    if (dateCircle) {
+        dateCircle.addEventListener('click', showCalendarModal);
+        dateCircle.style.cursor = 'pointer';
+    }
+}
+
+function showCalendarModal() {
+    const modal = document.createElement('div');
+    modal.className = 'calendar-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Select Date for Task</h3>
+            <input type="date" id="task-date-picker" min="${new Date().toISOString().split('T')[0]}">
+            <input type="text" id="future-task-input" placeholder="Enter task for selected date">
+            <button onclick="createFutureTask()">Create Task</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function createFutureTask() {
+    const dateInput = document.getElementById('task-date-picker');
+    const taskInput = document.getElementById('future-task-input');
+    
+    if (dateInput.value && taskInput.value.trim()) {
+        const taskText = taskInput.value.trim();
+        const selectedDate = dateInput.value;
+        
+        const noteData = {
+            id: Date.now(),
+            text: taskText,
+            type: 'task',
+            timestamp: new Date().toISOString(),
+            completed: false,
+            dueDate: selectedDate,
+            frequency: 'daily', // Default for future tasks
+            nextReset: new Date(selectedDate + 'T23:59:59')
+        };
+        
+        saveNote(noteData);
+        closeModal();
+    }
+}
+
+// Utility functions
+function closeModal() {
+    const modals = document.querySelectorAll('.note-type-modal, .calendar-modal');
+    modals.forEach(modal => modal.remove());
+}
+
+function deleteNote(noteId) {
+    try {
+        let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        notes = notes.filter(note => note.id !== noteId);
+        localStorage.setItem('stitchNotes', JSON.stringify(notes));
+        displayNotes();
+        updateProgress();
+    } catch (error) {
+        console.warn('Could not delete note');
+    }
+}
+
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+}
+function setupISTReset() {
+    const checkIST = () => {
+        const now = new Date();
+        const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        
+        if (istTime.getHours() === 0 && istTime.getMinutes() === 0) {
+            // Reset daily tasks at midnight IST
+            try {
+                let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+                notes = notes.map(note => {
+                    if (note.type === 'task' && note.frequency === 'daily') {
+                        note.completed = false;
+                    }
+                    return note;
+                });
+                localStorage.setItem('stitchNotes', JSON.stringify(notes));
+                displayNotes();
+                updateProgress();
+            } catch (error) {
+                console.warn('Could not reset daily tasks');
+            }
+        }
+    };
+    
+    // Check every minute
+    setInterval(checkIST, 60000);
+}
+// Make functions global for onclick handlers
+window.createNote = createNote;
+window.setTaskFrequency = setTaskFrequency;
+window.toggleTask = toggleTask;
+window.deleteNote = deleteNote;
+window.closeModal = closeModal;
+window.createFutureTask = createFutureTask;
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -256,11 +586,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize theme system
     initTheme();
-    
-    // Initialize date and time
     updateDate();
     setDailyQuote();
     setRandomGif();
+    initNoteSystem();
+    initDateClickHandler();
 
 });
 
