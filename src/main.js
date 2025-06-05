@@ -15,7 +15,9 @@ function createWindow() {
       enableRemoteModule: false, 
       preload: path.join(__dirname, 'preload.js') 
     },
-    icon: path.join(__dirname, 'assets/images/characters/stitch-icon.png'), // Optional: app icon
+    // icon: path.join(__dirname, 'assets/images/characters/stitch-icon.png'), // Optional: app icon
+    icon: path.join(__dirname, '..', 'assets', 'images', 'characters', 'stitch-icon.png'),
+
     show: false 
   });
 
