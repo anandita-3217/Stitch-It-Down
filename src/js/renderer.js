@@ -249,7 +249,10 @@ function showNoteTypeModal(noteText) {
     `;
     document.body.appendChild(modal);
 }
-function createNote(text, type, selectedDate = null) {
+function createNote(type, selectedDate = null) {
+    const text = window.tempNoteText;
+    if (!text) return;
+    
     const noteData = {
         id: Date.now(),
         text: text,
@@ -284,12 +287,17 @@ function showFrequencyModal(noteData) {
     window.tempNoteData = noteData;
 }
 
-function setTaskFrequency(noteDataStr, frequency) {
-    const noteData = JSON.parse(noteDataStr);
+function setTaskFrequency(frequency) {
+    const noteData = window.tempNoteData;
+    if (!noteData) return;
+    
     noteData.frequency = frequency;
     noteData.nextReset = calculateNextReset(frequency);
     saveNote(noteData);
     closeModal();
+    
+    // Clean up temporary data
+    delete window.tempNoteData;
 }
 
 function calculateNextReset(frequency) {
@@ -486,6 +494,10 @@ function createFutureTask() {
 function closeModal() {
     const modals = document.querySelectorAll('.note-type-modal, .calendar-modal');
     modals.forEach(modal => modal.remove());
+    
+    // Clean up any temporary data
+    delete window.tempNoteText;
+    delete window.tempNoteData;
 }
 
 function deleteNote(noteId) {
@@ -592,3 +604,4 @@ function initializeApp() {
         }
     }
 }
+// No more errors but none of the buttons is working.
