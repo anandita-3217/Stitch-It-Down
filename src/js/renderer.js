@@ -234,6 +234,22 @@ function handleAddNote() {
     noteInput.value = '';
 }
 
+// function showNoteTypeModal(noteText) {
+//     // Create modal elements dynamically
+//     const modal = document.createElement('div');
+//     modal.className = 'note-type-modal';
+//     modal.innerHTML = `
+//         <div class="modal-content">
+//             <h3>What type is this?</h3>
+//             <button class="category" onclick="createNote('${noteText}', 'note')">📝 Note</button>
+//             <button class="category" onclick="createNote('${noteText}', 'task')">📌 Task</button>
+//             <button class="category" onclick="createNote('${noteText}', 'important')">⭐ Important</button>
+//             <button class="category" onclick="closeModal()">Cancel</button>
+//         </div>
+//     `;
+//     document.body.appendChild(modal);
+// }
+
 function showNoteTypeModal(noteText) {
     // Create modal elements dynamically
     const modal = document.createElement('div');
@@ -241,14 +257,34 @@ function showNoteTypeModal(noteText) {
     modal.innerHTML = `
         <div class="modal-content">
             <h3>What type is this?</h3>
-            <button class="category" onclick="createNote('${noteText}', 'note')">📝 Note</button>
-            <button class="category" onclick="createNote('${noteText}', 'task')">📌 Task</button>
-            <button class="category" onclick="createNote('${noteText}', 'important')">⭐ Important</button>
-            <button class="category" onclick="closeModal()">Cancel</button>
+            <button data-type="note">📝 Note</button>
+            <button data-type="task">📌 Task</button>
+            <button data-type="important">⭐ Important</button>
+            <button data-action="cancel">Cancel</button>
         </div>
     `;
+    
     document.body.appendChild(modal);
+    
+    // Store the text temporarily
+    window.tempNoteText = noteText;
+    
+    // Add event listeners to buttons
+    const buttons = modal.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const type = e.target.getAttribute('data-type');
+            const action = e.target.getAttribute('data-action');
+            
+            if (type) {
+                createNote(type);
+            } else if (action === 'cancel') {
+                closeModal();
+            }
+        });
+    });
 }
+
 function createNote(type, selectedDate = null) {
     const text = window.tempNoteText;
     if (!text) return;
@@ -270,21 +306,53 @@ function createNote(type, selectedDate = null) {
     }
 }
 
+// function showFrequencyModal(noteData) {
+//     const modal = document.querySelector('.note-type-modal');
+//     modal.innerHTML = `
+//         <div class="modal-content">
+//             <h3>Task Frequency</h3>
+//             <button onclick="setTaskFrequency('daily')">Daily</button>
+//             <button onclick="setTaskFrequency('weekly')">Weekly</button>
+//             <button onclick="setTaskFrequency('biweekly')">Bi-weekly</button>
+//             <button onclick="setTaskFrequency('monthly')">Monthly</button>
+//             <button onclick="closeModal()">Cancel</button>
+//         </div>
+//     `;
+    
+//     // Store the noteData temporarily for the frequency selection
+//     window.tempNoteData = noteData;
+// }
+
 function showFrequencyModal(noteData) {
     const modal = document.querySelector('.note-type-modal');
     modal.innerHTML = `
         <div class="modal-content">
             <h3>Task Frequency</h3>
-            <button onclick="setTaskFrequency('daily')">Daily</button>
-            <button onclick="setTaskFrequency('weekly')">Weekly</button>
-            <button onclick="setTaskFrequency('biweekly')">Bi-weekly</button>
-            <button onclick="setTaskFrequency('monthly')">Monthly</button>
-            <button onclick="closeModal()">Cancel</button>
+            <button data-frequency="daily">Daily</button>
+            <button data-frequency="weekly">Weekly</button>
+            <button data-frequency="biweekly">Bi-weekly</button>
+            <button data-frequency="monthly">Monthly</button>
+            <button data-action="cancel">Cancel</button>
         </div>
     `;
     
-    // Store the noteData temporarily for the frequency selection
+    // Store the noteData temporarily
     window.tempNoteData = noteData;
+    
+    // Add event listeners to new buttons
+    const buttons = modal.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const frequency = e.target.getAttribute('data-frequency');
+            const action = e.target.getAttribute('data-action');
+            
+            if (frequency) {
+                setTaskFrequency(frequency);
+            } else if (action === 'cancel') {
+                closeModal();
+            }
+        });
+    });
 }
 
 function setTaskFrequency(frequency) {
@@ -352,23 +420,59 @@ function displayNotes(notes = null) {
     });
 }
 
+// function createNoteElement(note) {
+//     const div = document.createElement('div');
+//     div.className = `note-item ${note.type}`;
+//     div.innerHTML = `
+//         <div class="note-content">
+//             ${note.type === 'task' ? 
+//                 `<input type="checkbox" ${note.completed ? 'checked' : ''} 
+//                  onchange="toggleTask(${note.id})"> ` : ''
+//             }
+//             ${note.text}
+//             ${note.frequency ? ` (${note.frequency})` : ''}
+//         </div>
+//         <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
+//         <button class="delete-note" onclick="deleteNote(${note.id})">×</button>
+//     `;
+//     return div;
+// }
+
 function createNoteElement(note) {
     const div = document.createElement('div');
     div.className = `note-item ${note.type}`;
     div.innerHTML = `
         <div class="note-content">
             ${note.type === 'task' ? 
-                `<input type="checkbox" ${note.completed ? 'checked' : ''} 
-                 onchange="toggleTask(${note.id})"> ` : ''
+                `<input type="checkbox" ${note.completed ? 'checked' : ''} data-task-id="${note.id}"> ` : ''
             }
             ${note.text}
             ${note.frequency ? ` (${note.frequency})` : ''}
         </div>
         <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
-        <button class="delete-note" onclick="deleteNote(${note.id})">×</button>
+        <button class="delete-note" data-note-id="${note.id}">×</button>
     `;
+    
+    // Add event listeners
+    const checkbox = div.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+        checkbox.addEventListener('change', (e) => {
+            const taskId = parseInt(e.target.getAttribute('data-task-id'));
+            toggleTask(taskId);
+        });
+    }
+    
+    const deleteBtn = div.querySelector('.delete-note');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+            const noteId = parseInt(e.target.getAttribute('data-note-id'));
+            deleteNote(noteId);
+        });
+    }
+    
     return div;
 }
+
 function toggleTask(taskId) {
     try {
         let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
@@ -451,6 +555,20 @@ function initDateClickHandler() {
     }
 }
 
+// function showCalendarModal() {
+//     const modal = document.createElement('div');
+//     modal.className = 'calendar-modal';
+//     modal.innerHTML = `
+//         <div class="modal-content">
+//             <h3>Select Date for Task</h3>
+//             <input type="date" id="task-date-picker" min="${new Date().toISOString().split('T')[0]}">
+//             <input type="text" id="future-task-input" placeholder="Enter task for selected date">
+//             <button onclick="createFutureTask()">Create Task</button>
+//             <button onclick="closeModal()">Cancel</button>
+//         </div>
+//     `;
+//     document.body.appendChild(modal);
+// }
 function showCalendarModal() {
     const modal = document.createElement('div');
     modal.className = 'calendar-modal';
@@ -459,11 +577,25 @@ function showCalendarModal() {
             <h3>Select Date for Task</h3>
             <input type="date" id="task-date-picker" min="${new Date().toISOString().split('T')[0]}">
             <input type="text" id="future-task-input" placeholder="Enter task for selected date">
-            <button onclick="createFutureTask()">Create Task</button>
-            <button onclick="closeModal()">Cancel</button>
+            <button data-action="create">Create Task</button>
+            <button data-action="cancel">Cancel</button>
         </div>
     `;
     document.body.appendChild(modal);
+    
+    // Add event listeners to buttons
+    const buttons = modal.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const action = e.target.getAttribute('data-action');
+            
+            if (action === 'create') {
+                createFutureTask();
+            } else if (action === 'cancel') {
+                closeModal();
+            }
+        });
+    });
 }
 
 function createFutureTask() {
@@ -543,13 +675,32 @@ function setupISTReset() {
     // Check every minute
     setInterval(checkIST, 60000);
 }
+function debugFunctions() {
+    console.log('Functions check:');
+    console.log('createNote:', typeof window.createNote);
+    console.log('setTaskFrequency:', typeof window.setTaskFrequency);
+    console.log('closeModal:', typeof window.closeModal);
+}
+
+// Call this in your initialization
 // Make functions global for onclick handlers
+// window.createNote = createNote;
+// window.setTaskFrequency = setTaskFrequency;
+// window.toggleTask = toggleTask;
+// window.deleteNote = deleteNote;
+// window.closeModal = closeModal;
+// window.createFutureTask = createFutureTask;
+
+// Expose all functions to global scope - MUST be at the end
 window.createNote = createNote;
 window.setTaskFrequency = setTaskFrequency;
 window.toggleTask = toggleTask;
 window.deleteNote = deleteNote;
 window.closeModal = closeModal;
 window.createFutureTask = createFutureTask;
+window.showNoteTypeModal = showNoteTypeModal;
+window.showFrequencyModal = showFrequencyModal;
+window.showCalendarModal = showCalendarModal;
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -579,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setRandomGif();
     initNoteSystem();
     initDateClickHandler();
-
+    debugFunctions();
 });
 
 // Alternative initialization in case DOMContentLoaded has already fired
@@ -604,4 +755,9 @@ function initializeApp() {
         }
     }
 }
-// No more errors but none of the buttons is working.
+// TODO: IMPORTANT: ************** tasks need to be completed and progress should be updated.
+// TODO: Need to make the notes tasks and important tabs functionsl so that only elements belonging to that category will show up.
+// TODO: User should can Create their own labels like tasks, important notes and deadlines etc.
+// TODO: Need to make my own version of Wordle.
+// TODO: Need to make gamification and streaks. 
+// TODO: Add a preload file properly.
