@@ -68,15 +68,40 @@ const gifKeys = [
 
 
 function setImage(elementId, category, imageName) {
+    // sets an image to a given elementId
     const element = document.getElementById(elementId);
     if (element && images[category] && images[category][imageName]) {
     element.src = images[category][imageName];
     }
 }
+function setDailyQuote() {
+    // Daily refreshes a quote
+    const quoteElement = document.querySelector('.daily-quote');
+    if (!quoteElement) return;
 
-// Themes - Fixed and improved
+    const today = new Date().toISOString().split('T')[0]; // e.g. "2025-05-30"
+    const stored = JSON.parse(localStorage.getItem('dailyQuote')) || {};
+
+    if (stored.date === today && stored.quote) {
+        quoteElement.textContent = stored.quote;
+        return;
+    }
+
+    // Pick a new quote randomly
+    const newQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    localStorage.setItem('dailyQuote', JSON.stringify({ date: today, quote: newQuote }));
+    quoteElement.textContent = newQuote;
+}
+function setRandomGif() {
+    // Sets a random gif everytime the app starts
+    const gifId = 'stitch-mood-gif'; // Your <img> ID
+    const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
+    setImage(gifId, 'gifs', randomKey);
+}
+
+// Themes 
 function initTheme() {
-    // Check if localStorage is available (it should be in Electron renderer)
+    
     let savedTheme = 'light'; // default
     try {
         savedTheme = localStorage.getItem('stitchTheme') || 'light';
@@ -182,28 +207,7 @@ function updateClock() {
     // Update every second
     setTimeout(updateClock, 1000);
 }
-function setDailyQuote() {
-    const quoteElement = document.querySelector('.daily-quote');
-    if (!quoteElement) return;
 
-    const today = new Date().toISOString().split('T')[0]; // e.g. "2025-05-30"
-    const stored = JSON.parse(localStorage.getItem('dailyQuote')) || {};
-
-    if (stored.date === today && stored.quote) {
-        quoteElement.textContent = stored.quote;
-        return;
-    }
-
-    // Pick a new quote randomly
-    const newQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    localStorage.setItem('dailyQuote', JSON.stringify({ date: today, quote: newQuote }));
-    quoteElement.textContent = newQuote;
-}
-function setRandomGif() {
-    const gifId = 'stitch-mood-gif'; // Your <img> ID
-    const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
-    setImage(gifId, 'gifs', randomKey);
-}
 // Note/Task management system
 function initNoteSystem() {
     const noteInput = document.getElementById('noteInput');
@@ -233,22 +237,6 @@ function handleAddNote() {
     showNoteTypeModal(noteText);
     noteInput.value = '';
 }
-
-// function showNoteTypeModal(noteText) {
-//     // Create modal elements dynamically
-//     const modal = document.createElement('div');
-//     modal.className = 'note-type-modal';
-//     modal.innerHTML = `
-//         <div class="modal-content">
-//             <h3>What type is this?</h3>
-//             <button class="category" onclick="createNote('${noteText}', 'note')">📝 Note</button>
-//             <button class="category" onclick="createNote('${noteText}', 'task')">📌 Task</button>
-//             <button class="category" onclick="createNote('${noteText}', 'important')">⭐ Important</button>
-//             <button class="category" onclick="closeModal()">Cancel</button>
-//         </div>
-//     `;
-//     document.body.appendChild(modal);
-// }
 
 function showNoteTypeModal(noteText) {
     // Create modal elements dynamically
@@ -305,23 +293,6 @@ function createNote(type, selectedDate = null) {
         closeModal();
     }
 }
-
-// function showFrequencyModal(noteData) {
-//     const modal = document.querySelector('.note-type-modal');
-//     modal.innerHTML = `
-//         <div class="modal-content">
-//             <h3>Task Frequency</h3>
-//             <button onclick="setTaskFrequency('daily')">Daily</button>
-//             <button onclick="setTaskFrequency('weekly')">Weekly</button>
-//             <button onclick="setTaskFrequency('biweekly')">Bi-weekly</button>
-//             <button onclick="setTaskFrequency('monthly')">Monthly</button>
-//             <button onclick="closeModal()">Cancel</button>
-//         </div>
-//     `;
-    
-//     // Store the noteData temporarily for the frequency selection
-//     window.tempNoteData = noteData;
-// }
 
 function showFrequencyModal(noteData) {
     const modal = document.querySelector('.note-type-modal');
@@ -420,23 +391,6 @@ function displayNotes(notes = null) {
     });
 }
 
-// function createNoteElement(note) {
-//     const div = document.createElement('div');
-//     div.className = `note-item ${note.type}`;
-//     div.innerHTML = `
-//         <div class="note-content">
-//             ${note.type === 'task' ? 
-//                 `<input type="checkbox" ${note.completed ? 'checked' : ''} 
-//                  onchange="toggleTask(${note.id})"> ` : ''
-//             }
-//             ${note.text}
-//             ${note.frequency ? ` (${note.frequency})` : ''}
-//         </div>
-//         <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
-//         <button class="delete-note" onclick="deleteNote(${note.id})">×</button>
-//     `;
-//     return div;
-// }
 
 function createNoteElement(note) {
     const div = document.createElement('div');
@@ -555,20 +509,7 @@ function initDateClickHandler() {
     }
 }
 
-// function showCalendarModal() {
-//     const modal = document.createElement('div');
-//     modal.className = 'calendar-modal';
-//     modal.innerHTML = `
-//         <div class="modal-content">
-//             <h3>Select Date for Task</h3>
-//             <input type="date" id="task-date-picker" min="${new Date().toISOString().split('T')[0]}">
-//             <input type="text" id="future-task-input" placeholder="Enter task for selected date">
-//             <button onclick="createFutureTask()">Create Task</button>
-//             <button onclick="closeModal()">Cancel</button>
-//         </div>
-//     `;
-//     document.body.appendChild(modal);
-// }
+
 function showCalendarModal() {
     const modal = document.createElement('div');
     modal.className = 'calendar-modal';
@@ -682,14 +623,6 @@ function debugFunctions() {
     console.log('closeModal:', typeof window.closeModal);
 }
 
-// Call this in your initialization
-// Make functions global for onclick handlers
-// window.createNote = createNote;
-// window.setTaskFrequency = setTaskFrequency;
-// window.toggleTask = toggleTask;
-// window.deleteNote = deleteNote;
-// window.closeModal = closeModal;
-// window.createFutureTask = createFutureTask;
 
 // Expose all functions to global scope - MUST be at the end
 window.createNote = createNote;
@@ -734,6 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Alternative initialization in case DOMContentLoaded has already fired
+
 if (document.readyState === 'loading') {
     // DOM is still loading
     document.addEventListener('DOMContentLoaded', initializeApp);
@@ -741,7 +675,6 @@ if (document.readyState === 'loading') {
     // DOM is already loaded
     initializeApp();
 }
-
 function initializeApp() {
     // Fallback initialization function
     if (!document.getElementById('themeToggle')?.hasAttribute('data-initialized')) {

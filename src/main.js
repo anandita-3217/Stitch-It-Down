@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+const iconPath = path.join(process.resourcesPath, 'assets/images/characters/stitch-wink.png');
 
 let mainWindow;
 
@@ -15,8 +16,8 @@ function createWindow() {
       enableRemoteModule: false, 
       preload: path.join(__dirname, 'preload.js') 
     },
-    // icon: path.join(__dirname, 'assets/images/characters/stitch-icon.png'), // Optional: app icon
-    icon: path.join(__dirname, '..', 'assets', 'images', 'characters', 'stitch-icon.png'),
+    // icon: path.resolve(__dirname, 'assets/images/characters/stitch-wink.png'), // Optional: app icon
+    icon: iconPath,
 
     show: false 
   });

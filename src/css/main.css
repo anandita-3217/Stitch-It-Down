@@ -820,7 +820,7 @@ body {
         opacity: 0.5;
     }
 }
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     .upper {
         flex-direction: column;
     }
@@ -829,4 +829,124 @@ body {
         margin-left: 0;
         margin-top: 20px;
     }
+} */
+/* Smartphones, iPhone, portrait 480x320 phones */
+@media (min-width: 320px) {
+  .upper {
+    flex-direction: column;
+  }
+
+  .upper-left,
+  .upper-right {
+    width: 100%;
+  }
+
+  .date-time,
+  .progress {
+    height: auto;
+    margin-bottom: 20px;
+  }
+}
+
+/* Portrait e-readers, smaller tablets @ 600 or @ 640 wide */
+@media (min-width: 481px) {
+  .upper {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .upper-left {
+    flex: 0 0 100%;
+  }
+
+  .upper-right {
+    flex: 0 0 100%;
+    justify-content: center;
+  }
+
+  .date-time,
+  .progress {
+    max-width: 100%;
+  }
+}
+
+/* Portrait tablets, iPads, landscape e-readers */
+@media (min-width: 641px) {
+  .upper-left {
+    flex: 0 0 30%;
+  }
+
+  .upper-right {
+    flex: 1;
+  }
+
+  .add-note {
+    flex-direction: row;
+  }
+
+  .AddNote {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Tablets, landscape iPads, low-res laptops/desktops */
+@media (min-width: 961px) {
+  .upper-left {
+    flex: 0 0 25%;
+  }
+
+  .upper-right {
+    flex: 0 0 70%;
+  }
+
+  .modal-content {
+    max-width: 480px;
+  }
+
+  .notes-container {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+/* Big landscape tablets, laptops, desktops */
+@media (min-width: 1025px) {
+  .upper-left {
+    flex: 0 0 20%;
+  }
+
+  .upper-right {
+    flex: 0 0 75%;
+  }
+
+  .notes-container {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  .addNote {
+    font-size: 18px;
+  }
+}
+
+/* Hi-res laptops and desktops */
+@media (min-width: 1281px) {
+  .upper {
+    gap: 20px;
+  }
+
+  .upper-left {
+    flex: 0 0 18%;
+  }
+
+  .upper-right {
+    flex: 0 0 78%;
+  }
+
+  .notes-container {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .modal-content {
+    max-width: 600px;
+  }
 }
