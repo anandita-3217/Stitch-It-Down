@@ -35,9 +35,9 @@ function createWindow() {
   });
 
   // Open DevTools in development
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools();
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   mainWindow.webContents.openDevTools();
+  // }
 
   
   mainWindow.on('closed', () => {

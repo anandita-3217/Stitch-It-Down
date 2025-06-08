@@ -400,7 +400,7 @@ function createNoteElement(note) {
             ${note.type === 'task' ? 
                 `<input type="checkbox" ${note.completed ? 'checked' : ''} data-task-id="${note.id}"> ` : ''
             }
-            ${note.text}
+            ${note.completed ? `<del>${note.text}</del>` : note.text}
             ${note.frequency ? ` (${note.frequency})` : ''}
         </div>
         <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
@@ -688,7 +688,7 @@ function initializeApp() {
         }
     }
 }
-// TODO: IMPORTANT: ************** tasks need to be completed and progress should be updated.
+
 // TODO: Need to make the notes tasks and important tabs functionsl so that only elements belonging to that category will show up.
 // TODO: User should can Create their own labels like tasks, important notes and deadlines etc.
 // TODO: Need to make my own version of Wordle.
