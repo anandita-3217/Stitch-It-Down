@@ -200,8 +200,8 @@ function updateClock() {
         clockElement.textContent = timeString;
         
         // Optional: Add blink effect to the colons
-        const pulseEffect = Math.floor(now.getSeconds()) % 2 === 0 ? 'pulse' : '';
-        clockElement.className = `digital-clock ${pulseEffect}`;
+        // const pulseEffect = Math.floor(now.getSeconds()) % 2 === 0 ? 'pulse' : '';
+        // clockElement.className = `digital-clock ${pulseEffect}`;
     }
     
     // Update every second
@@ -222,7 +222,6 @@ function initNoteSystem() {
             if (e.key === 'Enter') handleAddNote();
         });
     }
-    
     loadNotes();
     setupProgressTracking();
 }
@@ -616,11 +615,14 @@ function setupISTReset() {
     // Check every minute
     setInterval(checkIST, 60000);
 }
+
+
 function debugFunctions() {
+    const now = new Date();
     console.log('Functions check:');
     console.log('createNote:', typeof window.createNote);
     console.log('setTaskFrequency:', typeof window.setTaskFrequency);
-    console.log('closeModal:', typeof window.closeModal);
+    
 }
 
 
@@ -689,8 +691,9 @@ function initializeApp() {
     }
 }
 
-// TODO: Need to make the notes tasks and important tabs functionsl so that only elements belonging to that category will show up.
-// TODO: User should can Create their own labels like tasks, important notes and deadlines etc.
-// TODO: Need to make my own version of Wordle.
-// TODO: Need to make gamification and streaks. 
-// TODO: Add a preload file properly.
+// TODO:1 Need to make the notes tasks and important tabs functionsl so that only elements belonging to that category will show up.
+// TODO:2 Add deadlines and alerts
+// TODO:3 User should can Create their own labels like tasks, important notes and deadlines etc.
+// TODO:4 Need to make my own version of Wordle.
+// TODO:5 Need to make gamification and streaks. 
+// TODO:6 Add a preload file properly.
