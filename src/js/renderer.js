@@ -209,6 +209,23 @@ function updateClock() {
 }
 
 // Note/Task management system
+// function initNoteSystem() {
+//     const noteInput = document.getElementById('noteInput');
+//     const addNoteBtn = document.getElementById('addNoteBtn');
+    
+//     if (addNoteBtn) {
+//         addNoteBtn.addEventListener('click', handleAddNote);
+//     }
+    
+//     if (noteInput) {
+//         noteInput.addEventListener('keypress', (e) => {
+//             if (e.key === 'Enter') handleAddNote();
+//         });
+//     }
+//     loadNotes();
+//     setupProgressTracking();
+// }
+
 function initNoteSystem() {
     const noteInput = document.getElementById('noteInput');
     const addNoteBtn = document.getElementById('addNoteBtn');
@@ -222,6 +239,10 @@ function initNoteSystem() {
             if (e.key === 'Enter') handleAddNote();
         });
     }
+    
+    // Initialize category filters - THIS IS NEW
+    initCategoryFilters();
+    
     loadNotes();
     setupProgressTracking();
 }
@@ -359,6 +380,262 @@ function saveNote(noteData) {
         console.warn('Could not save note to localStorage');
     }
 }
+
+// =============================================================================
+// CATEGORY FILTER SYSTEM - ADD AFTER saveNote() FUNCTION
+// =============================================================================
+
+// Global variable to track current filter
+let currentFilter = 'all'; // 'all', 'note', 'task', 'important'
+
+function initCategoryFilters() {
+    const categoryElements = document.querySelectorAll('.category');
+    
+    categoryElements.forEach(category => {
+        category.addEventListener('click', (e) => {
+            const clickedCategory = e.currentTarget;
+            const filterType = clickedCategory.getAttribute('data-type');
+            
+            // Update active state
+            categoryElements.forEach(cat => cat.classList.remove('active'));
+            clickedCategory.classList.add('active');
+            
+            // Update current filter
+            currentFilter = filterType;
+            
+            // Filter and display notes
+            displayFilteredNotes();
+            
+            // Update progress for current filter
+            updateFilteredProgress();
+        });
+    });
+    
+    // Add "All" category if it doesn't exist
+    addAllCategory();
+}
+
+function addAllCategory() {
+    const taskCategories = document.querySelector('.task-categories');
+    if (!taskCategories) return;
+    
+    // Check if "All" category already exists
+    if (taskCategories.querySelector('[data-type="all"]')) return;
+    
+    const allCategory = document.createElement('div');
+    allCategory.className = 'category active'; // Start with "All" active
+    allCategory.setAttribute('data-type', 'all');
+    allCategory.innerHTML = `
+        <span class="category-icon">📋</span>
+        <span>All</span>
+    `;
+    
+    // Insert at the beginning
+    taskCategories.insertBefore(allCategory, taskCategories.firstChild);
+    
+    // Add click listener
+    allCategory.addEventListener('click', (e) => {
+        const categoryElements = document.querySelectorAll('.category');
+        categoryElements.forEach(cat => cat.classList.remove('active'));
+        allCategory.classList.add('active');
+        
+        currentFilter = 'all';
+        displayFilteredNotes();
+        updateFilteredProgress();
+    });
+}
+
+function displayFilteredNotes() {
+    try {
+        const notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const container = document.getElementById('notesContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        // Filter notes based on current filter
+        const filteredNotes = currentFilter === 'all' 
+            ? notes 
+            : notes.filter(note => note.type === currentFilter);
+        
+        // Display filtered notes
+        filteredNotes.forEach(note => {
+            const noteElement = createNoteElement(note);
+            container.appendChild(noteElement);
+        });
+        
+        // Show message if no notes in category
+        if (filteredNotes.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-category-message';
+            emptyMessage.innerHTML = getEmptyMessage(currentFilter);
+            container.appendChild(emptyMessage);
+        }
+    } catch (error) {
+        console.warn('Could not display filtered notes');
+    }
+}
+
+function getEmptyMessage(filterType) {
+    const messages = {
+        'all': `
+            <div class="empty-state">
+                <span class="empty-icon">📝</span>
+                <p>No items yet. Add your first note, task, or important item!</p>
+            </div>
+        `,
+        'note': `
+            <div class="empty-state">
+                <span class="empty-icon">📝</span>
+                <p>No notes yet. Add your first note!</p>
+            </div>
+        `,
+        'task': `
+            <div class="empty-state">
+                <span class="empty-icon">📌</span>
+                <p>No tasks yet. Add your first task!</p>
+            </div>
+        `,
+        'important': `
+            <div class="empty-state">
+                <span class="empty-icon">⭐</span>
+                <p>No important items yet. Mark something as important!</p>
+            </div>
+        `
+    };
+    return messages[filterType] || messages['all'];
+}
+
+function updateFilteredProgress() {
+    try {
+        const notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        
+        // Get filtered notes based on current filter
+        const filteredNotes = currentFilter === 'all' 
+            ? notes 
+            : notes.filter(note => note.type === currentFilter);
+        
+        // Calculate progress based on filtered notes
+        const tasks = filteredNotes.filter(note => note.type === 'task');
+        const completedTasks = tasks.filter(task => task.completed);
+        const totalItems = filteredNotes.length;
+        const completedItems = filteredNotes.filter(item => 
+            item.type === 'task' ? item.completed : true // Notes and important items are always "completed"
+        ).length;
+        
+        // Update progress bar
+        const progressBar = document.querySelector('.progress-bar');
+        const completedTasksSpan = document.querySelector('.completed-tasks');
+        
+        if (progressBar && completedTasksSpan) {
+            const percentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+            progressBar.style.width = `${percentage}%`;
+            
+            // Update text based on filter
+            if (currentFilter === 'all') {
+                completedTasksSpan.textContent = `${completedTasks.length}/${tasks.length} tasks`;
+            } else if (currentFilter === 'task') {
+                completedTasksSpan.textContent = `${completedTasks.length}/${tasks.length} tasks`;
+            } else {
+                completedTasksSpan.textContent = `${filteredNotes.length} ${currentFilter}${filteredNotes.length !== 1 ? 's' : ''}`;
+            }
+        }
+        
+        // Update stats based on current filter
+        const statValues = document.querySelectorAll('.stat-value');
+        if (statValues.length >= 3) {
+            if (currentFilter === 'all' || currentFilter === 'task') {
+                statValues[0].textContent = tasks.length;
+                statValues[1].textContent = completedTasks.length;
+                statValues[2].textContent = tasks.length - completedTasks.length;
+            } else {
+                // For notes and important items
+                statValues[0].textContent = filteredNotes.length;
+                statValues[1].textContent = filteredNotes.length; // All notes/important items are "completed"
+                statValues[2].textContent = 0;
+            }
+        }
+        
+        // Update stat labels based on filter
+        const statLabels = document.querySelectorAll('.stat-label');
+        if (statLabels.length >= 3) {
+            if (currentFilter === 'all') {
+                statLabels[0].textContent = 'Total Tasks';
+                statLabels[1].textContent = 'Completed';
+                statLabels[2].textContent = 'Remaining';
+            } else if (currentFilter === 'task') {
+                statLabels[0].textContent = 'Total Tasks';
+                statLabels[1].textContent = 'Completed';
+                statLabels[2].textContent = 'Remaining';
+            } else {
+                const labelText = currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1) + 's';
+                statLabels[0].textContent = `Total ${labelText}`;
+                statLabels[1].textContent = 'Items';
+                statLabels[2].textContent = 'Active';
+            }
+        }
+    } catch (error) {
+        console.warn('Could not update filtered progress');
+    }
+}
+
+// Add CSS for the category states and empty messages
+const categoryStyles = `
+.category {
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.category:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.category.active {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.empty-category-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+`;
+
+// Inject the CSS
+if (!document.querySelector('#category-filter-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'category-filter-styles';
+    styleElement.textContent = categoryStyles;
+    document.head.appendChild(styleElement);
+}
+
+// =============================================================================
+// END OF CATEGORY FILTER SYSTEM
+// =============================================================================
 
 function loadNotes() {
     try {
@@ -617,6 +894,7 @@ function setupISTReset() {
 }
 
 
+
 function debugFunctions() {
     const now = new Date();
     console.log('Functions check:');
@@ -692,6 +970,7 @@ function initializeApp() {
 }
 
 // TODO:1 Need to make the notes tasks and important tabs functionsl so that only elements belonging to that category will show up.
+// TODO:1.1: Prevent the progress bar for important and notes
 // TODO:2 Add deadlines and alerts
 // TODO:3 User should can Create their own labels like tasks, important notes and deadlines etc.
 // TODO:4 Need to make my own version of Wordle.
