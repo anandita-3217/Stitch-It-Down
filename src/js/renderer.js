@@ -200,8 +200,8 @@ function updateClock() {
         clockElement.textContent = timeString;
         
         // Optional: Add blink effect to the colons
-        // const pulseEffect = Math.floor(now.getSeconds()) % 2 === 0 ? 'pulse' : '';
-        // clockElement.className = `digital-clock ${pulseEffect}`;
+        const pulseEffect = Math.floor(now.getSeconds()) % 2 === 0 ? 'pulse' : '';
+        clockElement.className = `digital-clock ${pulseEffect}`;
     }
     
     // Update every second
