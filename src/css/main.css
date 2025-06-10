@@ -825,6 +825,37 @@ body {
     border: 1px solid var(--border-color);
     box-shadow: 0 2px 8px var(--shadow);
 }
+.deadline-section, .alert-section {
+    margin: 10px 0;
+}
+
+.deadline-section label, .alert-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.deadline-section input, .alert-section select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.deadline-info {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.deadline-info.overdue {
+    color: #ff4444;
+    font-weight: bold;
+}
+
+.note-item.task.overdue {
+    border-left: 4px solid #ff4444;
+}
 
 /* Responsive design for smaller screens */
 @media (max-width: 480px) {

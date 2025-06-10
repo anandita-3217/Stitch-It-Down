@@ -324,6 +324,21 @@ function showFrequencyModal(noteData) {
             <button data-frequency="biweekly">Bi-weekly</button>
             <button data-frequency="monthly">Monthly</button>
             <button data-action="cancel">Cancel</button>
+            
+            <div class="deadline-section">
+                <label for="task-deadline">Deadline (optional):</label>
+                <input type="datetime-local" id="task-deadline" min="${new Date().toISOString().slice(0, 16)}">
+            </div>
+            <div class="alert-section">
+                <label for="alert-time">Alert before deadline:</label>
+                <select id="alert-time">
+                    <option value="0">No alert</option>
+                    <option value="15">15 minutes</option>
+                    <option value="60">1 hour</option>
+                    <option value="1440">1 day</option>
+                    <option value="10080">1 week</option>
+                </select>
+            </div>
         </div>
     `;
     
@@ -346,16 +361,42 @@ function showFrequencyModal(noteData) {
     });
 }
 
+// function setTaskFrequency(frequency) {
+//     const noteData = window.tempNoteData;
+//     if (!noteData) return;
+    
+//     noteData.frequency = frequency;
+//     noteData.nextReset = calculateNextReset(frequency);
+//     saveNote(noteData);
+//     closeModal();
+    
+//     // Clean up temporary data
+//     delete window.tempNoteData;
+// }
 function setTaskFrequency(frequency) {
     const noteData = window.tempNoteData;
     if (!noteData) return;
     
+    const deadlineInput = document.getElementById('task-deadline');
+    const alertSelect = document.getElementById('alert-time');
+    
     noteData.frequency = frequency;
     noteData.nextReset = calculateNextReset(frequency);
+    
+    // Add deadline and alert data
+    if (deadlineInput && deadlineInput.value) {
+        noteData.deadline = new Date(deadlineInput.value).toISOString();
+        noteData.alertMinutes = parseInt(alertSelect.value) || 0;
+        
+        if (noteData.alertMinutes > 0) {
+            const alertTime = new Date(deadlineInput.value);
+            alertTime.setMinutes(alertTime.getMinutes() - noteData.alertMinutes);
+            noteData.alertTime = alertTime.toISOString();
+        }
+    }
+    
     saveNote(noteData);
     closeModal();
-    
-    // Clean up temporary data
     delete window.tempNoteData;
 }
 
@@ -678,6 +719,9 @@ function createNoteElement(note) {
             }
             ${note.completed ? `<del>${note.text}</del>` : note.text}
             ${note.frequency ? ` (${note.frequency})` : ''}
+            ${note.deadline ? `<div class="deadline-info ${isOverdue(note.deadline) ? 'overdue' : ''}">
+            📅 Due: ${formatDeadline(note.deadline)}
+            </div>` : ''}
         </div>
         <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
         <button class="delete-note" data-note-id="${note.id}">×</button>
@@ -701,6 +745,71 @@ function createNoteElement(note) {
     }
     
     return div;
+}
+function formatDeadline(deadline) {
+    const date = new Date(deadline);
+    const now = new Date();
+    const diff = date - now;
+    
+    if (diff < 0) return `Overdue by ${formatTimeDiff(Math.abs(diff))}`;
+    if (diff < 24 * 60 * 60 * 1000) return `Due in ${formatTimeDiff(diff)}`;
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+function formatTimeDiff(ms) {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+}
+
+function isOverdue(deadline) {
+    return new Date(deadline) < new Date();
+}
+
+function setupDeadlineAlerts() {
+    setInterval(checkAlerts, 60000); // Check every minute
+    checkAlerts(); // Check immediately
+}
+
+function checkAlerts() {
+    try {
+        const notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const now = new Date();
+        
+        notes.forEach(note => {
+            if (note.type === 'task' && note.alertTime && !note.alerted) {
+                const alertTime = new Date(note.alertTime);
+                
+                if (now >= alertTime) {
+                    sendNotification(note);
+                    // Mark as alerted to prevent repeated notifications
+                    note.alerted = true;
+                }
+            }
+        });
+        
+        localStorage.setItem('stitchNotes', JSON.stringify(notes));
+    } catch (error) {
+        console.warn('Could not check alerts');
+    }
+}
+
+function checkOverdueTasks() {
+    setInterval(() => {
+        updateProgress(); // This will refresh the display with overdue styling
+    }, 300000); // Check every 5 minutes
+}
+
+function sendNotification(note) {
+    // For Electron apps, use the Notification API
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Task Deadline Alert', {
+            body: `Task "${note.text}" is due soon!`,
+            icon: 'path/to/your/app/icon.png' // Update with your app icon path
+        });
+    }
 }
 
 function toggleTask(taskId) {
@@ -914,6 +1023,9 @@ window.createFutureTask = createFutureTask;
 window.showNoteTypeModal = showNoteTypeModal;
 window.showFrequencyModal = showFrequencyModal;
 window.showCalendarModal = showCalendarModal;
+window.formatDeadline = formatDeadline;
+window.setupDeadlineAlerts = setupDeadlineAlerts;
+window.checkOverdueTasks = checkOverdueTasks;
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -967,6 +1079,10 @@ function initializeApp() {
             toggle.setAttribute('data-initialized', 'true');
         }
     }
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+}
 }
 
 // TODO:1 Need to make the notes tasks and important tabs functionsl so that only elements belonging to that category will show up.
