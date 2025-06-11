@@ -1,4 +1,6 @@
 const { app, BrowserWindow } = require('electron');
+const { ipcMain } = require('electron');
+
 const path = require('path');
 
 const iconPath = path.join(process.resourcesPath, 'assets/images/characters/stitch-wink.png');
@@ -45,6 +47,29 @@ function createWindow() {
     mainWindow = null;
   });
 }
+// Add this function to create timer window
+function createTimerWindow() {
+  const timerWindow = new BrowserWindow({
+    width: 1000,
+    height: 800,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+    },
+  });
+
+  timerWindow.loadFile('src/pages/timer.html');
+  return timerWindow;
+}
+
+// Handle navigation IPC
+ipcMain.handle('navigate-to', async (event, page) => {
+  if (page === 'timer') {
+    createTimerWindow();
+  }
+  // Add other pages as needed
+});
 
 // App event handlers
 app.whenReady().then(() => {

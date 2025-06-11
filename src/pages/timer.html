@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pomodoro Timer - Stitch It Down</title>
+</head>
+<body>
+    <!-- Include sidebar here too -->
+    <nav class="sidebar" id="sidebar">
+        <!-- Same sidebar structure as index.html -->
+    </nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="timer-container">
+        <header class="timer-header">
+            <div class="sidebar-toggle" id="sidebarToggle">
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+            </div>
+            <h1>Pomodoro Timer</h1>
+            <div class="session-counter">
+                <span>Session </span>
+                <span id="sessionCount">1</span>
+                <span>/4</span>
+            </div>
+        </header>
+
+        <main class="timer-main">
+            <div class="timer-display">
+                <!-- Circular Progress Ring -->
+                <div class="timer-circle">
+                    <svg class="progress-ring" width="300" height="300">
+                        <circle class="progress-ring-background" 
+                                cx="150" cy="150" r="130"
+                                stroke="#e2e8f0" 
+                                stroke-width="8" 
+                                fill="transparent"/>
+                        <circle class="progress-ring-progress" 
+                                cx="150" cy="150" r="130"
+                                stroke="#4299e1" 
+                                stroke-width="8" 
+                                fill="transparent"
+                                stroke-linecap="round"
+                                stroke-dasharray="816.81"
+                                stroke-dashoffset="816.81"/>
+                    </svg>
+                    
+                    <!-- Timer Display -->
+                    <div class="timer-content">
+                        <div class="time-display" id="timeDisplay">25:00</div>
+                        <div class="session-type" id="sessionType">Focus Time</div>
+                        <div class="motivation-text" id="motivationText">Stay focused, you got this!</div>
+                    </div>
+                </div>
+
+                <!-- Stitch Character Animation -->
+                <div class="stitch-animation">
+                    <img id="stitchTimer" src="../assets/gifs/stitch-hyping.gif" alt="Stitch" class="stitch-character">
+                    <div class="stitch-speech-bubble" id="stitchSpeech">
+                        Let's get productive!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="timer-controls">
+                <button class="control-btn secondary" id="resetBtn">
+                    <span class="btn-icon">↻</span>
+                    <span class="btn-text">Reset</span>
+                </button>
+                <button class="control-btn primary pulse" id="startPauseBtn">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">Start</span>
+                </button>
+                <button class="control-btn secondary" id="skipBtn">
+                    <span class="btn-icon">⏭</span>
+                    <span class="btn-text">Skip</span>
+                </button>
+            </div>
+
+            <!-- Session Types -->
+            <div class="session-types">
+                <button class="session-btn active" data-type="work" data-duration="25">
+                    <span class="session-icon">🍅</span>
+                    <span>Work</span>
+                    <span class="session-time">25m</span>
+                </button>
+                <button class="session-btn" data-type="short" data-duration="5">
+                    <span class="session-icon">☕</span>
+                    <span>Short Break</span>
+                    <span class="session-time">5m</span>
+                </button>
+                <button class="session-btn" data-type="long" data-duration="15">
+                    <span class="session-icon">🏖️</span>
+                    <span>Long Break</span>
+                    <span class="session-time">15m</span>
+                </button>
+            </div>
+
+            <!-- Statistics -->
+            <div class="timer-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="todayPomodoros">0</div>
+                    <div class="stat-label">Today's Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTime">0h 0m</div>
+                    <div class="stat-label">Total Focus Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">Current Streak</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Panel (Initially Hidden) -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3>Timer Settings</h3>
+                <button class="close-settings" id="closeSettings">×</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <label>Work Duration (minutes)</label>
+                    <input type="range" id="workDuration" min="15" max="60" value="25">
+                    <span id="workValue">25</span>
+                </div>
+                <div class="setting-group">
+                    <label>Short Break (minutes)</label>
+                    <input type="range" id="shortBreak" min="3" max="15" value="5">
+                    <span id="shortValue">5</span>
+                </div>
+                <div class="setting-group">
+                    <label>Long Break (minutes)</label>
+                    <input type="range" id="longBreak" min="10" max="30" value="15">
+                    <span id="longValue">15</span>
+                </div>
+                <div class="setting-group">
+                    <label>Auto-start breaks</label>
+                    <input type="checkbox" id="autoStart">
+                </div>
+                <div class="setting-group">
+                    <label>Sound notifications</label>
+                    <input type="checkbox" id="soundNotifications" checked>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Toggle -->
+        <button class="settings-toggle" id="settingsToggle">⚙️</button>
+    </div>
+</body>
+</html>

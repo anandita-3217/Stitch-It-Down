@@ -1,5 +1,7 @@
 // CSS imports
 import '@css/main.css';
+import '@css/components/sidebar.css';
+import '@components/sidebar.js';
 // PNG imports
 import stitchHappy from '@assets/images/characters/stitch-happy.png';
 import stitchIcon from '@assets/images/characters/stitch-icon.png';

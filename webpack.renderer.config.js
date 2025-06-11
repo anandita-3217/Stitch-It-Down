@@ -32,6 +32,7 @@ module.exports = {
   // Define multiple entry points for your different pages
   entry: {
     index: './src/js/renderer.js',
+    timer: './src/js/timer-renderer.js',
     // Add other page entries if you have separate JS files for them
     // calendar: './src/js/pages/calendar.js',
     // notes: './src/js/pages/notes.js',
