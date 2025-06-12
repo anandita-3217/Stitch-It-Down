@@ -1,13 +1,12 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Pomodoro Timer - Stitch It Down</title>
 </head>
 <body>
-    <!-- Include sidebar here too -->
     <nav class="sidebar" id="sidebar">
-        <!-- Same sidebar structure as index.html -->
+        
     </nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -28,7 +27,7 @@
 
         <main class="timer-main">
             <div class="timer-display">
-                <!-- Circular Progress Ring -->
+               
                 <div class="timer-circle">
                     <svg class="progress-ring" width="300" height="300">
                         <circle class="progress-ring-background" 
@@ -46,7 +45,7 @@
                                 stroke-dashoffset="816.81"/>
                     </svg>
                     
-                    <!-- Timer Display -->
+                    
                     <div class="timer-content">
                         <div class="time-display" id="timeDisplay">25:00</div>
                         <div class="session-type" id="sessionType">Focus Time</div>
@@ -54,7 +53,7 @@
                     </div>
                 </div>
 
-                <!-- Stitch Character Animation -->
+                
                 <div class="stitch-animation">
                     <img id="stitchTimer" src="../assets/gifs/stitch-hyping.gif" alt="Stitch" class="stitch-character">
                     <div class="stitch-speech-bubble" id="stitchSpeech">
@@ -63,7 +62,7 @@
                 </div>
             </div>
 
-            <!-- Control Buttons -->
+            
             <div class="timer-controls">
                 <button class="control-btn secondary" id="resetBtn">
                     <span class="btn-icon">↻</span>
@@ -79,7 +78,7 @@
                 </button>
             </div>
 
-            <!-- Session Types -->
+            
             <div class="session-types">
                 <button class="session-btn active" data-type="work" data-duration="25">
                     <span class="session-icon">🍅</span>
@@ -98,7 +97,7 @@
                 </button>
             </div>
 
-            <!-- Statistics -->
+            
             <div class="timer-stats">
                 <div class="stat-card">
                     <div class="stat-value" id="todayPomodoros">0</div>
@@ -115,7 +114,7 @@
             </div>
         </main>
 
-        <!-- Settings Panel (Initially Hidden) -->
+        
         <div class="settings-panel" id="settingsPanel">
             <div class="settings-header">
                 <h3>Timer Settings</h3>
@@ -148,8 +147,327 @@
             </div>
         </div>
 
-        <!-- Settings Toggle -->
+        
         <button class="settings-toggle" id="settingsToggle">⚙️</button>
     </div>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer - Stitch It Down</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timer-container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .session-info {
+            margin-bottom: 2rem;
+        }
+
+        #session-label {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        #session-counter {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .timer-display-container {
+            position: relative;
+            margin: 2rem 0;
+            display: inline-block;
+        }
+
+        .progress-circle {
+            width: 200px;
+            height: 200px;
+            transform: rotate(-90deg);
+        }
+
+        #progress-ring {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-background {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+
+        #timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 300;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stitch-character {
+            margin: 1rem 0;
+        }
+
+        #stitch-character {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        #stitch-character:hover {
+            transform: scale(1.1);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: white;
+            min-width: 100px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #start-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        #pause-btn {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+        }
+
+        #reset-btn {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        .settings-panel {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .setting-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .setting-input {
+            width: 60px;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .setting-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 600px) {
+            .timer-container {
+                padding: 1.5rem;
+            }
+
+            #timer-display {
+                font-size: 2.5rem;
+            }
+
+            .progress-circle {
+                width: 150px;
+                height: 150px;
+            }
+
+            .timer-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        /* Animation for session transitions */
+        .session-transition {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Focus mode styling */
+        .focus-mode .timer-container {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .break-mode .timer-container {
+            background: rgba(255, 152, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="history.back()" title="Go Back">←</button>
+    
+    <div class="timer-container">
+        <div class="session-info">
+            <div id="session-label">Focus Time</div>
+            <div id="session-counter">Session 0</div>
+        </div>
+
+        <div class="timer-display-container">
+            <svg class="progress-circle" viewBox="0 0 200 200">
+                <circle
+                    class="progress-background"
+                    cx="100"
+                    cy="100"
+                    r="90"
+                />
+                <circle
+                    id="progress-ring"
+                    cx="100"
+                    cy="100"
+                    r="90"
+                />
+            </svg>
+            <div id="timer-display">25:00</div>
+        </div>
+
+        <div class="stitch-character">
+            <img id="stitch-character" src="../assets/images/characters/stitch-happy.png" alt="Stitch Happy" />
+        </div>
+
+        <div class="timer-controls">
+            <button id="start-btn" class="btn">Start</button>
+            <button id="pause-btn" class="btn" disabled>Pause</button>
+            <button id="reset-btn" class="btn">Reset</button>
+        </div>
+
+        <div class="settings-panel">
+            <div class="settings-title">Timer Settings (minutes)</div>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label class="setting-label" for="work-time">Work</label>
+                    <input type="number" id="work-time" class="setting-input" min="1" max="60" value="25">
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label" for="short-break">Short Break</label>
+                    <input type="number" id="short-break" class="setting-input" min="1" max="30" value="5">
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label" for="long-break">Long Break</label>
+                    <input type="number" id="long-break" class="setting-input" min="1" max="60" value="15">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This will be loaded from the bundled JavaScript
+        console.log('Timer page loaded');
+    </script>
 </body>
 </html>
