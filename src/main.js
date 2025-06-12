@@ -1,6 +1,5 @@
 const { app, BrowserWindow } = require('electron');
 const { ipcMain } = require('electron');
-
 const path = require('path');
 
 const iconPath = path.join(process.resourcesPath, 'assets/images/characters/stitch-wink.png');
@@ -13,25 +12,22 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: false, 
-      contextIsolation: true, 
-      enableRemoteModule: false, 
-      preload: path.join(__dirname, 'preload.js') 
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js')
     },
     // icon: path.resolve(__dirname, 'assets/images/characters/stitch-wink.png'), // Optional: app icon
     icon: iconPath,
-
-    show: false 
+    show: false
   });
 
-  
   if (MAIN_WINDOW_WEBPACK_ENTRY) {
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   } else {
     mainWindow.loadFile('src/pages/index.html');
   }
 
-  
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
@@ -41,12 +37,12 @@ function createWindow() {
   //   mainWindow.webContents.openDevTools();
   // }
 
-  
   mainWindow.on('closed', () => {
     // Dereference the window object
     mainWindow = null;
   });
 }
+
 // Add this function to create timer window
 function createTimerWindow() {
   const timerWindow = new BrowserWindow({
@@ -55,11 +51,13 @@ function createTimerWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
+      preload: TIMER_WINDOW_PRELOAD_WEBPACK_ENTRY, // Use webpack preload
     },
   });
 
-  timerWindow.loadFile('src/pages/timer.html');
+  // Use the webpack-generated timer URL
+  timerWindow.loadURL(TIMER_WINDOW_WEBPACK_ENTRY);
+  
   return timerWindow;
 }
 
