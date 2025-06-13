@@ -116,7 +116,26 @@ module.exports = {
         mainConfig: './webpack.main.config.js',
         renderer: {
           config: './webpack.renderer.config.js',
-          entryPoints: [
+          // entryPoints: [
+          //   {
+          //     html: './src/pages/index.html',
+          //     js: './src/js/renderer.js',
+          //     name: 'main_window',
+          //     preload: {
+          //       js: './src/preload.js',
+          //     },
+          //   },
+          //   {
+          //     html: './src/pages/timer.html',
+          //     js: './src/js/timer-renderer.js',
+          //     name: 'timer_window',
+          //     preload: {
+          //       js: './src/preload.js',
+          //     },
+          //   },
+          // ],
+
+                    entryPoints: [
             {
               html: './src/pages/index.html',
               js: './src/js/renderer.js',
@@ -133,7 +152,48 @@ module.exports = {
                 js: './src/preload.js',
               },
             },
+            {
+              html: './src/pages/tasks.html',
+              js: './src/js/tasks-renderer.js',
+              name: 'tasks_window',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
+            {
+              html: './src/pages/notes.html',
+              js: './src/js/notes-renderer.js',
+              name: 'notes_window',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
+            {
+              html: './src/pages/calendar.html',
+              js: './src/js/calendar-renderer.js',
+              name: 'calendar_window',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
+            {
+              html: './src/pages/stats.html',
+              js: './src/js/stats-renderer.js',
+              name: 'stats_window',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
+            {
+              html: './src/pages/settings.html',
+              js: './src/js/settings-renderer.js',
+              name: 'settings_window',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
           ],
+
         },
       },
     },
