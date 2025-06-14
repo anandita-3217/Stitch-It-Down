@@ -210,24 +210,6 @@ function updateClock() {
     setTimeout(updateClock, 1000);
 }
 
-// Note/Task management system
-// function initNoteSystem() {
-//     const noteInput = document.getElementById('noteInput');
-//     const addNoteBtn = document.getElementById('addNoteBtn');
-    
-//     if (addNoteBtn) {
-//         addNoteBtn.addEventListener('click', handleAddNote);
-//     }
-    
-//     if (noteInput) {
-//         noteInput.addEventListener('keypress', (e) => {
-//             if (e.key === 'Enter') handleAddNote();
-//         });
-//     }
-//     loadNotes();
-//     setupProgressTracking();
-// }
-
 function initNoteSystem() {
     const noteInput = document.getElementById('noteInput');
     const addNoteBtn = document.getElementById('addNoteBtn');
