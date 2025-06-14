@@ -48,8 +48,18 @@ module.exports = {
       '@components': path.resolve(__dirname, 'src/js/components'),
       '@modules': path.resolve(__dirname, 'src/js/modules'),
     },
-    extensions: ['.js', '.json', '.css']
+    extensions: ['.js', '.json', '.css'],
+    fallback: {
+      // Add fallbacks for Node.js modules if needed
+      "path": false,
+      "fs": false
+    }
+
   },
+  externals: {
+    electron: 'commonjs electron'
+  },
+
   
   // Optimize for development
   devtool: 'source-map',
@@ -57,5 +67,10 @@ module.exports = {
   // Performance hints
   performance: {
     hints: false
+  },
+  optimization: {
+    moduleIds: 'named',
+    chunkIds: 'named'
   }
+
 };

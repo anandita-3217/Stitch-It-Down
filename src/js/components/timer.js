@@ -6,6 +6,7 @@ class PomodoroTimer {
         this.currentSession = 'work';
         this.sessionCount = 1;
         this.totalSessions = 0;
+        this.interval = null; // Add this to track the interval
         this.settings = {
             work: 25,
             shortBreak: 5,
@@ -38,15 +39,29 @@ class PomodoroTimer {
             ]
         };
         
-        this.init();
+        // Initialize after a short delay to ensure DOM is ready
+        this.initializeWhenReady();
+    }
+    
+    initializeWhenReady() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.init());
+        } else {
+            this.init();
+        }
     }
     
     init() {
-        this.bindElements();
-        this.bindEvents();
-        this.loadSettings();
-        this.updateDisplay();
-        this.updateStats();
+        try {
+            this.bindElements();
+            this.bindEvents();
+            this.loadSettings();
+            this.updateDisplay();
+            this.updateStats();
+            console.log('PomodoroTimer initialized successfully');
+        } catch (error) {
+            console.error('Error initializing PomodoroTimer:', error);
+        }
     }
     
     bindElements() {
@@ -58,8 +73,10 @@ class PomodoroTimer {
         
         // Progress ring
         this.progressRing = document.querySelector('.progress-ring-progress');
-        this.circumference = 2 * Math.PI * 130; // radius = 130
-        this.progressRing.style.strokeDasharray = this.circumference;
+        if (this.progressRing) {
+            this.circumference = 2 * Math.PI * 130; // radius = 130
+            this.progressRing.style.strokeDasharray = this.circumference;
+        }
         
         // Controls
         this.startPauseBtn = document.getElementById('startPauseBtn');
@@ -80,31 +97,54 @@ class PomodoroTimer {
         
         // Stats
         this.todayPomodoros = document.getElementById('todayPomodoros');
-        this.totalTime = document.getElementById('totalTime');
+        this.totalTimeEl = document.getElementById('totalTime'); // Renamed to avoid conflict
         this.streak = document.getElementById('streak');
         
         // Timer container
         this.timerContainer = document.querySelector('.timer-container');
+        
+        // Check if essential elements exist
+        if (!this.timeDisplay || !this.startPauseBtn) {
+            throw new Error('Essential timer elements not found in DOM');
+        }
     }
     
     bindEvents() {
-        this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
-        this.resetBtn.addEventListener('click', () => this.resetTimer());
-        this.skipBtn.addEventListener('click', () => this.skipSession());
+        if (this.startPauseBtn) {
+            this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
+        }
+        if (this.resetBtn) {
+            this.resetBtn.addEventListener('click', () => this.resetTimer());
+        }
+        if (this.skipBtn) {
+            this.skipBtn.addEventListener('click', () => this.skipSession());
+        }
         
-        this.sessionBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchSession(e));
-        });
+        if (this.sessionBtns) {
+            this.sessionBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => this.switchSession(e));
+            });
+        }
         
-        this.settingsToggle.addEventListener('click', () => this.toggleSettings());
-        this.closeSettings.addEventListener('click', () => this.toggleSettings());
+        if (this.settingsToggle) {
+            this.settingsToggle.addEventListener('click', () => this.toggleSettings());
+        }
+        if (this.closeSettings) {
+            this.closeSettings.addEventListener('click', () => this.toggleSettings());
+        }
         
         // Settings inputs
-        document.getElementById('workDuration').addEventListener('input', (e) => {
-            this.settings.work = parseInt(e.target.value);
-            document.getElementById('workValue').textContent = e.target.value;
-            if (this.currentSession === 'work') this.resetTimer();
-        });
+        const workDurationInput = document.getElementById('workDuration');
+        if (workDurationInput) {
+            workDurationInput.addEventListener('input', (e) => {
+                this.settings.work = parseInt(e.target.value);
+                const workValue = document.getElementById('workValue');
+                if (workValue) {
+                    workValue.textContent = e.target.value;
+                }
+                if (this.currentSession === 'work') this.resetTimer();
+            });
+        }
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -125,9 +165,13 @@ class PomodoroTimer {
     
     startTimer() {
         this.isRunning = true;
-        this.timerContainer.classList.add('running');
-        this.startPauseBtn.innerHTML = '<span class="btn-icon">⏸</span><span class="btn-text">Pause</span>';
-        this.startPauseBtn.classList.remove('pulse');
+        if (this.timerContainer) {
+            this.timerContainer.classList.add('running');
+        }
+        if (this.startPauseBtn) {
+            this.startPauseBtn.innerHTML = '<span class="btn-icon">⏸</span><span class="btn-text">Pause</span>';
+            this.startPauseBtn.classList.remove('pulse');
+        }
         
         this.updateStitchState('working');
         
@@ -144,10 +188,17 @@ class PomodoroTimer {
     
     pauseTimer() {
         this.isRunning = false;
-        this.timerContainer.classList.remove('running');
-        this.startPauseBtn.innerHTML = '<span class="btn-icon">▶</span><span class="btn-text">Start</span>';
-        this.startPauseBtn.classList.add('pulse');
-        clearInterval(this.interval);
+        if (this.timerContainer) {
+            this.timerContainer.classList.remove('running');
+        }
+        if (this.startPauseBtn) {
+            this.startPauseBtn.innerHTML = '<span class="btn-icon">▶</span><span class="btn-text">Start</span>';
+            this.startPauseBtn.classList.add('pulse');
+        }
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
         
         this.updateStitchState('paused');
     }
@@ -209,8 +260,10 @@ class PomodoroTimer {
         this.totalTime = this.currentTime;
         
         // Update active button
-        this.sessionBtns.forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
+        if (this.sessionBtns) {
+            this.sessionBtns.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+        }
         
         // Update UI theme
         this.updateTheme();
@@ -226,7 +279,11 @@ class PomodoroTimer {
     updateDisplay() {
         const minutes = Math.floor(this.currentTime / 60);
         const seconds = this.currentTime % 60;
-        this.timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (this.timeDisplay) {
+            this.timeDisplay.textContent = formattedTime;
+        }
         
         // Update session type
         const sessionTypes = {
@@ -234,34 +291,44 @@ class PomodoroTimer {
             short: 'Short Break',
             long: 'Long Break'
         };
-        this.sessionType.textContent = sessionTypes[this.currentSession];
+        
+        if (this.sessionType) {
+            this.sessionType.textContent = sessionTypes[this.currentSession];
+        }
         
         // Update session counter
-        this.sessionCountEl.textContent = this.sessionCount;
+        if (this.sessionCountEl) {
+            this.sessionCountEl.textContent = this.sessionCount;
+        }
     }
     
     updateProgress() {
-        const progress = (this.totalTime - this.currentTime) / this.totalTime;
-        const offset = this.circumference - (progress * this.circumference);
-        this.progressRing.style.strokeDashoffset = offset;
+        if (this.progressRing && this.circumference) {
+            const progress = (this.totalTime - this.currentTime) / this.totalTime;
+            const offset = this.circumference - (progress * this.circumference);
+            this.progressRing.style.strokeDashoffset = offset;
+        }
     }
     
     updateTheme() {
-        this.timerContainer.classList.remove('work', 'break');
-        if (this.currentSession === 'work') {
-            this.timerContainer.classList.add('work');
-        } else {
-            this.timerContainer.classList.add('break');
+        if (this.timerContainer) {
+            this.timerContainer.classList.remove('work', 'break');
+            if (this.currentSession === 'work') {
+                this.timerContainer.classList.add('work');
+            } else {
+                this.timerContainer.classList.add('break');
+            }
         }
     }
     
     updateStitchState(state) {
+        // Use paths that match your webpack build output
         const gifs = {
-            ready: '../assets/gifs/stitch-hyping.gif',
-            working: '../assets/gifs/stitch-dancing.gif',
-            paused: '../assets/gifs/stitch-eating.gif',
-            complete: '../assets/gifs/stitch-love.gif',
-            break: '../assets/gifs/stitch-sleeping.gif'
+            ready: './assets/images/stitch-hyping.gif',
+            working: './assets/images/stitch-dancing.gif',
+            paused: './assets/images/stitch-eating.gif',
+            complete: './assets/images/stitch-love.gif',
+            break: './assets/images/stitch-sleeping.gif'
         };
         
         let gif = gifs[state];
@@ -269,7 +336,9 @@ class PomodoroTimer {
             gif = gifs.break;
         }
         
-        this.stitchImg.src = gif;
+        if (this.stitchImg && gif) {
+            this.stitchImg.src = gif;
+        }
         
         // Update speech bubble
         let quotes;
@@ -281,29 +350,38 @@ class PomodoroTimer {
             quotes = this.stitchQuotes.break;
         }
         
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        this.stitchSpeech.textContent = randomQuote;
+        if (this.stitchSpeech && quotes) {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            this.stitchSpeech.textContent = randomQuote;
+        }
     }
     
     updateStats() {
-        // This would typically save to localStorage or send to backend
-        const today = new Date().toDateString();
-        const stats = JSON.parse(localStorage.getItem('pomodoroStats') || '{}');
-        
-        if (!stats[today]) {
-            stats[today] = { completed: 0, totalTime: 0 };
+        try {
+            const today = new Date().toDateString();
+            const stats = JSON.parse(localStorage.getItem('pomodoroStats') || '{}');
+            
+            if (!stats[today]) {
+                stats[today] = { completed: 0, totalTime: 0 };
+            }
+            
+            if (this.currentSession === 'work') {
+                stats[today].completed++;
+                stats[today].totalTime += this.settings.work;
+            }
+            
+            localStorage.setItem('pomodoroStats', JSON.stringify(stats));
+            
+            // Update display
+            if (this.todayPomodoros) {
+                this.todayPomodoros.textContent = stats[today].completed;
+            }
+            if (this.totalTimeEl) {
+                this.totalTimeEl.textContent = `${Math.floor(stats[today].totalTime / 60)}h ${stats[today].totalTime % 60}m`;
+            }
+        } catch (error) {
+            console.error('Error updating stats:', error);
         }
-        
-        if (this.currentSession === 'work') {
-            stats[today].completed++;
-            stats[today].totalTime += this.settings.work;
-        }
-        
-        localStorage.setItem('pomodoroStats', JSON.stringify(stats));
-        
-        // Update display
-        this.todayPomodoros.textContent = stats[today].completed;
-        this.totalTime.textContent = `${Math.floor(stats[today].totalTime / 60)}h ${stats[today].totalTime % 60}m`;
     }
     
     getSessionKey() {
@@ -316,37 +394,57 @@ class PomodoroTimer {
     }
     
     toggleSettings() {
-        this.settingsPanel.classList.toggle('open');
+        if (this.settingsPanel) {
+            this.settingsPanel.classList.toggle('open');
+        }
     }
     
     loadSettings() {
-        const saved = JSON.parse(localStorage.getItem('pomodoroSettings') || '{}');
-        this.settings = { ...this.settings, ...saved };
+        try {
+            const saved = JSON.parse(localStorage.getItem('pomodoroSettings') || '{}');
+            this.settings = { ...this.settings, ...saved };
+        } catch (error) {
+            console.error('Error loading settings:', error);
+        }
     }
     
     playNotificationSound() {
-        // Create a simple beep sound
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
+        try {
+            // Create a simple beep sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        } catch (error) {
+            console.error('Error playing notification sound:', error);
+        }
+    }
+    
+    // Public method to destroy the timer (cleanup)
+    destroy() {
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+        this.isRunning = false;
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new PomodoroTimer();
-});
-
+// Export the class for use in other modules
 export default PomodoroTimer;
+
+// Also make it available globally for direct HTML usage
+if (typeof window !== 'undefined') {
+    window.PomodoroTimer = PomodoroTimer;
+}
