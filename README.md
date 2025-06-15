@@ -1,13 +1,3 @@
-<!-- TODO: Change calendar and scrolling and stuff
-TODO: Save notes and tasks in app 
-TODO: Auto update progress
-
-TODO: change AddNotes to let the user specify the type of note or task or stuff. For task let the note displayed have a functionaity to choose 
- frequency of the task daily , weekly, bi weekly or monthly
- let the tasks have the prgress bar alone and only daily tasks get deleted everyday at 12:00 ist others wvery week 2 weeks and month. when 
- user says completed task on;y then is the task complete and the progress increases.
- allow u to make tasks for future date by  clicking on the date-div open a calendar modal and choose the date on which you want to create the task.
- make a digital clock under the the date of the date div -->
 # Stitch It Down
 
 *"Ohana means family, and family means nobody gets left behind or forgotten."*
@@ -82,7 +72,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🏆 Acknowledgements
 
 - Inspired by the Disney movie "Lilo & Stitch"
-- Built on the foundations of [GreenProductive](https://github.com/Btelgeuse/GreenProductive)
+- Built with inspiration from the foundations of [GreenProductive](https://github.com/Btelgeuse/GreenProductive)
 
 
 ---
