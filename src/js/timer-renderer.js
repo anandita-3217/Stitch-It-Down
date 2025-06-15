@@ -26,23 +26,23 @@ import stitchTantrum from '@assets/gifs/stitch-tantrum.gif';
 // Create an image registry
 const images = {
     characters: {
-    happy: stitchHappy,
-    icon: stitchIcon,
-    wink: stitchWink,
-    corner1: stitchCorner1,
-    corner2: stitchCorner2
+        happy: stitchHappy,
+        icon: stitchIcon,
+        wink: stitchWink,
+        corner1: stitchCorner1,
+        corner2: stitchCorner2
     },
     gifs: {
-    clothes: stitchClothes,
-    dancing: stitchDancing,
-    eating: stitchEating,
-    frustrated: stitchFrustrated,
-    hyping: stitchHyping,
-    love: stitchLove,
-    shocked: stitchShocked,
-    singing: stitchSinging,
-    sleeping: stitchSleeping,
-    tantrum: stitchTantrum
+        clothes: stitchClothes,
+        dancing: stitchDancing,
+        eating: stitchEating,
+        frustrated: stitchFrustrated,
+        hyping: stitchHyping,
+        love: stitchLove,
+        shocked: stitchShocked,
+        singing: stitchSinging,
+        sleeping: stitchSleeping,
+        tantrum: stitchTantrum
     }
 };
 const gifKeys = [
@@ -65,7 +65,7 @@ function setImage(elementId, category, imageName) {
     // sets an image to a given elementId
     const element = document.getElementById(elementId);
     if (element && images[category] && images[category][imageName]) {
-    element.src = images[category][imageName];
+        element.src = images[category][imageName];
     }
 }
 
@@ -75,8 +75,31 @@ function setRandomGif() {
     const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
     setImage(gifId, 'gifs', randomKey);
 }
-function initTheme() {
+
+function loadAllImages() {
+    // Load all static character images
+    setImage('happy-stitch', 'characters', 'happy');
+    setImage('icon-stitch', 'characters', 'icon');
+    setImage('wink-stitch', 'characters', 'wink');
+    setImage('corner1-stitch', 'characters', 'corner1');
+    setImage('corner2-stitch', 'characters','corner2');
     
+    // Load all GIF images (for preloading or other uses)
+    setImage('clothes-stitch', 'gifs', 'clothes');
+    setImage('dancing-stitch', 'gifs', 'dancing');
+    setImage('eating-stitch', 'gifs', 'eating');
+    setImage('frustrated-stitch', 'gifs', 'frustrated');
+    setImage('hyping-stitch', 'gifs', 'hyping');
+    setImage('love-stitch', 'gifs', 'love');
+    setImage('shocked-stitch', 'gifs', 'shocked');
+    setImage('singing-stitch', 'gifs', 'singing');
+    setImage('tantrum-stitch', 'gifs', 'tantrum');
+    
+    // Set random gif for the timer
+    setRandomGif();
+}
+
+function initTheme() {
     let savedTheme = 'light'; // default
     try {
         savedTheme = localStorage.getItem('stitchTheme') || 'light';
@@ -129,6 +152,53 @@ function toggleTheme() {
 }
 
 // Initialize timer when DOM is ready
+// function initializeTimer() {
+//     if (timerInstance) {
+//         // Clean up existing instance
+//         timerInstance.destroy();
+//     }
+    
+//     console.log('Initializing Pomodoro Timer...');
+    
+//     try {
+//         timerInstance = new PomodoroTimer();
+//         console.log('Timer initialized successfully');
+        
+//         // Make timer available globally for debugging
+//         window.timer = timerInstance;
+        
+//         return timerInstance;
+//     } catch (error) {
+//         console.error('Failed to initialize timer:', error);
+        
+//         // Show error message to user
+//         const errorDiv = document.createElement('div');
+//         errorDiv.className = 'error-message';
+//         errorDiv.innerHTML = `
+//             <h3>Timer Initialization Error</h3>
+//             <p>Failed to initialize the Pomodoro timer. Please check the console for details.</p>
+//             <p>Error: ${error.message}</p>
+//         `;
+//         errorDiv.style.cssText = `
+//             position: fixed;
+//             top: 20px;
+//             left: 20px;
+//             right: 20px;
+//             background: #ff4444;
+//             color: white;
+//             padding: 15px;
+//             border-radius: 8px;
+//             z-index: 1000;
+//             font-family: system-ui, -apple-system, sans-serif;
+//         `;
+        
+//         document.body.appendChild(errorDiv);
+        
+//         return null;
+//     }
+// }
+
+// Initialize timer when DOM is ready
 function initializeTimer() {
     if (timerInstance) {
         // Clean up existing instance
@@ -138,7 +208,8 @@ function initializeTimer() {
     console.log('Initializing Pomodoro Timer...');
     
     try {
-        timerInstance = new PomodoroTimer();
+        // Pass the images object to the timer constructor
+        timerInstance = new PomodoroTimer(images);
         console.log('Timer initialized successfully');
         
         // Make timer available globally for debugging
@@ -184,29 +255,19 @@ function cleanupTimer() {
     }
 }
 
+// Main initialization function
+function initialize() {
+    loadAllImages(); // Load all images including random gif
+    initTheme();
+    initializeTimer();
+}
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeTimer);
+    document.addEventListener('DOMContentLoaded', initialize);
 } else {
-    setImage('happy-stitch', 'characters', 'happy');
-    setImage('icon-stitch', 'characters', 'icon');
-    setImage('wink-stitch', 'characters', 'wink');
-    setImage('corner1-stitch', 'characters', 'corner1');
-    setImage('corner2-stitch', 'characters','corner2');
-    
-    setImage('clothes-stitch', 'gifs', 'clothes');
-    setImage('dancing-stitch', 'gifs', 'dancing');
-    setImage('eating-stitch', 'gifs', 'eating');
-    setImage('frustrated-stitch', 'gifs', 'frustrated');
-    setImage('hyping-stitch', 'gifs', 'hyping');
-    setImage('love-stitch', 'gifs', 'love');
-    setImage('shocked-stitch', 'gifs', 'shocked');
-    setImage('singing-stitch', 'gifs', 'singing');
-    setImage('tantrum-stitch', 'gifs', 'tantrum');
-
-    initTheme();
-    setRandomGif();
-    initializeTimer();
+    // DOM is already ready
+    initialize();
 }
 
 // Cleanup when window is closed
@@ -234,6 +295,8 @@ if (process.env.NODE_ENV === 'development') {
     window.debugTimer = {
         getInstance: () => timerInstance,
         reinitialize: initializeTimer,
-        cleanup: cleanupTimer
+        cleanup: cleanupTimer,
+        setRandomGif: setRandomGif,
+        loadAllImages: loadAllImages
     };
 }
