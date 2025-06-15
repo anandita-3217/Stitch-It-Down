@@ -75,7 +75,12 @@ function setRandomGif() {
     const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
     setImage(gifId, 'gifs', randomKey);
 }
-
+function setSidebarGif() {
+    // Sets a random gif everytime the app starts
+    const gifId = 'stitch-mood-gif'; // Your <img> ID
+    const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
+    setImage(gifId, 'gifs', randomKey);
+}
 function loadAllImages() {
     // Load all static character images
     setImage('happy-stitch', 'characters', 'happy');
@@ -97,6 +102,7 @@ function loadAllImages() {
     
     // Set random gif for the timer
     setRandomGif();
+    setSidebarGif();
 }
 
 function initTheme() {

@@ -42,7 +42,13 @@ npm start
 
 ## 📷 Screenshots
 
-*[Screenshots will be added soon]*
+###  Home Window
+![Home Window](screenshots/home-page-dark.png)
+![Home Window](screenshots/home-page-light.png)
+
+###  Timer Window
+![Timer Window](screenshots/timer-page-dark.png)
+![Timer Window](screenshots/timer-page-light.png)
 
 ## 🚀 Development
 

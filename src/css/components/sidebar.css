@@ -5,11 +5,12 @@
     left: -280px; /* Hidden by default */
     width: 280px;
     height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--medium-purple) 0%, var(--primary-purple) 50%, var(--dark-purple) 100%);
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 20px var(--shadow);
     overflow-y: auto;
+    border-right: 1px solid var(--border-color);
 }
 
 .sidebar.open {
@@ -22,7 +23,8 @@
     left: 20px;
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     display: flex;
@@ -33,17 +35,20 @@
     z-index: 1001;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px var(--shadow);
 }
 
 .sidebar-toggle:hover {
-    background: rgba(255, 255, 255, 1);
+    background: var(--white);
     transform: scale(1.05);
+    box-shadow: 0 4px 12px var(--shadow-hover);
+    border-color: var(--dark-purple);
 }
 
 .hamburger {
     width: 20px;
     height: 2px;
-    background: #333;
+    background: var(--text-primary);
     transition: all 0.3s ease;
     border-radius: 1px;
 }
@@ -70,26 +75,36 @@
 .sidebar-header {
     text-align: center;
     margin-bottom: 30px;
-    color: white;
+    color: var(--white);
 }
 
 .sidebar-stitch {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    margin-bottom: 10px;
+    margin: 0 auto 10px;
     border: 3px solid rgba(255, 255, 255, 0.3);
-    transition: transform 0.3s ease;
+    background: var(--card-bg);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--dark-purple);
+    box-shadow: 0 4px 12px var(--shadow);
 }
 
 .sidebar-stitch:hover {
     transform: scale(1.1) rotate(5deg);
+    border-color: var(--white);
+    box-shadow: 0 6px 20px var(--shadow-hover);
 }
 
 .sidebar-header h3 {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar-menu {
@@ -107,9 +122,10 @@
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
     position: relative;
     overflow: hidden;
+    border: 1px solid transparent;
 }
 
 .menu-item::before {
@@ -128,15 +144,22 @@
 }
 
 .menu-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
     transform: translateX(5px);
-    color: white;
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .menu-item.active {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: 0 4px 12px var(--shadow-hover);
+    border-color: var(--border-color);
+}
+
+.menu-item.active .menu-icon {
+    color: var(--dark-purple);
 }
 
 .menu-icon {
@@ -144,6 +167,7 @@
     margin-right: 12px;
     width: 24px;
     text-align: center;
+    transition: color 0.3s ease;
 }
 
 .menu-text {
@@ -154,18 +178,20 @@
 .sidebar-footer {
     margin-top: auto;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .stitch-quote {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.8);
     font-style: italic;
     text-align: center;
     font-size: 0.85rem;
     line-height: 1.4;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 .sidebar-overlay {
@@ -195,17 +221,46 @@
     margin-left: 280px;
 }
 
-/* Dark theme adjustments */
-body.dark-theme .sidebar {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+/* Dark theme specific adjustments */
+[data-theme="dark"] .sidebar {
+    background: linear-gradient(135deg, var(--darker-blue) 0%, var(--dark-blue) 50%, var(--medium-purple) 100%);
+    border-right-color: var(--border-color);
 }
 
-body.dark-theme .sidebar-toggle {
-    background: rgba(0, 0, 0, 0.8);
+[data-theme="dark"] .sidebar-stitch {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--dark-purple);
 }
 
-body.dark-theme .hamburger {
-    background: #ecf0f1;
+[data-theme="dark"] .sidebar-stitch:hover {
+    border-color: var(--dark-purple);
+}
+
+[data-theme="dark"] .menu-item.active {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .menu-item.active .menu-icon {
+    color: var(--dark-purple);
+}
+
+[data-theme="dark"] .stitch-quote {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+}
+
+/* Light theme specific adjustments */
+[data-theme="light"] .sidebar {
+    background: linear-gradient(135deg, var(--medium-purple) 0%, var(--primary-purple) 50%, var(--dark-purple) 100%);
+}
+
+[data-theme="light"] .menu-item.active {
+    background: var(--white);
+    color: var(--text-primary);
+    box-shadow: 0 4px 12px var(--shadow-hover);
 }
 
 /* Responsive */
@@ -222,4 +277,41 @@ body.dark-theme .hamburger {
     .sidebar.open {
         left: 0;
     }
+    
+    .sidebar-toggle {
+        backdrop-filter: blur(20px);
+    }
+}
+
+/* Enhanced animations for productivity feel */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sidebar.open .menu-item {
+    animation: slideIn 0.3s ease forwards;
+}
+
+.sidebar.open .menu-item:nth-child(1) { animation-delay: 0.1s; }
+.sidebar.open .menu-item:nth-child(2) { animation-delay: 0.15s; }
+.sidebar.open .menu-item:nth-child(3) { animation-delay: 0.2s; }
+.sidebar.open .menu-item:nth-child(4) { animation-delay: 0.25s; }
+.sidebar.open .menu-item:nth-child(5) { animation-delay: 0.3s; }
+
+/* Focus states for accessibility */
+.menu-item:focus {
+    outline: 2px solid var(--dark-purple);
+    outline-offset: 2px;
+}
+
+.sidebar-toggle:focus {
+    outline: 2px solid var(--dark-purple);
+    outline-offset: 2px;
 }
