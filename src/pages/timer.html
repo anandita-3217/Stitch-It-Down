@@ -9,70 +9,66 @@
     <div class="app-container">
         <header class="app-header">
             <div class="logo-container">
+                <div class="sidebar-toggle" id="sidebarToggle">
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                </div>
                 <img id="icon-stitch" alt="icon-stitch" class="logo">
                 <h2>Stitch It Down</h2>
-                
                 <label class="switch">
                     <input type="checkbox" id="themeToggle" />
                     <span class="slider"></span>
                     <span class="clouds_stars"></span>
                 </label>
             </div>
-            <nav class="sidebar" id="sidebar">
-                <div class="sidebar-toggle" id="sidebarToggle">
-                    <span class="hamburger"></span>
-                    <span class="hamburger"></span>
-                    <span class="hamburger"></span>
+        </header>
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-header">
+                    <img id="stitch-mood-gif" alt="stitch-mood-gif" class="sidebar-stitch">
+                    <h3>Navigation</h3>
                 </div>
-        
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <img id="stitch-mood-gif" alt="stitch-mood-gif" class="sidebar-stitch">
-                <h3>Navigation</h3>
-            </div>
-            
-            <ul class="sidebar-menu">
-                <li class="menu-item active" data-page="index">
-                    <span class="menu-icon">🏠</span>
-                    <span class="menu-text">Dashboard</span>
-                </li>
-                <li class="menu-item" data-page="timer">
-                    <span class="menu-icon">⏰</span>
-                    <span class="menu-text">Pomodoro</span>
-                </li>
-                <li class="menu-item" data-page="tasks">
-                    <span class="menu-icon">📌</span>
-                    <span class="menu-text">Tasks</span>
-                </li>
-                <li class="menu-item" data-page="notes">
-                    <span class="menu-icon">📝</span>
-                    <span class="menu-text">Notes</span>
-                </li>
-                <li class="menu-item" data-page="calendar">
-                    <span class="menu-icon">📅</span>
-                    <span class="menu-text">Calendar</span>
-                </li>
-                <li class="menu-item" data-page="stats">
-                    <span class="menu-icon">📊</span>
-                    <span class="menu-text">Stats</span>
-                </li>
-                <li class="menu-item" data-page="settings">
-                    <span class="menu-icon">⚙️</span>
-                    <span class="menu-text">Settings</span>
-                </li>
-            </ul>
-            
-            <div class="sidebar-footer">
-                <div class="stitch-quote" id="sidebarQuote">
-                    "Ohana means family!"
+                <ul class="sidebar-menu">
+                    <li class="menu-item active" data-page="index">
+                        <span class="menu-icon">🏠</span>
+                        <span class="menu-text">Dashboard</span>
+                    </li>
+                    <li class="menu-item" data-page="timer">
+                        <span class="menu-icon">⏰</span>
+                        <span class="menu-text">Pomodoro</span>
+                    </li>
+                    <li class="menu-item" data-page="tasks">
+                        <span class="menu-icon">📌</span>
+                        <span class="menu-text">Tasks</span>
+                    </li>
+                    <li class="menu-item" data-page="notes">
+                        <span class="menu-icon">📝</span>
+                        <span class="menu-text">Notes</span>
+                    </li>
+                    <li class="menu-item" data-page="calendar">
+                        <span class="menu-icon">📅</span>
+                        <span class="menu-text">Calendar</span>
+                    </li>
+                    <li class="menu-item" data-page="stats">
+                        <span class="menu-icon">📊</span>
+                        <span class="menu-text">Stats</span>
+                    </li>
+                    <li class="menu-item" data-page="settings">
+                        <span class="menu-icon">⚙️</span>
+                        <span class="menu-text">Settings</span>
+                    </li>
+                </ul>
+                <div class="sidebar-footer">
+                    <div class="stitch-quote" id="sidebarQuote">
+                        "Ohana means family!"
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
     
     <!-- Add overlay for mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-        </header>
     
     <div class="timer-container work">
         <!-- Progress Ring -->

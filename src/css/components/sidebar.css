@@ -7,7 +7,7 @@
     height: 100vh;
     background: linear-gradient(135deg, var(--medium-purple) 0%, var(--primary-purple) 50%, var(--dark-purple) 100%);
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
+    z-index: 1050;
     box-shadow: 2px 0 20px var(--shadow);
     overflow-y: auto;
     border-right: 1px solid var(--border-color);
@@ -17,10 +17,10 @@
     left: 0;
 }
 
-.sidebar-toggle {
+/* .sidebar-toggle {
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 32px;
+    left: 24px;
     width: 40px;
     height: 40px;
     background: var(--card-bg);
@@ -32,18 +32,40 @@
     justify-content: center;
     align-items: center;
     gap: 4px;
-    z-index: 1001;
+    z-index: 1060;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 8px var(--shadow);
+} */
+
+.sidebar-toggle {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+    flex-shrink: 0;
 }
 
 .sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+    border-color: var(--dark-purple);
+}
+/* .sidebar-toggle:hover {
     background: var(--white);
     transform: scale(1.05);
     box-shadow: 0 4px 12px var(--shadow-hover);
     border-color: var(--dark-purple);
-}
+} */
 
 .hamburger {
     width: 20px;
@@ -210,6 +232,8 @@
 .sidebar-overlay.active {
     opacity: 1;
     visibility: visible;
+    backdrop-filter: blur(4px);
+
 }
 
 /* Adjust main content when sidebar is open */
@@ -217,9 +241,9 @@
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sidebar.open ~ .app-container {
+/* .sidebar.open ~ .app-container {
     margin-left: 280px;
-}
+} */
 
 /* Dark theme specific adjustments */
 [data-theme="dark"] .sidebar {
@@ -270,8 +294,8 @@
     }
     
     .sidebar {
-        width: 100vw;
-        left: -100vw;
+        width: 85vw;
+        left: -85vw;
     }
     
     .sidebar.open {
@@ -280,6 +304,15 @@
     
     .sidebar-toggle {
         backdrop-filter: blur(20px);
+    }
+    .sidebar-toggle {
+        width: 36px;
+        height: 36px;
+        margin-right: 0.5rem;
+    }
+    
+    .hamburger {
+        width: 18px;
     }
 }
 
