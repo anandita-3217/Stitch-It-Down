@@ -38,6 +38,8 @@
     "url-loader": "^4.1.1"
   },
   "dependencies": {
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^10.0.1",
     "moment": "^2.30.1",
