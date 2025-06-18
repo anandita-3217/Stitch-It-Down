@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Stitch It Down | Tasks</title>
+
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="sidebar-toggle" id="sidebarToggle">
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                </div>
+                <img id="icon-stitch" alt="icon-stitch" class="logo">
+                <h2>Stitch It Down</h2>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle" />
+                    <span class="slider"></span>
+                    <span class="clouds_stars"></span>
+                </label>
+            </div>
+        </header>
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-header">
+                    <img id="stitch-mood-gif" alt="stitch-mood-gif" class="sidebar-stitch">
+                    <h3>Navigation</h3>
+                </div>
+                <ul class="sidebar-menu">
+                    <li class="menu-item active" data-page="index">
+                        
+                        <i class="menu-icon bi bi-house"></i>
+                        <span class="menu-text">Dashboard</span>
+                    </li>
+                    <li class="menu-item" data-page="timer">
+                        
+                        <i class="menu-icon bi bi-clock"></i>
+                        <span class="menu-text">Pomodoro</span>
+                    </li>
+                    <li class="menu-item" data-page="tasks">
+                        
+                        <i class="menu-icon bi bi-pin-angle"></i>
+                        <span class="menu-text">Tasks</span>
+                    </li>
+                    <li class="menu-item" data-page="notes">
+                        
+                        <i class="menu-icon bi bi-list-task"></i>
+                        <span class="menu-text">Notes</span>
+                    </li>
+                    <li class="menu-item" data-page="calendar">
+                        
+                        <i class="menu-icon bi bi-calendar4-week"></i>
+                        <span class="menu-text">Calendar</span>
+                    </li>
+                    <li class="menu-item" data-page="stats">
+                        
+                        <i class="menu-icon bi bi-file-bar-graph"></i>
+                        <span class="menu-text">Stats</span>
+                    </li>
+                    <li class="menu-item" data-page="settings">
+                        
+                        <i class="menu-icon bi bi-gear"></i>
+                        <span class="menu-text">Settings</span>
+                    </li>
+                </ul>
+                <div class="sidebar-footer">
+                    <div class="stitch-quote" id="sidebarQuote">
+                        "Ohana means family!"
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+<!-- Add overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-content">
+            
+            <div class="daily-quote-section">
+                <div class="daily-quote" id="dailyQuote">
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    </div>
+</body>
+</html>

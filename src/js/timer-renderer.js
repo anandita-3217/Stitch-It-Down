@@ -23,6 +23,10 @@ import stitchSinging from '@assets/gifs/stitch-singing.gif';
 import stitchSleeping from '@assets/gifs/stitch-sleeping.gif';
 import stitchTantrum from '@assets/gifs/stitch-tantrum.gif';
 
+// Bootstrap
+// import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 // Create an image registry
 const images = {
     characters: {
@@ -157,52 +161,6 @@ function toggleTheme() {
     setTheme(newTheme);
 }
 
-// Initialize timer when DOM is ready
-// function initializeTimer() {
-//     if (timerInstance) {
-//         // Clean up existing instance
-//         timerInstance.destroy();
-//     }
-    
-//     console.log('Initializing Pomodoro Timer...');
-    
-//     try {
-//         timerInstance = new PomodoroTimer();
-//         console.log('Timer initialized successfully');
-        
-//         // Make timer available globally for debugging
-//         window.timer = timerInstance;
-        
-//         return timerInstance;
-//     } catch (error) {
-//         console.error('Failed to initialize timer:', error);
-        
-//         // Show error message to user
-//         const errorDiv = document.createElement('div');
-//         errorDiv.className = 'error-message';
-//         errorDiv.innerHTML = `
-//             <h3>Timer Initialization Error</h3>
-//             <p>Failed to initialize the Pomodoro timer. Please check the console for details.</p>
-//             <p>Error: ${error.message}</p>
-//         `;
-//         errorDiv.style.cssText = `
-//             position: fixed;
-//             top: 20px;
-//             left: 20px;
-//             right: 20px;
-//             background: #ff4444;
-//             color: white;
-//             padding: 15px;
-//             border-radius: 8px;
-//             z-index: 1000;
-//             font-family: system-ui, -apple-system, sans-serif;
-//         `;
-        
-//         document.body.appendChild(errorDiv);
-        
-//         return null;
-//     }
-// }
 
 // Initialize timer when DOM is ready
 function initializeTimer() {
