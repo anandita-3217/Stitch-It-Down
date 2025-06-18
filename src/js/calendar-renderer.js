@@ -61,9 +61,18 @@ const gifKeys = [
     'sleeping',
     'tantrum'
 ];
+const quotes = [
+    "Ohana means family. Family means nobody gets left behind or forgotten.",
+    "This is my family. I found it all on my own. It's little, and broken, but still good. Yeah, still good.",
+    "Also cute and fluffy!",
+    "Aloha! Today is a new day to make progress!",
+    "Sometimes you try your hardest, but things don't work out. Sometimes things don't go according to plan.",
+    "I like you better as you.",
+    "Remember to feed your fish! If you give him food, he will be your friend.",
+    "Family is always there for you, even when no one else is.",
+    "Just because we look different doesn't mean we aren't family."
+];
 
-// Global timer instance for this window
-let timerInstance = null;
 
 function setImage(elementId, category, imageName) {
     // sets an image to a given elementId
@@ -78,6 +87,19 @@ function setRandomGif() {
     const gifId = 'stitchTimer'; // Your <img> ID
     const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
     setImage(gifId, 'gifs', randomKey);
+}
+function setDailyQuote() {
+    // Daily refreshes a quote
+    const quoteElement = document.querySelector('.daily-quote');
+    if (!quoteElement) return;
+
+    const today = new Date().toISOString().split('T')[0]; // e.g. "2025-05-30"
+    const stored = JSON.parse(localStorage.getItem('dailyQuote')) || {};
+
+    if (stored.date === today && stored.quote) {
+        quoteElement.textContent = stored.quote;
+        return;
+    }
 }
 function setSidebarGif() {
     // Sets a random gif everytime the app starts
@@ -164,6 +186,7 @@ function toggleTheme() {
 function initialize() {
     loadAllImages(); // Load all images including random gif
     initTheme();
+    setDailyQuote();
     
 }
 

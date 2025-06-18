@@ -191,6 +191,7 @@ console.log('Notes page loaded');
 function initialize() {
     loadAllImages(); // Load all images including random gif
     initTheme();
+    setDailyQuote();
 }
 
 if (document.readyState === 'loading') {
