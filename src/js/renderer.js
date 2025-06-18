@@ -20,6 +20,10 @@ import stitchSinging from '@assets/gifs/stitch-singing.gif';
 import stitchSleeping from '@assets/gifs/stitch-sleeping.gif';
 import stitchTantrum from '@assets/gifs/stitch-tantrum.gif';
 
+// Bootstrap
+// import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 // Create an image registry
 const images = {
     characters: {
