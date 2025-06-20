@@ -104,7 +104,29 @@ function setRandomGif() {
     const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
     setImage(gifId, 'gifs', randomKey);
 }
-
+function loadAllImages() {
+    // Load all static character images
+    setImage('happy-stitch', 'characters', 'happy');
+    setImage('icon-stitch', 'characters', 'icon');
+    setImage('wink-stitch', 'characters', 'wink');
+    setImage('corner1-stitch', 'characters', 'corner1');
+    setImage('corner2-stitch', 'characters','corner2');
+    
+    // Load all GIF images (for preloading or other uses)
+    setImage('clothes-stitch', 'gifs', 'clothes');
+    setImage('dancing-stitch', 'gifs', 'dancing');
+    setImage('eating-stitch', 'gifs', 'eating');
+    setImage('frustrated-stitch', 'gifs', 'frustrated');
+    setImage('hyping-stitch', 'gifs', 'hyping');
+    setImage('love-stitch', 'gifs', 'love');
+    setImage('shocked-stitch', 'gifs', 'shocked');
+    setImage('singing-stitch', 'gifs', 'singing');
+    setImage('tantrum-stitch', 'gifs', 'tantrum');
+    
+    // Set random gif for the timer
+    setRandomGif();
+    
+}
 // Themes 
 function initTheme() {
     
@@ -274,7 +296,12 @@ function showNoteTypeModal(noteText) {
             
             if (type) {
                 createNote(type);
-            } else if (action === 'cancel') {
+            }  else if (action === 'cancel') {
+                // Return text to input field
+                const noteInput = document.getElementById('noteInput');
+                if (noteInput && window.tempNoteText) {
+                    noteInput.value = window.tempNoteText;
+                }
                 closeModal();
             }
         });
@@ -307,10 +334,11 @@ function showFrequencyModal(noteData) {
     modal.innerHTML = `
         <div class="modal-content">
             <h3>Task Frequency</h3>
+            <button data-frequency="once">One-time</button>
             <button data-frequency="daily">Daily</button>
             <button data-frequency="weekly">Weekly</button>
             <button data-frequency="biweekly">Bi-weekly</button>
-            <button data-frequency="monthly">Monthly</button>
+            <button data-frequency="monthly">Monthly</button>   
             <button data-action="cancel">Cancel</button>
             
             <div class="deadline-section">
@@ -349,18 +377,6 @@ function showFrequencyModal(noteData) {
     });
 }
 
-// function setTaskFrequency(frequency) {
-//     const noteData = window.tempNoteData;
-//     if (!noteData) return;
-    
-//     noteData.frequency = frequency;
-//     noteData.nextReset = calculateNextReset(frequency);
-//     saveNote(noteData);
-//     closeModal();
-    
-//     // Clean up temporary data
-//     delete window.tempNoteData;
-// }
 function setTaskFrequency(frequency) {
     const noteData = window.tempNoteData;
     if (!noteData) return;
@@ -369,6 +385,9 @@ function setTaskFrequency(frequency) {
     const alertSelect = document.getElementById('alert-time');
     
     noteData.frequency = frequency;
+    if (frequency !== 'once') {
+        noteData.nextReset = calculateNextReset(frequency);
+    }
     noteData.nextReset = calculateNextReset(frequency);
     
     // Add deadline and alert data
@@ -410,12 +429,10 @@ function saveNote(noteData) {
     }
 }
 
-// =============================================================================
-// CATEGORY FILTER SYSTEM - ADD AFTER saveNote() FUNCTION
-// =============================================================================
-
-// Global variable to track current filter
 let currentFilter = 'all'; // 'all', 'note', 'task', 'important'
+let editingItem = null;
+let tempEditText = '';
+let currentSearchTerm = '';
 
 function initCategoryFilters() {
     const categoryElements = document.querySelectorAll('.category');
@@ -443,7 +460,33 @@ function initCategoryFilters() {
     // Add "All" category if it doesn't exist
     addAllCategory();
 }
-
+function initSearchSystem() {
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            currentSearchTerm = e.target.value.toLowerCase().trim();
+            displayFilteredNotes();
+        });
+        
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                currentSearchTerm = e.target.value.toLowerCase().trim();
+                displayFilteredNotes();
+            }
+        });
+    }
+    
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            currentSearchTerm = '';
+            displayFilteredNotes();
+        });
+    }
+}
 function addAllCategory() {
     const taskCategories = document.querySelector('.task-categories');
     if (!taskCategories) return;
@@ -483,9 +526,20 @@ function displayFilteredNotes() {
         container.innerHTML = '';
         
         // Filter notes based on current filter
-        const filteredNotes = currentFilter === 'all' 
+        // const filteredNotes = currentFilter === 'all' 
+        //     ? notes 
+        //     : notes.filter(note => note.type === currentFilter);
+        // Filter notes based on current filter and search term
+        let filteredNotes = currentFilter === 'all' 
             ? notes 
             : notes.filter(note => note.type === currentFilter);
+            
+        // Apply search filter
+        if (currentSearchTerm) {
+            filteredNotes = filteredNotes.filter(note => 
+                note.text.toLowerCase().includes(currentSearchTerm)
+            );
+        }
         
         // Display filtered notes
         filteredNotes.forEach(note => {
@@ -654,7 +708,6 @@ const categoryStyles = `
 }
 `;
 
-// Inject the CSS
 if (!document.querySelector('#category-filter-styles')) {
     const styleElement = document.createElement('style');
     styleElement.id = 'category-filter-styles';
@@ -662,9 +715,6 @@ if (!document.querySelector('#category-filter-styles')) {
     document.head.appendChild(styleElement);
 }
 
-// =============================================================================
-// END OF CATEGORY FILTER SYSTEM
-// =============================================================================
 
 function loadNotes() {
     try {
@@ -705,14 +755,18 @@ function createNoteElement(note) {
             ${note.type === 'task' ? 
                 `<input type="checkbox" ${note.completed ? 'checked' : ''} data-task-id="${note.id}"> ` : ''
             }
-            ${note.completed ? `<del>${note.text}</del>` : note.text}
+            ${note.completed ? `<del>${detectAndCreateLinks(note.text)}</del>` : detectAndCreateLinks(note.text)}
             ${note.frequency ? ` (${note.frequency})` : ''}
             ${note.deadline ? `<div class="deadline-info ${isOverdue(note.deadline) ? 'overdue' : ''}">
             📅 Due: ${formatDeadline(note.deadline)}
             </div>` : ''}
         </div>
         <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
-        <button class="delete-note" data-note-id="${note.id}">×</button>
+        
+        <div class="note-actions">
+            <button class="edit-note" data-note-id="${note.id}">✏️</button>
+            <button class="delete-note" data-note-id="${note.id}">×</button>
+        </div>
     `;
     
     // Add event listeners
@@ -731,8 +785,123 @@ function createNoteElement(note) {
             deleteNote(noteId);
         });
     }
+    const editBtn = div.querySelector('.edit-note');
+    if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+            const noteId = parseInt(e.target.getAttribute('data-note-id'));
+            editItem(noteId);
+        });
+    }
+    // Add event listeners for link buttons
+    const linkButtons = div.querySelectorAll('.link-button');
+    linkButtons.forEach(linkBtn => {
+        linkBtn.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            editLinkButton(linkBtn);
+        });
+    });
     
     return div;
+}
+function editItem(itemId) {
+    try {
+        const notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const item = notes.find(note => note.id === itemId);
+        if (!item) return;
+        
+        editingItem = item;
+        tempEditText = item.text;
+        showEditModal(item);
+    } catch (error) {
+        console.warn('Could not edit item');
+    }
+}
+
+function showEditModal(item) {
+    const modal = document.createElement('div');
+    modal.className = 'note-type-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Edit ${item.type}</h3>
+            <textarea id="editTextArea" rows="3" style="width: 100%; margin-bottom: 10px;">${item.text}</textarea>
+            ${item.type === 'task' ? `
+                <div class="frequency-section">
+                    <label>Frequency:</label>
+                    <select id="editFrequency">
+                        <option value="once" ${item.frequency === 'once' ? 'selected' : ''}>One-time</option>
+                        <option value="daily" ${item.frequency === 'daily' ? 'selected' : ''}>Daily</option>
+                        <option value="weekly" ${item.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
+                        <option value="biweekly" ${item.frequency === 'biweekly' ? 'selected' : ''}>Bi-weekly</option>
+                        <option value="monthly" ${item.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
+                    </select>
+                </div>
+                <div class="deadline-section">
+                    <label for="edit-deadline">Deadline (optional):</label>
+                    <input type="datetime-local" id="edit-deadline" value="${item.deadline ? new Date(item.deadline).toISOString().slice(0, 16) : ''}">
+                </div>
+            ` : ''}
+            <button data-action="save">Save Changes</button>
+            <button data-action="cancel">Cancel</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const buttons = modal.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const action = e.target.getAttribute('data-action');
+            if (action === 'save') {
+                saveEditedItem();
+            } else if (action === 'cancel') {
+                closeModal();
+            }
+        });
+    });
+}
+
+function saveEditedItem() {
+    const textArea = document.getElementById('editTextArea');
+    const newText = textArea.value.trim();
+    
+    if (!newText || !editingItem) return;
+    
+    try {
+        let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const itemIndex = notes.findIndex(note => note.id === editingItem.id);
+        
+        if (itemIndex !== -1) {
+            notes[itemIndex].text = newText;
+            
+            if (editingItem.type === 'task') {
+                const frequencySelect = document.getElementById('editFrequency');
+                const deadlineInput = document.getElementById('edit-deadline');
+                
+                notes[itemIndex].frequency = frequencySelect.value;
+                
+                if (frequencySelect.value !== 'once') {
+                    notes[itemIndex].nextReset = calculateNextReset(frequencySelect.value);
+                } else {
+                    delete notes[itemIndex].nextReset;
+                }
+                
+                if (deadlineInput.value) {
+                    notes[itemIndex].deadline = new Date(deadlineInput.value).toISOString();
+                } else {
+                    delete notes[itemIndex].deadline;
+                }
+            }
+            
+            localStorage.setItem('stitchNotes', JSON.stringify(notes));
+            displayFilteredNotes();
+            updateFilteredProgress();
+        }
+    } catch (error) {
+        console.warn('Could not save edited item');
+    }
+    
+    editingItem = null;
+    closeModal();
 }
 function formatDeadline(deadline) {
     const date = new Date(deadline);
@@ -962,32 +1131,134 @@ function formatTimestamp(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString();
 }
+function detectAndCreateLinks(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = text.match(urlRegex);
+    
+    if (!urls) return text;
+    
+    let processedText = text;
+    urls.forEach(url => {
+        const linkButton = `<button class="link-button" data-url="${url}" onclick="openLink('${url}')">🔗 Link</button>`;
+        processedText = processedText.replace(url, linkButton);
+    });
+    
+    return processedText;
+}
+
+function openLink(url) {
+    // Use window.electronAPI if available (preload script), otherwise fallback to window.open
+    if (window.electronAPI && window.electronAPI.openExternal) {
+        window.electronAPI.openExternal(url);
+    } else if (window.electron && window.electron.shell) {
+        window.electron.shell.openExternal(url);
+    } else {
+        // Fallback for browser or if electron APIs aren't available
+        window.open(url, '_blank');
+    }
+}
+
+function editLinkButton(button) {
+    const currentText = button.textContent;
+    const url = button.getAttribute('data-url');
+    
+    const newText = prompt('Enter button text:', currentText.replace('🔗 ', ''));
+    if (newText && newText.trim()) {
+        button.textContent = '🔗 ' + newText.trim();
+        // Update the note in storage
+        updateLinkButtonText(button, newText.trim());
+    }
+}
+
+function updateLinkButtonText(button, newText) {
+    // Find the parent note element and update storage
+    const noteElement = button.closest('.note-item');
+    if (!noteElement) return;
+    
+    const deleteBtn = noteElement.querySelector('.delete-note');
+    const noteId = parseInt(deleteBtn.getAttribute('data-note-id'));
+    
+    try {
+        let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        const noteIndex = notes.findIndex(note => note.id === noteId);
+        
+        if (noteIndex !== -1) {
+            // Update the button text in the stored note
+            const url = button.getAttribute('data-url');
+            const oldButton = `<button class="link-button" data-url="${url}" onclick="openLink('${url}')">🔗 Link</button>`;
+            const newButton = `<button class="link-button" data-url="${url}" onclick="openLink('${url}')">🔗 ${newText}</button>`;
+            
+            notes[noteIndex].text = notes[noteIndex].text.replace(oldButton, newButton);
+            localStorage.setItem('stitchNotes', JSON.stringify(notes));
+        }
+    } catch (error) {
+        console.warn('Could not update link button text');
+    }
+}
+// function setupISTReset() {
+//     const checkIST = () => {
+//         const now = new Date();
+//         const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        
+//         if (istTime.getHours() === 0 && istTime.getMinutes() === 0) {
+//             // Reset daily tasks at midnight IST
+//             try {
+//                 let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+//                 notes = notes.map(note => {
+//                     if (note.type === 'task' && note.frequency === 'daily') {
+//                         note.completed = false;
+//                     }
+//                     return note;
+//                 });
+//                 localStorage.setItem('stitchNotes', JSON.stringify(notes));
+//                 displayNotes();
+//                 updateProgress();
+//             } catch (error) {
+//                 console.warn('Could not reset daily tasks');
+//             }
+//         }
+//     };
+    
+//     // Check every minute
+//     setInterval(checkIST, 60000);
+// }
 function setupISTReset() {
-    const checkIST = () => {
+    const checkMidnight = () => {
         const now = new Date();
         const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
         
-        if (istTime.getHours() === 0 && istTime.getMinutes() === 0) {
-            // Reset daily tasks at midnight IST
-            try {
-                let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
-                notes = notes.map(note => {
-                    if (note.type === 'task' && note.frequency === 'daily') {
-                        note.completed = false;
-                    }
-                    return note;
-                });
-                localStorage.setItem('stitchNotes', JSON.stringify(notes));
-                displayNotes();
-                updateProgress();
-            } catch (error) {
-                console.warn('Could not reset daily tasks');
-            }
+        // Check if it's 12:01 AM IST
+        if (istTime.getHours() === 0 && istTime.getMinutes() === 1) {
+            resetDailyTasks();
         }
     };
     
     // Check every minute
-    setInterval(checkIST, 60000);
+    setInterval(checkMidnight, 60000);
+    checkMidnight(); // Initial check
+}
+
+function resetDailyTasks() {
+    try {
+        let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
+        let updated = false;
+        
+        notes = notes.map(note => {
+            if (note.type === 'task' && note.frequency === 'daily' && note.completed) {
+                note.completed = false;
+                updated = true;
+            }
+            return note;
+        });
+        
+        if (updated) {
+            localStorage.setItem('stitchNotes', JSON.stringify(notes));
+            displayFilteredNotes();
+            updateFilteredProgress();
+        }
+    } catch (error) {
+        console.warn('Could not reset daily tasks');
+    }
 }
 
 
@@ -1014,36 +1285,24 @@ window.showCalendarModal = showCalendarModal;
 window.formatDeadline = formatDeadline;
 window.setupDeadlineAlerts = setupDeadlineAlerts;
 window.checkOverdueTasks = checkOverdueTasks;
+window.editItem = editItem;
+window.openLink = openLink;
+window.editLinkButton = editLinkButton;
+window.resetDailyTasks = resetDailyTasks;
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing app...'); // Debug log
-    
-    // Set up images
-    setImage('happy-stitch', 'characters', 'happy');
-    setImage('icon-stitch', 'characters', 'icon');
-    setImage('wink-stitch', 'characters', 'wink');
-    setImage('corner1-stitch', 'characters', 'corner1');
-    setImage('corner2-stitch', 'characters','corner2');
-    
-    setImage('clothes-stitch', 'gifs', 'clothes');
-    setImage('dancing-stitch', 'gifs', 'dancing');
-    setImage('eating-stitch', 'gifs', 'eating');
-    setImage('frustrated-stitch', 'gifs', 'frustrated');
-    setImage('hyping-stitch', 'gifs', 'hyping');
-    setImage('love-stitch', 'gifs', 'love');
-    setImage('shocked-stitch', 'gifs', 'shocked');
-    setImage('singing-stitch', 'gifs', 'singing');
-    setImage('tantrum-stitch', 'gifs', 'tantrum');
-    
     // Initialize theme system
     initTheme();
     updateDate();
     setDailyQuote();
-    setRandomGif();
     initNoteSystem();
     initDateClickHandler();
+    initSearchSystem();
+    setupISTReset();
     debugFunctions();
+    loadAllImages();
 });
 
 // Alternative initialization in case DOMContentLoaded has already fired

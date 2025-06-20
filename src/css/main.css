@@ -529,7 +529,40 @@ body {
     display: block;
     margin-top: 10px;
 }
+.note-actions {
+    display: flex;
+    gap: 5px;
+}
 
+.edit-note {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.edit-note:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.link-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin: 0 4px;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.link-button:hover {
+    background: #0056b3;
+}
 .delete-note {
     position: absolute;
     top: 10px;
@@ -877,17 +910,17 @@ body {
     border: 1px solid var(--border-color);
     box-shadow: 0 2px 8px var(--shadow);
 }
-.deadline-section, .alert-section {
+.frequency-section,.deadline-section, .alert-section {
     margin: 10px 0;
 }
 
-.deadline-section label, .alert-section label {
+.frequency-section label, .deadline-section label, .alert-section label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
-.deadline-section input, .alert-section select {
+.frequency-section select,.deadline-section input, .alert-section select {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
@@ -904,7 +937,14 @@ body {
     color: #ff4444;
     font-weight: bold;
 }
-
+#editTextArea {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    color: #333;
+    resize: vertical;
+}
 .note-item.task.overdue {
     border-left: 4px solid #ff4444;
 }
