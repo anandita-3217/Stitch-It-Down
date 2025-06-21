@@ -1195,33 +1195,7 @@ function updateLinkButtonText(button, newText) {
         console.warn('Could not update link button text');
     }
 }
-// function setupISTReset() {
-//     const checkIST = () => {
-//         const now = new Date();
-//         const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-        
-//         if (istTime.getHours() === 0 && istTime.getMinutes() === 0) {
-//             // Reset daily tasks at midnight IST
-//             try {
-//                 let notes = JSON.parse(localStorage.getItem('stitchNotes')) || [];
-//                 notes = notes.map(note => {
-//                     if (note.type === 'task' && note.frequency === 'daily') {
-//                         note.completed = false;
-//                     }
-//                     return note;
-//                 });
-//                 localStorage.setItem('stitchNotes', JSON.stringify(notes));
-//                 displayNotes();
-//                 updateProgress();
-//             } catch (error) {
-//                 console.warn('Could not reset daily tasks');
-//             }
-//         }
-//     };
-    
-//     // Check every minute
-//     setInterval(checkIST, 60000);
-// }
+
 function setupISTReset() {
     const checkMidnight = () => {
         const now = new Date();

@@ -1,5 +1,6 @@
 // CSS imports
 import '@css/main.css';
+import '@css/components/notes.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
 // PNG imports

@@ -1,9 +1,8 @@
-.placeholderforaddtask {
+.placeholderforaddnote {
     max-width: 800px;
     margin: 0 auto;
 }
-
-.add-task {
+.add-note {
     display: flex;
     gap: 12px;
     background-color: var(--card-bg);
@@ -14,7 +13,7 @@
     transition: background-color 0.3s ease;
 }
 
-.addTask {
+.addNote {
     flex: 1;
     padding: 14px 18px;
     border: 2px solid var(--border-color);
@@ -26,21 +25,21 @@
     color: var(--text-primary);
 }
 
-.addTask::placeholder {
+.addNote::placeholder {
     color: var(--text-secondary);
     opacity: 0.7;
 }
 
-.addTask:focus {
+.addNote:focus {
     border-color: var(--dark-purple);
     box-shadow: 0 0 0 3px rgba(103, 53, 232, 0.1);
 }
 
-[data-theme="dark"] .addTask:focus {
+[data-theme="dark"] .addNote:focus {
     box-shadow: 0 0 0 3px rgba(136, 84, 255, 0.2);
 }
 
-.AddTask {
+.AddNote {
     background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     color: white;
     border: none;
@@ -57,21 +56,22 @@
     justify-content: center;
 }
 
-.AddTask:hover {
+.AddNote:hover {
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 6px 16px var(--shadow-hover);
 }
 
-.AddTask:active {
+.AddNote:active {
     transform: rotate(90deg) scale(0.95);
 }
 
-.tasks-container {
+.notes-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
 }
-.task-item {
+
+.note-item {
     background-color: var(--card-bg);
     padding: 20px;
     border-radius: 12px;
@@ -81,29 +81,29 @@
     position: relative;
 }
 
-.task-item:hover {
+.note-item:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 20px var(--shadow);
 }
 
-.task-content {
+.note-content {
     color: var(--text-primary);
     line-height: 1.6;
     margin-bottom: 10px;
 }
 
-.task-timestamp {
+.note-timestamp {
     font-size: 12px;
     color: var(--text-secondary);
     display: block;
     margin-top: 10px;
 }
-.task-actions {
+.note-actions {
     display: flex;
     gap: 5px;
 }
 
-.edit-task {
+.edit-note {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
@@ -113,7 +113,7 @@
     font-size: 12px;
 }
 
-.edit-task:hover {
+.edit-note:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
@@ -132,7 +132,7 @@
 .link-button:hover {
     background: #0056b3;
 }
-.delete-task {
+.delete-note {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -151,7 +151,7 @@
     transition: all 0.3s ease;
 }
 
-.delete-task:hover {
+.delete-note:hover {
     background-color: var(--primary-purple);
     color: var(--white);
     transform: scale(1.1);
