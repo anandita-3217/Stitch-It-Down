@@ -2,8 +2,9 @@
 import '@css/main.css'
 import '@css/components/timer.css';
 import '@css/components/sidebar.css';
+import '@css/components/tasks.css';
 import '@components/sidebar.js';
-import '@components/timer.js';
+
 
 // PNG imports
 import stitchHappy from '@assets/images/characters/stitch-happy.png';
