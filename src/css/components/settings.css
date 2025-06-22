@@ -1,76 +1,50 @@
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--light-bg);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow: hidden;
-        }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--light-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow: hidden;
+}
 
-        .settings-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .settings-header {
-            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--medium-purple) 100%);
-            color: var(--text-primary);
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px var(--shadow);
-        }
-
-        .settings-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .stitch-character {
-            width: 40px;
-            height: 40px;
-            background: var(--card-bg);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }
-
-        .settings-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .settings-tabs {
-            display: flex;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 30px;
-            background: var(--card-bg);
-            border-radius: 10px 10px 0 0;
-            padding: 0 20px;
-        }
-
-        .settings-tab {
-            background: none;
-            border: none;
-            padding: 15px 30px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-        }
+.settings-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.settings-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+.settings-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+.settings-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 30px;
+    background: var(--card-bg);
+    border-radius: 10px 10px 0 0;
+    padding: 0 20px;
+}
+.settings-tab {
+    background: none;
+    border: none;
+    padding: 15px 30px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
 
         .settings-tab.active {
             border-bottom-color: var(--dark-purple);

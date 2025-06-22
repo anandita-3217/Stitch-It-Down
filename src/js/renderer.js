@@ -764,7 +764,7 @@ function createNoteElement(note) {
         <span class="note-timestamp">${formatTimestamp(note.timestamp)}</span>
         
         <div class="note-actions">
-            <button class="edit-note" data-note-id="${note.id}">✏️</button>
+            <button class="edit-note" data-note-id="${note.id}"><i class="bi bi-pencil"></i></button>
             <button class="delete-note" data-note-id="${note.id}">×</button>
         </div>
     `;

@@ -1,24 +1,24 @@
 * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--light-bg);
-            color: var(--text-primary);
-            line-height: 1.6;
-            height: 100vh;
-            overflow: hidden;
-        }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--light-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    height: 100vh;
+    overflow: hidden;
+}
 
-        .calendar-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background: var(--card-bg);
-        }
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--card-bg);
+}
 
         .calendar-header {
             background: linear-gradient(135deg, var(--dark-purple), var(--darker-blue));
