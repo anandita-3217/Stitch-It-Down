@@ -1,9 +1,3 @@
-// CSS imports
-import '@css/main.css'
-import '@css/components/sidebar.css';
-import '@css/components/tasks.css';
-import '@components/sidebar.js';
-
 import stitchHappy from '@assets/images/characters/stitch-happy.png';
 import stitchIcon from '@assets/images/characters/stitch-icon.png';
 import stitchWink from '@assets/images/characters/stitch-wink.png';
@@ -177,3 +171,71 @@ function toggleTheme() {
     console.log(`Toggling theme from ${currentTheme} to ${newTheme}`); // Debug log
     setTheme(newTheme);
 }
+// Date and Time
+function updateDate() {
+    const now = new Date();
+    
+    // Get day of week
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDay = days[now.getDay()];
+    
+    // Get date
+    const currentDate = now.getDate();
+    
+    // Get month
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const currentMonth = months[now.getMonth()];
+    
+    // Update the HTML elements
+    const dayElement = document.getElementById('current-day');
+    const dateElement = document.getElementById('current-date');
+    const monthElement = document.getElementById('current-month');
+    
+    if (dayElement) dayElement.textContent = currentDay;
+    if (dateElement) dateElement.textContent = currentDate;
+    if (monthElement) monthElement.textContent = currentMonth;
+    
+    updateClock();
+}
+
+function updateClock() {
+    const now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
+    
+    // Add leading zeros
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    
+    // Format time string
+    const timeString = `${hours}:${minutes}:${seconds}`;
+
+    // Update clock element
+    const clockElement = document.getElementById('digital-clock');
+    if (clockElement) {
+        clockElement.textContent = timeString;
+        
+        // Optional: Add blink effect to the colons
+        const pulseEffect = Math.floor(now.getSeconds()) % 2 === 0 ? 'pulse' : '';
+        clockElement.className = `digital-clock ${pulseEffect}`;
+    }
+    
+    // Update every second
+    setTimeout(updateClock, 1000);
+}
+export {
+    setImage,
+    setDailyQuote,
+    setRandomGif,
+    loadAllImages,
+    initTheme,
+    setTheme,
+    toggleTheme,
+    updateDate,
+    updateClock,
+    images,
+    quotes,
+    gifKeys
+};

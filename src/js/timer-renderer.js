@@ -1,10 +1,9 @@
 import PomodoroTimer from '@components/timer.js';
-import '@css/main.css'
+// CSS imports
+import '@css/main.css';
 import '@css/components/timer.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
-import '@components/timer.js';
-
 // PNG imports
 import stitchHappy from '@assets/images/characters/stitch-happy.png';
 import stitchIcon from '@assets/images/characters/stitch-icon.png';
@@ -23,8 +22,18 @@ import stitchSinging from '@assets/gifs/stitch-singing.gif';
 import stitchSleeping from '@assets/gifs/stitch-sleeping.gif';
 import stitchTantrum from '@assets/gifs/stitch-tantrum.gif';
 
-// Bootstrap
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import {
+    setImage,
+    setDailyQuote,
+    setRandomGif,
+    loadAllImages,
+    initTheme,
+    setTheme,
+    toggleTheme,
+    updateDate,
+    updateClock
+} from '@components/utils.js';    
+
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Create an image registry
@@ -49,118 +58,9 @@ const images = {
         tantrum: stitchTantrum
     }
 };
-const gifKeys = [
-    'clothes',
-    'dancing',
-    'eating',
-    'frustrated',
-    'hyping',
-    'love',
-    'shocked',
-    'singing',
-    'sleeping',
-    'tantrum'
-];
 
 // Global timer instance for this window
 let timerInstance = null;
-
-function setImage(elementId, category, imageName) {
-    // sets an image to a given elementId
-    const element = document.getElementById(elementId);
-    if (element && images[category] && images[category][imageName]) {
-        element.src = images[category][imageName];
-    }
-}
-
-function setRandomGif() {
-    // Sets a random gif everytime the app starts
-    const gifId = 'stitchTimer'; // Your <img> ID
-    const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
-    setImage(gifId, 'gifs', randomKey);
-}
-function setSidebarGif() {
-    // Sets a random gif everytime the app starts
-    const gifId = 'stitch-mood-gif'; // Your <img> ID
-    const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
-    setImage(gifId, 'gifs', randomKey);
-}
-function loadAllImages() {
-    // Load all static character images
-    setImage('happy-stitch', 'characters', 'happy');
-    setImage('icon-stitch', 'characters', 'icon');
-    setImage('wink-stitch', 'characters', 'wink');
-    setImage('corner1-stitch', 'characters', 'corner1');
-    setImage('corner2-stitch', 'characters','corner2');
-    
-    // Load all GIF images (for preloading or other uses)
-    setImage('clothes-stitch', 'gifs', 'clothes');
-    setImage('dancing-stitch', 'gifs', 'dancing');
-    setImage('eating-stitch', 'gifs', 'eating');
-    setImage('frustrated-stitch', 'gifs', 'frustrated');
-    setImage('hyping-stitch', 'gifs', 'hyping');
-    setImage('love-stitch', 'gifs', 'love');
-    setImage('shocked-stitch', 'gifs', 'shocked');
-    setImage('singing-stitch', 'gifs', 'singing');
-    setImage('tantrum-stitch', 'gifs', 'tantrum');
-    
-    // Set random gif for the timer
-    setRandomGif();
-    setSidebarGif();
-}
-
-function initTheme() {
-    let savedTheme = 'light'; // default
-    try {
-        savedTheme = localStorage.getItem('stitchTheme') || 'light';
-    } catch (error) {
-        console.warn('localStorage not available, using default theme');
-    }
-    
-    setTheme(savedTheme);
-    
-    // Set up the theme toggle event listener
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('change', toggleTheme);
-        themeToggle.checked = savedTheme === 'dark';
-    } else {
-        console.error('Theme toggle element not found');
-    }
-}
-
-function setTheme(theme) {
-    // Validate theme value
-    if (theme !== 'light' && theme !== 'dark') {
-        theme = 'light';
-    }
-    
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.setAttribute('data-theme', theme); // Also set on body for better CSS targeting
-    
-    // Save to localStorage if available
-    try {
-        localStorage.setItem('stitchTheme', theme);
-    } catch (error) {
-        console.warn('Could not save theme to localStorage');
-    }
-    
-    // Update toggle state
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.checked = theme === 'dark';
-    }
-    
-    console.log(`Theme set to: ${theme}`); // Debug log
-}
-
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    console.log(`Toggling theme from ${currentTheme} to ${newTheme}`); // Debug log
-    setTheme(newTheme);
-}
-
 
 // Initialize timer when DOM is ready
 function initializeTimer() {
