@@ -177,23 +177,3 @@ function toggleTheme() {
     console.log(`Toggling theme from ${currentTheme} to ${newTheme}`); // Debug log
     setTheme(newTheme);
 }
-
-
-
-
-function initialize() {
-    loadAllImages(); // Load all images including random gif
-    setDailyQuote();
-    initTheme();
-    
-}
-
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-} else {
-    // DOM is already ready
-    initialize();
-}
-
-console.log('Tasks page loaded');
