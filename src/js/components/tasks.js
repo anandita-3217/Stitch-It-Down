@@ -9,13 +9,30 @@ class TaskManager {
         this.init();
     }
 
+    // init() {
+    //     this.setupEventListeners();
+    //     this.loadTasks();
+    //     this.setupProgressTracking();
+    //     this.setupDeadlineAlerts();
+    //     this.setupISTReset();
+    // }
     init() {
-        this.setupEventListeners();
-        this.loadTasks();
-        this.setupProgressTracking();
-        this.setupDeadlineAlerts();
-        this.setupISTReset();
+    // Clear any corrupted data on initialization
+    try {
+        const testData = this.getTasks();
+        if (!Array.isArray(testData)) {
+            localStorage.removeItem(this.STORAGE_KEY);
+        }
+    } catch (error) {
+        localStorage.removeItem(this.STORAGE_KEY);
     }
+    
+    this.setupEventListeners();
+    this.loadTasks();
+    this.setupProgressTracking();
+    this.setupDeadlineAlerts();
+    this.setupISTReset();
+}
 
     setupEventListeners() {
         const addTaskBtn = document.getElementById('addTaskBtn');
@@ -197,14 +214,30 @@ class TaskManager {
         }
     }
 
+    // getTasks() {
+    //     try {
+    //         return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
+    //     } catch (error) {
+    //         console.error('Could not load tasks from localStorage:', error);
+    //         return [];
+    //     }
+    // }
     getTasks() {
-        try {
-            return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
-        } catch (error) {
-            console.error('Could not load tasks from localStorage:', error);
+    try {
+        const stored = localStorage.getItem(this.STORAGE_KEY);
+        if (!stored) {
             return [];
         }
+        const parsed = JSON.parse(stored);
+        // Ensure we always return an array
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error('Could not load tasks from localStorage:', error);
+        // Clear corrupted data
+        localStorage.removeItem(this.STORAGE_KEY);
+        return [];
     }
+}
 
     loadTasks() {
         const tasks = this.getTasks();
@@ -212,39 +245,86 @@ class TaskManager {
         this.updateProgress();
     }
 
+    // displayTasks(filter = null) {
+    //     const tasks = this.getTasks();
+    //     const container = document.getElementById('tasksContainer');
+    //     if (!container) return;
+        
+    //     container.innerHTML = '';
+        
+    //     let filteredTasks = filter ? tasks.filter(filter) : tasks;
+        
+    //     // Sort by priority and due date
+    //     filteredTasks.sort((a, b) => {
+    //         const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+    //         const aPriority = priorityOrder[a.priority] || 2;
+    //         const bPriority = priorityOrder[b.priority] || 2;
+            
+    //         if (aPriority !== bPriority) return bPriority - aPriority;
+            
+    //         // If same priority, sort by deadline
+    //         if (a.deadline && b.deadline) {
+    //             return new Date(a.deadline) - new Date(b.deadline);
+    //         }
+    //         return 0;
+    //     });
+        
+    //     filteredTasks.forEach(task => {
+    //         const taskElement = this.createTaskElement(task);
+    //         container.appendChild(taskElement);
+    //     });
+        
+    //     if (filteredTasks.length === 0) {
+    //         this.showEmptyState(container);
+    //     }
+    // }
+    
     displayTasks(filter = null) {
-        const tasks = this.getTasks();
-        const container = document.getElementById('tasksContainer');
-        if (!container) return;
-        
-        container.innerHTML = '';
-        
-        let filteredTasks = filter ? tasks.filter(filter) : tasks;
-        
-        // Sort by priority and due date
-        filteredTasks.sort((a, b) => {
-            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-            const aPriority = priorityOrder[a.priority] || 2;
-            const bPriority = priorityOrder[b.priority] || 2;
-            
-            if (aPriority !== bPriority) return bPriority - aPriority;
-            
-            // If same priority, sort by deadline
-            if (a.deadline && b.deadline) {
-                return new Date(a.deadline) - new Date(b.deadline);
-            }
-            return 0;
-        });
-        
-        filteredTasks.forEach(task => {
-            const taskElement = this.createTaskElement(task);
-            container.appendChild(taskElement);
-        });
-        
-        if (filteredTasks.length === 0) {
-            this.showEmptyState(container);
-        }
+    const tasks = this.getTasks();
+    const container = document.getElementById('tasksContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Ensure tasks is always an array
+    if (!Array.isArray(tasks)) {
+        console.error('Tasks is not an array:', tasks);
+        this.showEmptyState(container);
+        return;
     }
+    
+    let filteredTasks = filter ? tasks.filter(filter) : tasks;
+    
+    // Double-check that filteredTasks is an array
+    if (!Array.isArray(filteredTasks)) {
+        console.error('Filtered tasks is not an array:', filteredTasks);
+        filteredTasks = [];
+    }
+    
+    // Sort by priority and due date
+    filteredTasks.sort((a, b) => {
+        const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+        const aPriority = priorityOrder[a.priority] || 2;
+        const bPriority = priorityOrder[b.priority] || 2;
+        
+        if (aPriority !== bPriority) return bPriority - aPriority;
+        
+        // If same priority, sort by deadline
+        if (a.deadline && b.deadline) {
+            return new Date(a.deadline) - new Date(b.deadline);
+        }
+        return 0;
+    });
+    
+    filteredTasks.forEach(task => {
+        const taskElement = this.createTaskElement(task);
+        container.appendChild(taskElement);
+    });
+    
+    if (filteredTasks.length === 0) {
+        this.showEmptyState(container);
+    }
+}
 
     createTaskElement(task) {
         const div = document.createElement('div');
