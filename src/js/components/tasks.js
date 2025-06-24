@@ -8,14 +8,6 @@ class TaskManager {
         this.tempTaskData = null;
         this.init();
     }
-
-    // init() {
-    //     this.setupEventListeners();
-    //     this.loadTasks();
-    //     this.setupProgressTracking();
-    //     this.setupDeadlineAlerts();
-    //     this.setupISTReset();
-    // }
     init() {
     // Clear any corrupted data on initialization
     try {
@@ -214,14 +206,6 @@ class TaskManager {
         }
     }
 
-    // getTasks() {
-    //     try {
-    //         return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
-    //     } catch (error) {
-    //         console.error('Could not load tasks from localStorage:', error);
-    //         return [];
-    //     }
-    // }
     getTasks() {
     try {
         const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -244,40 +228,6 @@ class TaskManager {
         this.displayTasks();
         this.updateProgress();
     }
-
-    // displayTasks(filter = null) {
-    //     const tasks = this.getTasks();
-    //     const container = document.getElementById('tasksContainer');
-    //     if (!container) return;
-        
-    //     container.innerHTML = '';
-        
-    //     let filteredTasks = filter ? tasks.filter(filter) : tasks;
-        
-    //     // Sort by priority and due date
-    //     filteredTasks.sort((a, b) => {
-    //         const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-    //         const aPriority = priorityOrder[a.priority] || 2;
-    //         const bPriority = priorityOrder[b.priority] || 2;
-            
-    //         if (aPriority !== bPriority) return bPriority - aPriority;
-            
-    //         // If same priority, sort by deadline
-    //         if (a.deadline && b.deadline) {
-    //             return new Date(a.deadline) - new Date(b.deadline);
-    //         }
-    //         return 0;
-    //     });
-        
-    //     filteredTasks.forEach(task => {
-    //         const taskElement = this.createTaskElement(task);
-    //         container.appendChild(taskElement);
-    //     });
-        
-    //     if (filteredTasks.length === 0) {
-    //         this.showEmptyState(container);
-    //     }
-    // }
     
     displayTasks(filter = null) {
     const tasks = this.getTasks();
@@ -611,7 +561,7 @@ class TaskManager {
         const emptyState = document.createElement('div');
         emptyState.className = 'empty-state';
         emptyState.innerHTML = `
-            <div class="empty-icon">📋</div>
+            <div class="empty-icon"><i class="bi bi-pin-angle"></i></div>
             <p>No tasks yet. Create your first task!</p>
         `;
         container.appendChild(emptyState);

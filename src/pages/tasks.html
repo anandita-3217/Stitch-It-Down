@@ -81,9 +81,61 @@
             
             <!-- <div class="daily-quote-section">
                 <div class="daily-quote" id="dailyQuote">
-                </div> -->
+                </div> 
+            </div>-->
+            <div class="task-stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number stat-total-tasks">0</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-completed-tasks">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-remaining-tasks">0</div>
+                        <div class="stat-label">Remaining</div>
+                    </div>
+                    <div class="stat-card overdue">
+                        <div class="stat-number stat-overdue-tasks">0</div>
+                        <div class="stat-label">Overdue</div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Progress Section - Add this above the lower div -->
+            <div class="task-progress-section">
+                <div class="progress-container">
+                    <div class="progress-track">
+                        <div class="task-progress-bar"></div>
+                    </div>
+                    <div class="task-progress-text">0/0 tasks completed</div>
+                </div>
+            </div>
+
             <div class="lower">
+                <div class="task-controls">
+                    <div class="task-filters">
+                        <select id="priority-filter" class="filter-select">
+                            <option value="all">All Priorities</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        
+                        <select id="status-filter" class="filter-select">
+                            <option value="all">All Tasks</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        
+                        <input type="text" id="task-search" class="search-input" placeholder="Search tasks...">
+                    </div>
+                </div>
+
                 <div class="add-task">
                     <input class="addTask" id="taskInput" placeholder="Add a quick task">
                     <button type="submit" class="AddTask" id="addTaskBtn">+</button>
