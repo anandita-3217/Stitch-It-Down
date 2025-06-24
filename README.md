@@ -238,3 +238,15 @@ Consider using pre-built APIs (like Google's Natural Language API) rather than b
 Would you like wireframes or implementation suggestions for any of these?
 
  -->
+ <!-- 2. Feature Enhancements:
+
+Priority system: Added task priorities (low, medium, high, urgent)
+Better task sorting: Sort by priority and deadline
+Confirmation dialogs: Ask before deleting tasks
+Visual improvements: Better styling classes and overdue indicators
+Stats tracking: Comprehensive task statistics -->
+
+<!-- .task-item.priority-urgent - Red border/background
+.task-item.priority-high - Orange border
+.task-item.overdue - Different styling for overdue tasks
+.task-meta - Styling for frequency/priority display -->

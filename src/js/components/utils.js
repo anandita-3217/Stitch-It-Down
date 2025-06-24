@@ -224,6 +224,68 @@ function updateClock() {
     
     // Update every second
     setTimeout(updateClock, 1000);
+
+}
+// Add these functions to your utils.js file
+
+/**
+ * Detects URLs in text and converts them to clickable links
+ * @param {string} text - The text to process
+ * @returns {string} - HTML string with links
+ */
+export function detectAndCreateLinks(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+}
+
+/**
+ * Formats timestamp to human-readable format
+ * @param {string} timestamp - ISO timestamp string
+ * @returns {string} - Formatted timestamp
+ */
+export function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMinutes < 1) {
+        return 'Just now';
+    } else if (diffMinutes < 60) {
+        return `${diffMinutes}m ago`;
+    } else if (diffHours < 24) {
+        return `${diffHours}h ago`;
+    } else if (diffDays < 7) {
+        return `${diffDays}d ago`;
+    } else {
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+        });
+    }
+}
+
+/**
+ * Closes any open modal by removing it from DOM
+ */
+export function closeModal() {
+    const modals = document.querySelectorAll('.task-frequency-modal, .task-edit-modal');
+    modals.forEach(modal => {
+        if (modal && modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+    });
+    
+    // Also handle any backdrop/overlay
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => {
+        if (backdrop && backdrop.parentNode) {
+            backdrop.parentNode.removeChild(backdrop);
+        }
+    });
 }
 export {
     setImage,

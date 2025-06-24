@@ -2,18 +2,7 @@
 import '@css/main.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
-
-import {
-    setImage,
-    setDailyQuote,
-    setRandomGif,
-    loadAllImages,
-    initTheme,
-    setTheme,
-    toggleTheme,
-    updateDate,
-    updateClock
-} from '@components/utils.js';
+import {setImage,setDailyQuote,setRandomGif,loadAllImages,initTheme,setTheme,toggleTheme,updateDate,updateClock} from '@components/utils.js';
 
 // Bootstrap Icons
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -1017,8 +1006,6 @@ function resetDailyTasks() {
     }
 }
 
-
-
 function debugFunctions() {
     const now = new Date();
     console.log('Functions check:');
@@ -1026,8 +1013,6 @@ function debugFunctions() {
     console.log('setTaskFrequency:', typeof window.setTaskFrequency);
     
 }
-
-
 // Expose all functions to global scope - MUST be at the end
 window.createNote = createNote;
 window.setTaskFrequency = setTaskFrequency;
@@ -1088,9 +1073,7 @@ function initializeApp() {
 }
 }
 
-// TODO:1 Need to make the notes tasks and important tabs functionsl so that only elements belonging to that category will show up.
 // TODO:1.1: Prevent the progress bar for important and notes
-// TODO:2 Add deadlines and alerts
 // TODO:3 User should can Create their own labels like tasks, important notes and deadlines etc.
 // TODO:4 Need to make my own version of Wordle.
 // TODO:5 Need to make gamification and streaks. 
