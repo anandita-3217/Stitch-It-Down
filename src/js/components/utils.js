@@ -65,17 +65,53 @@ const quotes = [
 ];
 
 
+// function setDailyQuote() {
+//     const quoteElement = document.querySelector('.daily-quote');
+//     if (!quoteElement) return;
+//     const today = new Date().toISOString().split('T')[0]; // e.g. "2025-05-30"
+//     const stored = JSON.parse(localStorage.getItem('dailyQuote')) || {};
+
+//     if (stored.date === today && stored.quote) {
+//         quoteElement.textContent = stored.quote;
+//         return;
+//     }
+// }
 function setDailyQuote() {
     const quoteElement = document.querySelector('.daily-quote');
-    if (!quoteElement) return;
+    if (!quoteElement) {
+        console.warn('Daily quote element not found (.daily-quote)');
+        return;
+    }
+    
     const today = new Date().toISOString().split('T')[0]; // e.g. "2025-05-30"
     const stored = JSON.parse(localStorage.getItem('dailyQuote')) || {};
-
+    
+    // If we already have a quote for today, use it
     if (stored.date === today && stored.quote) {
         quoteElement.textContent = stored.quote;
         return;
     }
+    
+    // Generate a consistent index based on the date
+    // This ensures the same quote appears for the entire day
+    const dateHash = today.split('-').reduce((hash, part) => {
+        return hash + parseInt(part);
+    }, 0);
+    
+    const quoteIndex = dateHash % quotes.length;
+    const todaysQuote = quotes[quoteIndex];
+    
+    // Store the quote for today
+    localStorage.setItem('dailyQuote', JSON.stringify({
+        date: today,
+        quote: todaysQuote
+    }));
+    
+    // Display the quote
+    quoteElement.textContent = todaysQuote;
 }
+
+
 function setImage(elementId, category, imageName) {
     // sets an image to a given elementId
     const element = document.getElementById(elementId);
