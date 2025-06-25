@@ -307,7 +307,6 @@ body {
     height: 24px; /* already set, but re-confirm */
     margin-bottom: 12px;
     flex-shrink: 0; /* Prevent shrinking */
-
 }
 
 .progress-bar {
