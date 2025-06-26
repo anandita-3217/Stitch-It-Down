@@ -1,3 +1,4 @@
+// task-renderer.js 
 // CSS imports
 import '@css/main.css';
 import '@css/components/tasks.css';
@@ -13,7 +14,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 let taskManager;
 
 function initialize() {
-    loadAllImages(); // Load all images including random gif
+    loadAllImages();
     setDailyQuote();
     debugFunctions();
     initTheme();

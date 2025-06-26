@@ -1,4 +1,4 @@
-// tasks.js - Task-specific functionality
+// tasks.js - Enhanced Task Manager with focus restoration and input validation
 import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 
 class TaskManager {
@@ -6,25 +6,84 @@ class TaskManager {
         this.STORAGE_KEY = 'stitchTasks';
         this.editingTask = null;
         this.tempTaskData = null;
+        this.lastFocusedElement = null; // Track last focused element
         this.init();
     }
+
     init() {
-    // Clear any corrupted data on initialization
-    try {
-        const testData = this.getTasks();
-        if (!Array.isArray(testData)) {
+        // Clear any corrupted data on initialization
+        try {
+            const testData = this.getTasks();
+            if (!Array.isArray(testData)) {
+                localStorage.removeItem(this.STORAGE_KEY);
+            }
+        } catch (error) {
             localStorage.removeItem(this.STORAGE_KEY);
         }
-    } catch (error) {
-        localStorage.removeItem(this.STORAGE_KEY);
+        
+        this.setupEventListeners();
+        this.loadTasks();
+        this.setupProgressTracking();
+        this.setupDeadlineAlerts();
+        this.setupISTReset();
+        this.setupFocusTracking(); // Add focus tracking
     }
-    
-    this.setupEventListeners();
-    this.loadTasks();
-    this.setupProgressTracking();
-    this.setupDeadlineAlerts();
-    this.setupISTReset();
-}
+
+    // New method to track focus on input elements
+    setupFocusTracking() {
+        const trackableFocusElements = ['taskInput', 'task-search'];
+        
+        trackableFocusElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('focus', () => {
+                    this.lastFocusedElement = element;
+                });
+            }
+        });
+    }
+
+    // Method to restore focus to the last focused input
+    restoreFocus() {
+        setTimeout(() => {
+            if (this.lastFocusedElement && document.contains(this.lastFocusedElement)) {
+                this.lastFocusedElement.focus();
+            } else {
+                // Default to task input if no last focused element
+                const taskInput = document.getElementById('taskInput');
+                if (taskInput) {
+                    taskInput.focus();
+                }
+            }
+        }, 100); // Small delay to ensure modal is fully closed
+    }
+
+    // Enhanced input validation with shake animation
+    validateInput(inputElement, errorMessage = 'Please enter a valid value') {
+        const value = inputElement.value.trim();
+        
+        if (!value || value === '') {
+            this.shakeInput(inputElement);
+            return false;
+        }
+        
+        this.clearInputError(inputElement);
+        return true;
+    }
+
+    // Shake animation for invalid inputs
+    shakeInput(inputElement) {
+        inputElement.classList.remove('shake-animation');
+        // Force reflow to restart animation
+        inputElement.offsetHeight;
+        inputElement.classList.add('shake-animation');
+        
+        // Remove shake class after animation
+        setTimeout(() => {
+            inputElement.classList.remove('shake-animation');
+        }, 600);
+    }
+
 
     setupEventListeners() {
         const addTaskBtn = document.getElementById('addTaskBtn');
@@ -38,15 +97,50 @@ class TaskManager {
             taskInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') this.handleAddTask();
             });
+            
+        }
+
+        // Use event delegation for dynamic task elements
+        const tasksContainer = document.getElementById('tasksContainer');
+        if (tasksContainer) {
+            tasksContainer.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const target = e.target;
+                const button = target.closest('button');
+                
+                if (!button) return;
+                
+                const taskId = parseInt(button.getAttribute('data-task-id'));
+                
+                if (button.classList.contains('edit-task') || target.classList.contains('bi-pencil')) {
+                    console.log('Edit button clicked for task:', taskId);
+                    this.editTask(taskId);
+                } else if (button.classList.contains('delete-task') || target.classList.contains('bi-trash')) {
+                    console.log('Delete button clicked for task:', taskId);
+                    this.deleteTask(taskId);
+                }
+            });
+
+            tasksContainer.addEventListener('change', (e) => {
+                if (e.target.classList.contains('task-checkbox')) {
+                    const taskId = parseInt(e.target.getAttribute('data-task-id'));
+                    this.toggleTask(taskId);
+                }
+            });
         }
     }
 
     handleAddTask() {
         const taskInput = document.getElementById('taskInput');
+        
+        // Validate input with shake animation
+        if (!this.validateInput(taskInput, 'Please enter a task description')) {
+            return;
+        }
+        
         const taskText = taskInput.value.trim();
-        
-        if (!taskText) return;
-        
         this.showFrequencyModal(taskText);
         taskInput.value = '';
     }
@@ -163,6 +257,7 @@ class TaskManager {
         this.saveTask(taskData);
         closeModal();
         this.tempTaskData = null;
+        this.restoreFocus(); // Restore focus after creating task
     }
 
     cancelTaskCreation(taskText) {
@@ -173,6 +268,7 @@ class TaskManager {
         }
         closeModal();
         this.tempTaskData = null;
+        this.restoreFocus(); // Restore focus after canceling
     }
 
     calculateNextReset(frequency) {
@@ -207,21 +303,21 @@ class TaskManager {
     }
 
     getTasks() {
-    try {
-        const stored = localStorage.getItem(this.STORAGE_KEY);
-        if (!stored) {
+        try {
+            const stored = localStorage.getItem(this.STORAGE_KEY);
+            if (!stored) {
+                return [];
+            }
+            const parsed = JSON.parse(stored);
+            // Ensure we always return an array
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            console.error('Could not load tasks from localStorage:', error);
+            // Clear corrupted data
+            localStorage.removeItem(this.STORAGE_KEY);
             return [];
         }
-        const parsed = JSON.parse(stored);
-        // Ensure we always return an array
-        return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-        console.error('Could not load tasks from localStorage:', error);
-        // Clear corrupted data
-        localStorage.removeItem(this.STORAGE_KEY);
-        return [];
     }
-}
 
     loadTasks() {
         const tasks = this.getTasks();
@@ -230,51 +326,51 @@ class TaskManager {
     }
     
     displayTasks(filter = null) {
-    const tasks = this.getTasks();
-    const container = document.getElementById('tasksContainer');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    // Ensure tasks is always an array
-    if (!Array.isArray(tasks)) {
-        console.error('Tasks is not an array:', tasks);
-        this.showEmptyState(container);
-        return;
-    }
-    
-    let filteredTasks = filter ? tasks.filter(filter) : tasks;
-    
-    // Double-check that filteredTasks is an array
-    if (!Array.isArray(filteredTasks)) {
-        console.error('Filtered tasks is not an array:', filteredTasks);
-        filteredTasks = [];
-    }
-    
-    // Sort by priority and due date
-    filteredTasks.sort((a, b) => {
-        const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-        const aPriority = priorityOrder[a.priority] || 2;
-        const bPriority = priorityOrder[b.priority] || 2;
+        const tasks = this.getTasks();
+        const container = document.getElementById('tasksContainer');
+        if (!container) return;
         
-        if (aPriority !== bPriority) return bPriority - aPriority;
+        container.innerHTML = '';
         
-        // If same priority, sort by deadline
-        if (a.deadline && b.deadline) {
-            return new Date(a.deadline) - new Date(b.deadline);
+        // Ensure tasks is always an array
+        if (!Array.isArray(tasks)) {
+            console.error('Tasks is not an array:', tasks);
+            this.showEmptyState(container);
+            return;
         }
-        return 0;
-    });
-    
-    filteredTasks.forEach(task => {
-        const taskElement = this.createTaskElement(task);
-        container.appendChild(taskElement);
-    });
-    
-    if (filteredTasks.length === 0) {
-        this.showEmptyState(container);
+        
+        let filteredTasks = filter ? tasks.filter(filter) : tasks;
+        
+        // Double-check that filteredTasks is an array
+        if (!Array.isArray(filteredTasks)) {
+            console.error('Filtered tasks is not an array:', filteredTasks);
+            filteredTasks = [];
+        }
+        
+        // Sort by priority and due date
+        filteredTasks.sort((a, b) => {
+            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+            const aPriority = priorityOrder[a.priority] || 2;
+            const bPriority = priorityOrder[b.priority] || 2;
+            
+            if (aPriority !== bPriority) return bPriority - aPriority;
+            
+            // If same priority, sort by deadline
+            if (a.deadline && b.deadline) {
+                return new Date(a.deadline) - new Date(b.deadline);
+            }
+            return 0;
+        });
+        
+        filteredTasks.forEach(task => {
+            const taskElement = this.createTaskElement(task);
+            container.appendChild(taskElement);
+        });
+        
+        if (filteredTasks.length === 0) {
+            this.showEmptyState(container);
+        }
     }
-}
 
     createTaskElement(task) {
         const div = document.createElement('div');
@@ -305,44 +401,16 @@ class TaskManager {
             </div>
             <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
             <div class="task-actions">
-                <button class="edit-task" data-task-id="${task.id}" title="Edit">
+                <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <button class="delete-task" data-task-id="${task.id}" title="Delete">
+                <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button">
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
         `;
         
-        this.attachTaskEventListeners(div);
         return div;
-    }
-
-    attachTaskEventListeners(taskElement) {
-        const checkbox = taskElement.querySelector('.task-checkbox');
-        const editBtn = taskElement.querySelector('.edit-task');
-        const deleteBtn = taskElement.querySelector('.delete-task');
-        
-        if (checkbox) {
-            checkbox.addEventListener('change', (e) => {
-                const taskId = parseInt(e.target.getAttribute('data-task-id'));
-                this.toggleTask(taskId);
-            });
-        }
-        
-        if (editBtn) {
-            editBtn.addEventListener('click', (e) => {
-                const taskId = parseInt(e.target.getAttribute('data-task-id'));
-                this.editTask(taskId);
-            });
-        }
-        
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => {
-                const taskId = parseInt(e.target.getAttribute('data-task-id'));
-                this.deleteTask(taskId);
-            });
-        }
     }
 
     toggleTask(taskId) {
@@ -369,32 +437,73 @@ class TaskManager {
     }
 
     deleteTask(taskId) {
-        if (!confirm('Are you sure you want to delete this task?')) return;
+        console.log('deleteTask called with ID:', taskId);
+        
+        if (!taskId || isNaN(taskId)) {
+            console.error('Invalid task ID:', taskId);
+            return;
+        }
+
+        if (!confirm('Are you sure you want to delete this task?')) {
+            this.restoreFocus(); // Restore focus if user cancels
+            return;
+        }
         
         try {
             let tasks = this.getTasks();
+            console.log('Tasks before delete:', tasks.length);
+            
             const taskToDelete = tasks.find(task => task.id === taskId);
+            console.log('Task to delete:', taskToDelete);
+            
+            if (!taskToDelete) {
+                console.error('Task not found with ID:', taskId);
+                this.restoreFocus();
+                return;
+            }
+            
             tasks = tasks.filter(task => task.id !== taskId);
+            console.log('Tasks after delete:', tasks.length);
             
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
             this.displayTasks();
             this.updateProgress();
             this.emitTaskUpdate('task-deleted', taskToDelete);
+            
+            console.log('Task deleted successfully');
+            this.restoreFocus(); // Restore focus after successful deletion
         } catch (error) {
             console.error('Could not delete task:', error);
+            this.restoreFocus();
         }
     }
 
     editTask(taskId) {
+        console.log('editTask called with ID:', taskId);
+        
+        if (!taskId || isNaN(taskId)) {
+            console.error('Invalid task ID:', taskId);
+            return;
+        }
+
         const tasks = this.getTasks();
         const task = tasks.find(t => t.id === taskId);
-        if (!task) return;
         
+        if (!task) {
+            console.error('Task not found with ID:', taskId);
+            this.restoreFocus();
+            return;
+        }
+        
+        console.log('Editing task:', task);
         this.editingTask = task;
         this.showEditModal(task);
     }
 
     showEditModal(task) {
+        // Close any existing modals first
+        closeModal();
+        
         const modal = document.createElement('div');
         modal.className = 'task-edit-modal';
         modal.innerHTML = `
@@ -432,8 +541,8 @@ class TaskManager {
                 </div>
                 
                 <div class="modal-actions">
-                    <button data-action="save">Save Changes</button>
-                    <button data-action="cancel">Cancel</button>
+                    <button data-action="save" type="button">Save Changes</button>
+                    <button data-action="cancel" type="button">Cancel</button>
                 </div>
             </div>
         `;
@@ -443,11 +552,14 @@ class TaskManager {
         const buttons = modal.querySelectorAll('button');
         buttons.forEach(button => {
             button.addEventListener('click', (e) => {
+                e.preventDefault();
                 const action = e.target.getAttribute('data-action');
                 if (action === 'save') {
                     this.saveEditedTask();
                 } else if (action === 'cancel') {
                     closeModal();
+                    this.editingTask = null;
+                    this.restoreFocus(); // Restore focus when canceling edit
                 }
             });
         });
@@ -459,8 +571,13 @@ class TaskManager {
         const prioritySelect = document.getElementById('editPriority');
         const deadlineInput = document.getElementById('edit-deadline');
         
+        // Validate the textarea input
+        if (!this.validateInput(textArea, 'Please enter a task description')) {
+            return;
+        }
+        
         const newText = textArea.value.trim();
-        if (!newText || !this.editingTask) return;
+        if (!this.editingTask) return;
         
         try {
             const tasks = this.getTasks();
@@ -497,6 +614,7 @@ class TaskManager {
         
         this.editingTask = null;
         closeModal();
+        this.restoreFocus(); // Restore focus after saving
     }
 
     updateProgress() {
