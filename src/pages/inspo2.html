@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ohana Productivity - Dashboard</title>
+    <style>
+        :root[data-theme="light"] {
+            --primary-purple: #a1e0ff;       
+            --medium-purple: #d6f3ff;        
+            --dark-purple: #6ab6ff;          
+            --dark-blue: #9ddfff;            
+            --darker-blue: #3c8bc4;          
+            --white: #f2faff;                
+            --light-bg: #eef9ff;             
+            --text-primary: #244c5a;         
+            --text-secondary: #6ab6ff;
+            --border-color: var(--primary-purple);
+            --card-bg: #f6fbff;              
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-hover: rgba(106, 182, 255, 0.12);
+        }
+        :root[data-theme="dark"] {
+            --primary-purple: #2f1b70;        
+            --medium-purple: #5c33a9;         
+            --dark-purple: #0dd1ff;           
+            --dark-blue: #183d67;             
+            --darker-blue: #0f1b2c;           
+            --white: #ffffff;
+            --light-bg: #0b0f14;              
+            --text-primary: #e1ecf5;          
+            --text-secondary: #94a3b8;        
+            --border-color: var(--medium-purple);
+            --card-bg: #151b24;              
+            --shadow: rgba(0, 0, 0, 0.4);
+            --shadow-hover: rgba(13, 209, 255, 0.2);
+        }
+
+        /* Default to light theme if no preference is set */
+        :root {
+            --primary-purple: #a1e0ff;       
+            --medium-purple: #d6f3ff;        
+            --dark-purple: #6ab6ff;          
+            --dark-blue: #9ddfff;            
+            --darker-blue: #3c8bc4;          
+            --white: #f2faff;                
+            --light-bg: #eef9ff;             
+            --text-primary: #244c5a;         
+            --text-secondary: #6ab6ff;
+            --border-color: var(--primary-purple);
+            --card-bg: #f6fbff;             
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-hover: rgba(106, 182, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px var(--shadow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .title {
+            color: var(--white);
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+            margin-top: -5px;
+        }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            gap: 2rem;
+        }
+
+        .welcome-content {
+            flex: 1;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .date-time {
+            background: linear-gradient(135deg, var(--dark-purple) 0%, var(--medium-purple) 100%);
+            color: white;
+            padding: 20px 35px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px var(--shadow);
+            text-align: center;
+            min-width: 180px;
+            max-height: 240px;
+            height: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .day {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .date-circle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .date {
+            font-size: 52px;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .month {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .digital-clock {
+            font-size: 20px;
+            font-weight: 500;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+        }
+
+        /* Navigation Cards Grid */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .nav-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--dark-purple));
+            border-radius: 20px 20px 0 0;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px var(--shadow-hover);
+            border-color: var(--border-color);
+        }
+
+        .nav-card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .nav-card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .stats-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 2px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark-purple);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Motivational Quote */
+        .quote-section {
+            background: linear-gradient(135deg, var(--medium-purple), var(--primary-purple));
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-section::before {
+            content: '🌺';
+            position: absolute;
+            top: 1rem;
+            left: 2rem;
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: rotate 10s linear infinite;
+        }
+
+        .quote-section::after {
+            content: '🏖️';
+            position: absolute;
+            bottom: 1rem;
+            right: 2rem;
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: rotate 10s linear infinite reverse;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .quote-text {
+            font-size: 1.2rem;
+            font-style: italic;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Dark theme specific adjustments */
+        [data-theme="dark"] .nav-card-icon {
+            background: linear-gradient(135deg, var(--medium-purple), var(--dark-purple));
+        }
+
+        [data-theme="dark"] .logo {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">🌺</div>
+                <div>
+                    <h1 class="title">Ohana Productivity</h1>
+                    <p class="subtitle">Family means nobody gets left behind</p>
+                </div>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <h2 class="welcome-title">Aloha! Ready to be productive? 🏝️</h2>
+                <p class="welcome-subtitle">Choose your adventure and let's get things done together!</p>
+            </div>
+            <div class="date-time">
+                <div class="day" id="current-day">Friday</div>
+                <div class="date-circle">
+                    <div class="date" id="current-date">27</div>
+                </div>
+                <div class="month" id="current-month">June</div>
+                <div class="digital-clock" id="digital-clock">12:02:02</div>
+                <!-- <img id="stitch-mood-gif" alt="stitch-mood-gif" class="random-gif"> -->
+            </div>
+        </section>
+
+        <section class="nav-grid">
+            <div class="nav-card" onclick="navigateTo('timer.html')">
+                <div class="nav-card-icon">⏰</div>
+                <h3 class="nav-card-title">Focus Timer</h3>
+                <p class="nav-card-desc">Stay focused with Pomodoro sessions. Like Stitch learning to be good - one step at a time!</p>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('calendar.html')">
+                <div class="nav-card-icon">📅</div>
+                <h3 class="nav-card-title">Calendar</h3>
+                <p class="nav-card-desc">Plan your days like Lilo planning her hula performances. Every moment matters!</p>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('tasks.html')">
+                <div class="nav-card-icon">✅</div>
+                <h3 class="nav-card-title">Tasks</h3>
+                <p class="nav-card-desc">Track your to-dos and accomplishments. Even Stitch has his experiments to complete!</p>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('notes.html')">
+                <div class="nav-card-icon">📝</div>
+                <h3 class="nav-card-title">Notes</h3>
+                <p class="nav-card-desc">Capture your thoughts and ideas. Like Lilo's journal of daily adventures!</p>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('stats.html')">
+                <div class="nav-card-icon">📊</div>
+                <h3 class="nav-card-title">Statistics</h3>
+                <p class="nav-card-desc">Track your progress and celebrate your wins. Growth is part of the journey!</p>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('settings.html')">
+                <div class="nav-card-icon">⚙️</div>
+                <h3 class="nav-card-title">Settings</h3>
+                <p class="nav-card-desc">Customize your experience to make it truly yours. Ohana style!</p>
+            </div>
+        </section>
+
+        <section class="quick-stats">
+            <h3 class="stats-title">Today's Quick Overview</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2h 30m</div>
+                    <div class="stat-label">Focus Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Notes Created</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">85%</div>
+                    <div class="stat-label">Productivity Score</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <p class="quote-text">"This is my family. I found it all on my own. It's little, and broken, but still good. Yeah, still good."</p>
+            <p class="quote-author">- Stitch</p>
+        </section>
+    </main>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            
+            // Save theme preference
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function navigateTo(page) {
+            // Add a subtle animation before navigation
+            event.currentTarget.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                // In Electron, you would use ipcRenderer to communicate with main process
+                // For now, we'll simulate navigation
+                console.log(`Navigating to ${page}`);
+                // window.location.href = page; // Uncomment for actual navigation
+            }, 100);
+        }
+
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        });
+
+        // Add some interactive elements
+        document.querySelectorAll('.nav-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
