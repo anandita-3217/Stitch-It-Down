@@ -169,14 +169,15 @@
 
 .task-progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--dark-purple), var(--primary-purple));
+    /* background: linear-gradient(90deg, var(--dark-purple), var(--primary-purple)); */
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     border-radius: 15px;
     transition: width 0.8s ease;
     position: relative;
     width: 43%; /* Example progress */
 }
 
-.task-progress-bar::after {
+/* .task-progress-bar::after {
     content: '';
     position: absolute;
     top: 0;
@@ -185,12 +186,8 @@
     bottom: 0;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     animation: shimmer 2s infinite;
-}
+} */
 
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
 
 .task-progress-text {
     font-size: 1rem;
@@ -758,7 +755,79 @@
     border-color: #ef4444 !important;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
+.task-checkbox {
+    /* Hide the default checkbox */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    /* Custom styling */
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    margin-right: 12px;
+    
+    /* Focus states */
+    outline: none;
+    box-shadow: 0 0 0 0 var(--dark-purple);
+}
 
+.task-checkbox:hover {
+    border-color: var(--dark-purple);
+    background-color: var(--primary-purple);
+    box-shadow: var(--shadow-hover);
+    transform: scale(1.05);
+}
+
+.task-checkbox:focus {
+    border-color: var(--dark-purple);
+    box-shadow: 0 0 0 3px rgba(106, 182, 255, 0.2);
+}
+
+/* Checked state */
+.task-checkbox:checked {
+    background-color: var(--dark-purple);
+    border-color: var(--dark-purple);
+    box-shadow: 0 2px 8px var(--shadow-hover);
+}
+
+/* Checkmark */
+.task-checkbox:checked::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    width: 6px;
+    height: 10px;
+    border: solid var(--white);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 1;
+    animation: checkmark-appear 0.2s ease-out;
+}
+
+.task-checkbox::before {
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+
+/* Checkmark animation */
+@keyframes checkmark-appear {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(45deg) scale(1);
+    }
+}
 
 
 @keyframes shake {

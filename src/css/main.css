@@ -299,13 +299,12 @@ body {
     height: 24px; 
     background-color: rgba(225, 163, 229, 0.2);
     border-radius: 30px;
-    /* overflow: hidden; */
     position: relative;
     margin-bottom: 12px;
     min-height: 20px;
-    height: 24px; /* already set, but re-confirm */
+    height: 24px; 
     margin-bottom: 12px;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 .progress-bar {
