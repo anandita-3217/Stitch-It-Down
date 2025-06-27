@@ -13,21 +13,45 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 let taskManager;
 
+// function initialize() {
+//     loadAllImages();
+//     setDailyQuote();
+//     debugFunctions();
+//     initTheme();
+    
+//     // Initialize TaskManager
+//     taskManager = new TaskManager();
+    
+//     // Request notification permission
+//     requestNotificationPermission();
+    
+//     // Setup task filters if they exist
+//     setupTaskFilters();
+// }
+// Replace your current initialize function with this enhanced version
 function initialize() {
     loadAllImages();
     setDailyQuote();
     debugFunctions();
     initTheme();
     
-    // Initialize TaskManager
-    taskManager = new TaskManager();
+    // Initialize TaskManager with debugging
+    console.log('Initializing TaskManager...');
+    window.taskManager = new TaskManager(); // Make globally accessible
+    taskManager = window.taskManager;
     
-    // Request notification permission
+    // Debug after DOM is ready
+    setTimeout(() => {
+        console.log('Running task completion debug...');
+        if (window.debugTaskCompletion) {
+            window.debugTaskCompletion();
+        }
+    }, 1000);
+    
     requestNotificationPermission();
-    
-    // Setup task filters if they exist
     setupTaskFilters();
 }
+
 
 function debugFunctions() {
     const now = new Date();
@@ -42,6 +66,52 @@ function requestNotificationPermission() {
         });
     }
 }
+function debugTaskCompletion() {
+    console.log('=== TASK COMPLETION DEBUG ===');
+    
+    // Check if TaskManager instance exists
+    if (window.taskManager) {
+        const tasks = window.taskManager.getTasks();
+        console.log('Total tasks:', tasks.length);
+        console.log('Tasks:', tasks);
+        
+        // Check each task's structure
+        tasks.forEach((task, index) => {
+            console.log(`Task ${index}:`, {
+                id: task.id,
+                text: task.text,
+                completed: task.completed,
+                hasValidId: !isNaN(task.id) && task.id !== null && task.id !== undefined
+            });
+        });
+    } else {
+        console.log('TaskManager instance not found in window object');
+    }
+    
+    // Check DOM elements
+    const checkboxes = document.querySelectorAll('.task-checkbox');
+    console.log('Checkboxes found:', checkboxes.length);
+    
+    checkboxes.forEach((checkbox, index) => {
+        const taskId = checkbox.getAttribute('data-task-id');
+        console.log(`Checkbox ${index}:`, {
+            taskId: taskId,
+            checked: checkbox.checked,
+            hasEventListener: checkbox.onclick !== null || checkbox.onchange !== null
+        });
+    });
+    
+    // Check if tasks container exists
+    const tasksContainer = document.getElementById('tasksContainer');
+    console.log('Tasks container found:', !!tasksContainer);
+    
+    console.log('=== END DEBUG ===');
+}
+
+// Add this to window for easy debugging
+window.debugTaskCompletion = debugTaskCompletion;
+
+
 
 function setupTaskFilters() {
     // Priority filter

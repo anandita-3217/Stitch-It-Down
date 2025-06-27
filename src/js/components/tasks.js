@@ -7,6 +7,8 @@ class TaskManager {
         this.editingTask = null;
         this.tempTaskData = null;
         this.lastFocusedElement = null; // Track last focused element
+        this.debug = true;
+
         this.init();
     }
 
@@ -66,8 +68,6 @@ class TaskManager {
             this.shakeInput(inputElement);
             return false;
         }
-        
-        this.clearInputError(inputElement);
         return true;
     }
 
@@ -88,32 +88,50 @@ class TaskManager {
     setupEventListeners() {
         const addTaskBtn = document.getElementById('addTaskBtn');
         const taskInput = document.getElementById('taskInput');
+        const tasksContainer = document.getElementById('tasksContainer');
         
+        console.log('Setting up event listeners...');
+        console.log('addTaskBtn:', addTaskBtn);
+        console.log('taskInput:', taskInput);
+        console.log('tasksContainer:', tasksContainer);
+
+
         if (addTaskBtn) {
             addTaskBtn.addEventListener('click', () => this.handleAddTask());
+            console.log('✓ Add task button listener attached');
         }
         
         if (taskInput) {
             taskInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') this.handleAddTask();
             });
-            
+            console.log('✓ Task input listener attached');
         }
 
         // Use event delegation for dynamic task elements
-        const tasksContainer = document.getElementById('tasksContainer');
+        // const tasksContainer = document.getElementById('tasksContainer');
         if (tasksContainer) {
             tasksContainer.addEventListener('click', (e) => {
+                if (this.debug) {
+                    console.log('Click event on tasks container:', e.target);
+                    console.log('Target classes:', e.target.classList.toString());
+                }
+
                 e.preventDefault();
                 e.stopPropagation();
                 
                 const target = e.target;
                 const button = target.closest('button');
                 
-                if (!button) return;
+                if (!button) {
+                    if (this.debug) console.log('No button found in click target');
+                    return;
+                }
+
                 
                 const taskId = parseInt(button.getAttribute('data-task-id'));
-                
+                console.log('Button clicked with task ID:', taskId);
+
                 if (button.classList.contains('edit-task') || target.classList.contains('bi-pencil')) {
                     console.log('Edit button clicked for task:', taskId);
                     this.editTask(taskId);
@@ -124,13 +142,41 @@ class TaskManager {
             });
 
             tasksContainer.addEventListener('change', (e) => {
-                if (e.target.classList.contains('task-checkbox')) {
+                if (this.debug) {
+                    console.log('Change event triggered:', e.target);
+                    console.log('Target type:', e.target.type);
+                    console.log('Target classes:', e.target.classList.toString());
+                    console.log('Is checkbox:', e.target.type === 'checkbox');
+                    console.log('Has task-checkbox class:', e.target.classList.contains('task-checkbox'));
+                }
+                if (e.target.type === 'checkbox' && e.target.classList.contains('task-checkbox')) {
                     const taskId = parseInt(e.target.getAttribute('data-task-id'));
-                    this.toggleTask(taskId);
+                    console.log('Checkbox changed for task ID:', taskId, 'Checked:', e.target.checked);
+                    if (taskId && !isNaN(taskId)) {
+                        this.toggleTask(taskId);
+                    } else {
+                        console.error('Invalid task ID from checkbox:', taskId);
+                    }
+
+                }
+                else {
+                    console.log('Change event not from task checkbox');
                 }
             });
+            tasksContainer.addEventListener('click', (e) => {
+                if (e.target.type === 'checkbox' && e.target.classList.contains('task-checkbox')) {
+                    console.log('Direct checkbox click detected:', e.target);
+                    // Don't prevent default here as it would break checkbox functionality
+                }
+            }, true); // Use capture phase
+            
+            console.log('✓ Task container listeners attached');
+        } else {
+            console.error('❌ Tasks container not found!');
         }
     }
+
+
 
     handleAddTask() {
         const taskInput = document.getElementById('taskInput');
@@ -372,6 +418,73 @@ class TaskManager {
         }
     }
 
+    // createTaskElement(task) {
+    //     const div = document.createElement('div');
+    //     div.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+        
+    //     const isOverdue = task.deadline && this.isOverdue(task.deadline);
+    //     if (isOverdue) div.classList.add('overdue');
+        
+    //     div.innerHTML = `
+    //         <div class="task-content">
+    //             <input type="checkbox" ${task.completed ? 'checked' : ''} 
+    //                    data-task-id="${task.id}" class="task-checkbox">
+    //             <div class="task-text ${task.completed ? 'completed-text' : ''}">
+    //                 ${task.completed ? 
+    //                     `<del>${detectAndCreateLinks(task.text)}</del>` : 
+    //                     detectAndCreateLinks(task.text)
+    //                 }
+    //             </div>
+    //             <div class="task-meta">
+    //                 <span class="task-frequency">${task.frequency}</span>
+    //                 <span class="task-priority priority-${task.priority}">${task.priority}</span>
+    //                 ${task.deadline ? `
+    //                     <div class="deadline-info ${isOverdue ? 'overdue' : ''}">
+    //                         📅 ${this.formatDeadline(task.deadline)}
+    //                     </div>
+    //                 ` : ''}
+    //             </div>
+    //         </div>
+    //         <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
+    //         <div class="task-actions">
+    //             <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
+    //                 <i class="bi bi-pencil"></i>
+    //             </button>
+    //             <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button">
+    //                 <i class="bi bi-trash"></i>
+    //             </button>
+    //         </div>
+    //     `;
+        
+    //     return div;
+    // }
+
+
+
+    // toggleTask(taskId) {
+    //     try {
+    //         const tasks = this.getTasks();
+    //         const taskIndex = tasks.findIndex(task => task.id === taskId);
+            
+    //         if (taskIndex !== -1) {
+    //             tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                
+    //             // Reset alert flag if task is being uncompleted
+    //             if (!tasks[taskIndex].completed) {
+    //                 delete tasks[taskIndex].alerted;
+    //             }
+                
+    //             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
+    //             this.displayTasks();
+    //             this.updateProgress();
+    //             this.emitTaskUpdate('task-toggled', tasks[taskIndex]);
+    //         }
+    //     } catch (error) {
+    //         console.error('Could not toggle task:', error);
+    //     }
+    // }
+    // Enhanced toggleTask with better error handling and debugging
+    
     createTaskElement(task) {
         const div = document.createElement('div');
         div.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
@@ -379,16 +492,25 @@ class TaskManager {
         const isOverdue = task.deadline && this.isOverdue(task.deadline);
         if (isOverdue) div.classList.add('overdue');
         
+        // Ensure task.id is properly set and valid
+        if (!task.id || isNaN(task.id)) {
+            console.error('Task missing valid ID:', task);
+            task.id = Date.now(); // Fallback ID
+        }
+        
         div.innerHTML = `
             <div class="task-content">
-                <input type="checkbox" ${task.completed ? 'checked' : ''} 
-                       data-task-id="${task.id}" class="task-checkbox">
-                <div class="task-text ${task.completed ? 'completed-text' : ''}">
+                <input type="checkbox" 
+                       ${task.completed ? 'checked' : ''} 
+                       data-task-id="${task.id}" 
+                       class="task-checkbox"
+                       id="checkbox-${task.id}">
+                <label for="checkbox-${task.id}" class="task-text ${task.completed ? 'completed-text' : ''}">
                     ${task.completed ? 
-                        `<del>${detectAndCreateLinks(task.text)}</del>` : 
-                        detectAndCreateLinks(task.text)
+                        `<del>${this.detectAndCreateLinks(task.text)}</del>` : 
+                        this.detectAndCreateLinks(task.text)
                     }
-                </div>
+                </label>
                 <div class="task-meta">
                     <span class="task-frequency">${task.frequency}</span>
                     <span class="task-priority priority-${task.priority}">${task.priority}</span>
@@ -399,7 +521,7 @@ class TaskManager {
                     ` : ''}
                 </div>
             </div>
-            <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
+            <div class="task-timestamp">${this.formatTimestamp(task.timestamp)}</div>
             <div class="task-actions">
                 <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
                     <i class="bi bi-pencil"></i>
@@ -410,31 +532,67 @@ class TaskManager {
             </div>
         `;
         
+        console.log('Created task element for ID:', task.id);
         return div;
     }
 
+    detectAndCreateLinks(text) {
+        // Simple link detection and creation
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+    }
+
+    formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+
     toggleTask(taskId) {
+        console.log('toggleTask called with ID:', taskId);
+        
+        if (!taskId || isNaN(taskId)) {
+            console.error('Invalid task ID provided to toggleTask:', taskId);
+            return;
+        }
+        
         try {
             const tasks = this.getTasks();
+            console.log('Current tasks:', tasks.length);
+            
             const taskIndex = tasks.findIndex(task => task.id === taskId);
+            console.log('Task index found:', taskIndex);
             
             if (taskIndex !== -1) {
+                const oldStatus = tasks[taskIndex].completed;
                 tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                const newStatus = tasks[taskIndex].completed;
+                
+                console.log(`Task ${taskId} status changed: ${oldStatus} → ${newStatus}`);
                 
                 // Reset alert flag if task is being uncompleted
                 if (!tasks[taskIndex].completed) {
                     delete tasks[taskIndex].alerted;
                 }
                 
+                // Save to localStorage
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
+                console.log('Tasks saved to localStorage');
+                
+                // Update display
                 this.displayTasks();
                 this.updateProgress();
                 this.emitTaskUpdate('task-toggled', tasks[taskIndex]);
+                
+                console.log('✓ Task toggle completed successfully');
+            } else {
+                console.error('Task not found with ID:', taskId);
             }
         } catch (error) {
-            console.error('Could not toggle task:', error);
+            console.error('Error in toggleTask:', error);
         }
     }
+
 
     deleteTask(taskId) {
         console.log('deleteTask called with ID:', taskId);
