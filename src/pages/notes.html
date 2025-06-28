@@ -39,14 +39,14 @@
                         <i class="menu-icon bi bi-clock"></i>
                         <span class="menu-text">Pomodoro</span>
                     </li>
-                    <li class="menu-item" data-page="tasks">
+                    <li class="menu-item" data-page="notes">
                         
                         <i class="menu-icon bi bi-pin-angle"></i>
                         <span class="menu-text">Tasks</span>
                     </li>
                     <li class="menu-item" data-page="notes">
                         
-                        <i class="menu-icon bi bi-list-task"></i>
+                        <i class="menu-icon bi bi-list-note"></i>
                         <span class="menu-text">Notes</span>
                     </li>
                     <li class="menu-item" data-page="calendar">
@@ -80,10 +80,59 @@
                 <div class="daily-quote" id="dailyQuote">
                 </div> 
             </div>
-            <div class="lower">
-                <div class="note-controls">
-                    
+             <div class="note-overview-container">
+
+                <div class="note-stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number stat-total-notes">0</div>
+                            <div class="stat-label">All</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number stat-completed-notes">0</div>
+                            <div class="stat-label">Done</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number stat-remaining-notes">0</div>
+                            <div class="stat-label">Todo</div>
+                        </div>
+                        <div class="stat-card overdue">
+                            <div class="stat-number stat-overdue-notes">0</div>
+                            <div class="stat-label">Late</div>
+                        </div>
+                    </div>
                 </div>
+                <div class="note-progress-section">
+                    <div class="progress-title">
+                                <span>Today's Progress</span>
+                                <span class="note-progress-text completed-notes">3/7 notes</span>
+                            </div>
+                    <div class="progress-container">
+                        <div class="progress-track">
+                            <div class="note-progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lower">
+                 <div class="note-filters">
+                        <select id="priority-filter" class="filter-select">
+                            <option value="all">All Priorities</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        
+                        <select id="status-filter" class="filter-select">
+                            <option value="all">All Tasks</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        
+                        <input type="text" id="note-search" class="search-input" placeholder="Search notes...">
+                    </div>
 
                 <div class="add-note">
                     <input class="addNote" id="noteInput" placeholder="Add a quick note">
