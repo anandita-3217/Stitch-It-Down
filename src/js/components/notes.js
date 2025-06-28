@@ -3,7 +3,7 @@ import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/u
 
 class NotesManager {
     constructor() {
-        this.STORAGE_KEY = 'stitchNotes';
+        this.STORAGE_KEY = 'stitch_Notes';
         this.editingNote = null;
         this.tempNoteData = null;
         this.lastFocusedElement = null; 
