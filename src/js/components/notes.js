@@ -1,4 +1,4 @@
-// notes.js - Enhanced Note Manager with focus restoration and input validation
+// // notes.js - Enhanced Note Manager with focus restoration and input validation
 import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 
 class NotesManager {
@@ -6,16 +6,13 @@ class NotesManager {
         this.STORAGE_KEY = 'stitchNotes';
         this.editingNote = null;
         this.tempNoteData = null;
-        this.lastFocusedElement = null; // Track last focused element
-        this.autoSaveTimer = null;
-
+        this.lastFocusedElement = null; 
         this.debug = true;
 
         this.init();
     }
 
     init() {
-        // Clear any corrupted data on initialization
         try {
             const testData = this.getNotes();
             if (!Array.isArray(testData)) {
@@ -27,13 +24,9 @@ class NotesManager {
         
         this.setupEventListeners();
         this.loadNotes();
-        this.setupProgressTracking();
-        this.setupDeadlineAlerts();
-        this.setupISTReset();
-        this.setupFocusTracking(); // Add focus tracking
+        this.setupFocusTracking(); 
     }
 
-    // New method to track focus on input elements
     setupFocusTracking() {
         const trackableFocusElements = ['noteInput', 'note-search'];
         
@@ -47,22 +40,19 @@ class NotesManager {
         });
     }
 
-    // Method to restore focus to the last focused input
     restoreFocus() {
         setTimeout(() => {
             if (this.lastFocusedElement && document.contains(this.lastFocusedElement)) {
                 this.lastFocusedElement.focus();
             } else {
-                // Default to note input if no last focused element
                 const noteInput = document.getElementById('noteInput');
                 if (noteInput) {
                     noteInput.focus();
                 }
             }
-        }, 100); // Small delay to ensure modal is fully closed
+        }, 100);
     }
 
-    // Enhanced input validation with shake animation
     validateInput(inputElement, errorMessage = 'Please enter a valid value') {
         const value = inputElement.value.trim();
         
@@ -73,157 +63,139 @@ class NotesManager {
         return true;
     }
 
-    // Shake animation for invalid inputs
     shakeInput(inputElement) {
         inputElement.classList.remove('shake-animation');
-        // Force reflow to restart animation
         inputElement.offsetHeight;
         inputElement.classList.add('shake-animation');
-        
-        // Remove shake class after animation
         setTimeout(() => {
             inputElement.classList.remove('shake-animation');
         }, 600);
     }
 
     setupEventListeners() {
-    const addNoteBtn = document.getElementById('addNoteBtn');
-    const noteInput = document.getElementById('noteInput');
-    const notesContainer = document.getElementById('notesContainer');
-    
-    console.log('Setting up event listeners...');
-    
-    if (addNoteBtn) {
-        addNoteBtn.addEventListener('click', () => this.handleAddNote());
-    }
-    
-    if (noteInput) {
-        noteInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleAddNote();
-        });
-    }
-
-    if (notesContainer) {
-        // FIXED: Separate click handler specifically for checkboxes
-        notesContainer.addEventListener('click', (e) => {
-            const target = e.target;
-            
-            // Handle checkbox clicks FIRST
-            if (target.type === 'checkbox' && target.classList.contains('note-checkbox')) {
-                console.log('Checkbox clicked:', target);
-                const noteId = parseInt(target.getAttribute('data-note-id'));
-                console.log('Toggling note ID:', noteId);
-                
-                if (noteId && !isNaN(noteId)) {
-                    // Small delay to let checkbox state update
-                    setTimeout(() => {
-                        this.toggleNote(noteId);
-                    }, 10);
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        const noteInput = document.getElementById('noteInput');
+        const notesContainer = document.getElementById('notesContainer');
+        
+        console.log('Setting up event listeners...');
+        
+        if (addNoteBtn) {
+            addNoteBtn.addEventListener('click', () => this.handleAddNote());
+        }
+        
+        if (noteInput) {
+            noteInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { // FEATURE IMPROVEMENT: Allow Shift+Enter for new lines in textarea
+                    e.preventDefault();
+                    this.handleAddNote();
                 }
-                return; // Exit early for checkbox clicks
-            }
-            
-            // Handle button clicks (edit/delete)
-            const button = target.closest('button');
-            if (button) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const noteId = parseInt(button.getAttribute('data-note-id'));
-                
-                if (button.classList.contains('edit-note') || target.classList.contains('bi-pencil')) {
-                    console.log('Edit button clicked for note:', noteId);
-                    this.editNote(noteId);
-                } else if (button.classList.contains('delete-note') || target.classList.contains('bi-trash')) {
-                    console.log('Delete button clicked for note:', noteId);
-                    this.deleteNote(noteId);
-                }
-            }
-        });
+            });
+        }
 
-        // BACKUP: Also listen for change events (in case click doesn't work)
-        notesContainer.addEventListener('change', (e) => {
-            console.log('Change event detected:', e.target);
-            
-            if (e.target.type === 'checkbox' && e.target.classList.contains('note-checkbox')) {
-                const noteId = parseInt(e.target.getAttribute('data-note-id'));
-                console.log('Change event - toggling note ID:', noteId, 'Checked:', e.target.checked);
-                
-                if (noteId && !isNaN(noteId)) {
-                    this.toggleNote(noteId);
+        if (notesContainer) {
+            notesContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (button) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const noteId = parseInt(button.getAttribute('data-note-id'));
+                    
+                    if (button.classList.contains('edit-note') || e.target.classList.contains('bi-pencil')) {
+                        console.log('Edit button clicked for note:', noteId);
+                        this.editNote(noteId);
+                    } else if (button.classList.contains('delete-note') || e.target.classList.contains('bi-trash')) {
+                        console.log('Delete button clicked for note:', noteId);
+                        this.deleteNote(noteId);
+                    } else if (button.classList.contains('pin-note') || e.target.classList.contains('bi-pin-angle')) {
+                        // FEATURE IMPROVEMENT: Add pin/unpin functionality for important notes
+                        console.log('Pin button clicked for note:', noteId);
+                        this.togglePinNote(noteId);
+                    } else if (button.classList.contains('archive-note') || e.target.classList.contains('bi-archive')) {
+                        // FEATURE IMPROVEMENT: Add archive functionality to hide notes without deleting
+                        console.log('Archive button clicked for note:', noteId);
+                        this.toggleArchiveNote(noteId);
+                    }
                 }
-            }
-        });
+            });
 
-        console.log('✓ note container listeners attached');
+            console.log('✓ Notes container listeners attached');
+        }
     }
-}
-
-
 
     handleAddNote() {
         const noteInput = document.getElementById('noteInput');
-        
-        // Validate input with shake animation
-        if (!this.validateInput(noteInput, 'Please enter a note description')) {
+        if (!this.validateInput(noteInput, 'Please enter a note')) {
             return;
         }
         
         const noteText = noteInput.value.trim();
-        this.showFrequencyModal(noteText);
+        this.showCategoryModal(noteText);
         noteInput.value = '';
     }
 
-    showFrequencyModal(noteText) {
+    showCategoryModal(noteText) {
         const modal = document.createElement('div');
-        modal.className = 'note-frequency-modal';
+        modal.className = 'note-category-modal';
         modal.innerHTML = `
             <div class="modal-content">
                 <h3>Note Settings</h3>
                 <div class="note-text-preview">
-                    <strong>note:</strong> ${noteText}
+                    <strong>Note:</strong> ${noteText.length > 100 ? noteText.substring(0, 100) + '...' : noteText}
                 </div>
                 
-                <div class="frequency-section">
-                    <label>Frequency:</label>
-                    <select id="note-frequency">
-                        <option value="once">One-time</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="biweekly">Bi-weekly</option>
-                        <option value="monthly">Monthly</option>
+                <div class="category-section">
+                    <label>Category:</label>
+                    <select id="note-category">
+                        <option value="general">General</option>
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="ideas">Ideas</option>
+                        <option value="reminders">Reminders</option>
+                        <option value="quotes">Quotes</option>
+                        <option value="research">Research</option>
                     </select>
                 </div>
                 
-                <div class="deadline-section">
-                    <label for="note-deadline">Deadline (optional):</label>
-                    <input type="datetime-local" id="note-deadline" 
-                           min="${new Date().toISOString().slice(0, 16)}">
+                <div class="color-section">
+                    <!-- FEATURE IMPROVEMENT: Color coding for visual organization -->
+                    <label>Color:</label>
+                    <div class="color-picker">
+                        <input type="radio" name="note-color" value="default" id="color-default" checked>
+                        <label for="color-default" class="color-option color-default"></label>
+                        
+                        <input type="radio" name="note-color" value="yellow" id="color-yellow">
+                        <label for="color-yellow" class="color-option color-yellow"></label>
+                        
+                        <input type="radio" name="note-color" value="blue" id="color-blue">
+                        <label for="color-blue" class="color-option color-blue"></label>
+                        
+                        <input type="radio" name="note-color" value="green" id="color-green">
+                        <label for="color-green" class="color-option color-green"></label>
+                        
+                        <input type="radio" name="note-color" value="pink" id="color-pink">
+                        <label for="color-pink" class="color-option color-pink"></label>
+                        
+                        <input type="radio" name="note-color" value="purple" id="color-purple">
+                        <label for="color-purple" class="color-option color-purple"></label>
+                    </div>
                 </div>
                 
-                <div class="alert-section">
-                    <label for="alert-time">Alert before deadline:</label>
-                    <select id="alert-time">
-                        <option value="0">No alert</option>
-                        <option value="15">15 minutes</option>
-                        <option value="60">1 hour</option>
-                        <option value="1440">1 day</option>
-                        <option value="10080">1 week</option>
-                    </select>
+                <div class="tags-section">
+                    <!-- FEATURE IMPROVEMENT: Tags for better searchability and organization -->
+                    <label for="note-tags">Tags (comma-separated):</label>
+                    <input type="text" id="note-tags" placeholder="e.g., important, meeting, project">
                 </div>
                 
-                <div class="priority-section">
-                    <label for="note-priority">Priority:</label>
-                    <select id="note-priority">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                    </select>
+                <div class="options-section">
+                    <!-- FEATURE IMPROVEMENT: Additional note options -->
+                    <label>
+                        <input type="checkbox" id="note-pinned"> Pin this note
+                    </label>
                 </div>
                 
                 <div class="modal-actions">
-                    <button data-action="create">Create note</button>
+                    <button data-action="create">Create Note</button>
                     <button data-action="cancel">Cancel</button>
                 </div>
             </div>
@@ -232,7 +204,6 @@ class NotesManager {
         document.body.appendChild(modal);
         this.tempNoteData = { text: noteText };
         
-        // Add event listeners
         const buttons = modal.querySelectorAll('button');
         buttons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -249,73 +220,44 @@ class NotesManager {
     createNoteFromModal() {
         if (!this.tempNoteData) return;
         
-        const frequency = document.getElementById('note-frequency').value;
-        const deadlineInput = document.getElementById('note-deadline');
-        const alertSelect = document.getElementById('alert-time');
-        const prioritySelect = document.getElementById('note-priority');
+        const category = document.getElementById('note-category').value;
+        const colorInput = document.querySelector('input[name="note-color"]:checked');
+        const tagsInput = document.getElementById('note-tags');
+        const pinnedCheckbox = document.getElementById('note-pinned');
         
         const noteData = {
             id: Date.now(),
             text: this.tempNoteData.text,
             type: 'note',
             timestamp: new Date().toISOString(),
-            completed: false,
-            frequency: frequency,
-            priority: prioritySelect.value,
-            dueDate: new Date().toISOString().split('T')[0]
+            category: category,
+            color: colorInput ? colorInput.value : 'default',
+            tags: tagsInput.value ? tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
+            pinned: pinnedCheckbox.checked,
+            archived: false, // FEATURE IMPROVEMENT: Archive functionality
+            wordCount: this.countWords(this.tempNoteData.text), // FEATURE IMPROVEMENT: Word count tracking
+            lastModified: new Date().toISOString() // FEATURE IMPROVEMENT: Track modifications
         };
-        
-        // Set next reset for recurring notes
-        if (frequency !== 'once') {
-            noteData.nextReset = this.calculateNextReset(frequency);
-        }
-        
-        // Handle deadline and alerts
-        if (deadlineInput.value) {
-            noteData.deadline = new Date(deadlineInput.value).toISOString();
-            const alertMinutes = parseInt(alertSelect.value) || 0;
-            
-            if (alertMinutes > 0) {
-                const alertTime = new Date(deadlineInput.value);
-                alertTime.setMinutes(alertTime.getMinutes() - alertMinutes);
-                noteData.alertTime = alertTime.toISOString();
-                noteData.alertMinutes = alertMinutes;
-            }
-        }
         
         this.saveNote(noteData);
         closeModal();
         this.tempNoteData = null;
-        this.restoreFocus(); // Restore focus after creating Note
+        this.restoreFocus(); 
     }
 
     cancelNoteCreation(noteText) {
-        // Return text to input field
         const noteInput = document.getElementById('noteInput');
         if (noteInput) {
             noteInput.value = noteText;
         }
         closeModal();
         this.tempNoteData = null;
-        this.restoreFocus(); // Restore focus after canceling
+        this.restoreFocus();
     }
 
-    calculateNextReset(frequency) {
-        const now = new Date();
-        switch(frequency) {
-            case 'daily': 
-                return new Date(now.getTime() + 24*60*60*1000);
-            case 'weekly': 
-                return new Date(now.getTime() + 7*24*60*60*1000);
-            case 'biweekly': 
-                return new Date(now.getTime() + 14*24*60*60*1000);
-            case 'monthly': 
-                const nextMonth = new Date(now);
-                nextMonth.setMonth(nextMonth.getMonth() + 1);
-                return nextMonth;
-            default: 
-                return new Date(now.getTime() + 24*60*60*1000);
-        }
+    // FEATURE IMPROVEMENT: Word count utility for notes
+    countWords(text) {
+        return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     }
 
     saveNote(noteData) {
@@ -324,7 +266,6 @@ class NotesManager {
             notes.push(noteData);
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
             this.displayNotes();
-            this.updateProgress();
             this.emitNoteUpdate('note-added', noteData);
         } catch (error) {
             console.error('Could not save note to localStorage:', error);
@@ -338,975 +279,9 @@ class NotesManager {
                 return [];
             }
             const parsed = JSON.parse(stored);
-            // Ensure we always return an array
-            return Array.isArray(parsed) ? parsed : [];
-        } catch (error) {
-            console.error('Could not load Notes from localStorage:', error);
-            // Clear corrupted data
-            localStorage.removeItem(this.STORAGE_KEY);
-            return [];
-        }
-    }
-
-    loadNotes() {
-        const notes = this.getNotes();
-        this.displayNotes();
-        this.updateProgress();
-    }
-    
-    displayNotes(filter = null) {
-        const notes = this.getNotes();
-        const container = document.getElementById('notesContainer');
-        if (!container) return;
-        
-        container.innerHTML = '';
-        
-        // Ensure notes is always an array
-        if (!Array.isArray(notes)) {
-            console.error('notes is not an array:', notes);
-            this.showEmptyState(container);
-            return;
-        }
-        
-        let filteredNotes = filter ? notes.filter(filter) : notes;
-        
-        // Double-check that filteredNotes is an array
-        if (!Array.isArray(filteredNotes)) {
-            console.error('Filtered Notes is not an array:', filteredNotes);
-            filteredNotes = [];
-        }
-        
-        // Sort by priority and due date
-        filteredNotes.sort((a, b) => {
-            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-            const aPriority = priorityOrder[a.priority] || 2;
-            const bPriority = priorityOrder[b.priority] || 2;
-            
-            if (aPriority !== bPriority) return bPriority - aPriority;
-            
-            // If same priority, sort by deadline
-            if (a.deadline && b.deadline) {
-                return new Date(a.deadline) - new Date(b.deadline);
-            }
-            return 0;
-        });
-        
-        filteredNotes.forEach(note => {
-            const noteElement = this.createNoteElement(note);
-            container.appendChild(noteElement);
-        });
-        
-        if (filteredNotes.length === 0) {
-            this.showEmptyState(container);
-        }
-    }
-
-    createNoteElement(note) {
-    const div = document.createElement('div');
-    div.className = `note-item priority-${note.priority} ${note.completed ? 'completed' : ''}`;
-    
-    const isOverdue = note.deadline && this.isOverdue(note.deadline);
-    if (isOverdue) div.classList.add('overdue');
-    
-    div.innerHTML = `
-        <div class="note-content">
-            <input type="checkbox" 
-                   ${note.completed ? 'checked' : ''} 
-                   data-note-id="${note.id}" 
-                   class="note-checkbox"
-                   id="checkbox-${note.id}">
-            <div class="note-text ${note.completed ? 'completed-text' : ''}">
-                ${note.completed ? 
-                    `<del>${detectAndCreateLinks(note.text)}</del>` : 
-                    detectAndCreateLinks(note.text)
-                }
-            </div>
-            <div class="note-meta">
-                <span class="note-frequency">${note.frequency}</span>
-                <span class="note-priority priority-${note.priority}">${note.priority}</span>
-                ${note.deadline ? `
-                    <div class="deadline-info ${isOverdue ? 'overdue' : ''}">
-                        📅 ${this.formatDeadline(note.deadline)}
-                    </div>
-                ` : ''}
-            </div>
-        </div>
-        <div class="note-timestamp">${formatTimestamp(note.timestamp)}</div>
-        <div class="note-actions">
-            <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
-                <i class="bi bi-pencil"></i>
-            </button>
-            <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
-                <i class="bi bi-trash"></i>
-            </button>
-        </div>
-    `;
-    
-    // SOLUTION 2: Direct event binding (more reliable than delegation)
-    const checkbox = div.querySelector('.note-checkbox');
-    if (checkbox) {
-        checkbox.addEventListener('change', (e) => {
-            console.log('Direct checkbox event:', e.target.checked, 'note ID:', note.id);
-            this.toggleNote(note.id);
-        });
-        
-        // Also handle click events
-        checkbox.addEventListener('click', (e) => {
-            console.log('Direct checkbox click:', e.target.checked, 'note ID:', note.id);
-            // Let the change event handle the toggle
-        });
-    }
-    
-    return div;
-}
-
-
-    detectAndCreateLinks(text) {
-        // Simple link detection and creation
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-    }
-
-    formatTimestamp(timestamp) {
-        const date = new Date(timestamp);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
-
-    toggleNote(noteId) {
-    console.log('toggleNote called with ID:', noteId);
-    
-    if (!noteId || isNaN(noteId)) {
-        console.error('Invalid note ID provided to toggleNote:', noteId);
-        return;
-    }
-    
-    try {
-        const notes = this.getNotes();
-        const noteIndex = notes.findIndex(note => note.id === noteId);
-        
-        if (noteIndex !== -1) {
-            const oldStatus = notes[noteIndex].completed;
-            notes[noteIndex].completed = !notes[noteIndex].completed;
-            const newStatus = notes[noteIndex].completed;
-            
-            console.log(`✓ note ${noteId} toggled: ${oldStatus} → ${newStatus}`);
-            
-            // Reset alert flag if note is being uncompleted
-            if (!notes[noteIndex].completed) {
-                delete notes[noteIndex].alerted;
-            }
-            
-            // Save to localStorage
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            
-            // IMMEDIATE visual update for the specific checkbox
-            const checkbox = document.querySelector(`input[data-note-id="${noteId}"]`);
-            if (checkbox) {
-                checkbox.checked = newStatus;
-                console.log('✓ Checkbox visual state updated');
-            }
-            
-            // Update display and progress
-            this.displayNotes();
-            this.updateProgress();
-            this.emitNoteUpdate('note-toggled', notes[noteIndex]);
-            
-        } else {
-            console.error('note not found with ID:', noteId);
-        }
-    } catch (error) {
-        console.error('Error in toggleNote:', error);
-    }
-}
-
-
-    deleteNote(noteId) {
-        console.log('deletenote called with ID:', noteId);
-        
-        if (!noteId || isNaN(noteId)) {
-            console.error('Invalid note ID:', noteId);
-            return;
-        }
-
-        if (!confirm('Are you sure you want to delete this note?')) {
-            this.restoreFocus(); // Restore focus if user cancels
-            return;
-        }
-        
-        try {
-            let notes = this.getNotes();
-            console.log('Notes before delete:', notes.length);
-            
-            const noteToDelete = notes.find(note => note.id === noteId);
-            console.log('note to delete:', noteToDelete);
-            
-            if (!noteToDelete) {
-                console.error('note not found with ID:', noteId);
-                this.restoreFocus();
-                return;
-            }
-            
-            notes = notes.filter(note => note.id !== noteId);
-            console.log('notes after delete:', notes.length);
-            
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            this.displayNotes();
-            this.updateProgress();
-            this.emitNoteUpdate('note-deleted', noteToDelete);
-            
-            console.log('note deleted successfully');
-            this.restoreFocus(); // Restore focus after successful deletion
-        } catch (error) {
-            console.error('Could not delete note:', error);
-            this.restoreFocus();
-        }
-    }
-
-    editNote(noteId) {
-        console.log('editnote called with ID:', noteId);
-        
-        if (!noteId || isNaN(noteId)) {
-            console.error('Invalid note ID:', noteId);
-            return;
-        }
-
-        const notes = this.getnotes();
-        const note = notes.find(t => t.id === noteId);
-        
-        if (!note) {
-            console.error('note not found with ID:', noteId);
-            this.restoreFocus();
-            return;
-        }
-        
-        console.log('Editing note:', note);
-        this.editingNote = note;
-        this.showEditModal(note);
-    }
-
-    showEditModal(note) {
-        // Close any existing modals first
-        closeModal();
-        
-        const modal = document.createElement('div');
-        modal.className = 'note-edit-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h3>Edit note</h3>
-                <textarea id="editNoteText" rows="3">${note.text}</textarea>
-                
-                <div class="edit-sections">
-                    <div class="frequency-section">
-                        <label>Frequency:</label>
-                        <select id="editFrequency">
-                            <option value="once" ${note.frequency === 'once' ? 'selected' : ''}>One-time</option>
-                            <option value="daily" ${note.frequency === 'daily' ? 'selected' : ''}>Daily</option>
-                            <option value="weekly" ${note.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
-                            <option value="biweekly" ${note.frequency === 'biweekly' ? 'selected' : ''}>Bi-weekly</option>
-                            <option value="monthly" ${note.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
-                        </select>
-                    </div>
-                    
-                    <div class="priority-section">
-                        <label>Priority:</label>
-                        <select id="editPriority">
-                            <option value="low" ${note.priority === 'low' ? 'selected' : ''}>Low</option>
-                            <option value="medium" ${note.priority === 'medium' ? 'selected' : ''}>Medium</option>
-                            <option value="high" ${note.priority === 'high' ? 'selected' : ''}>High</option>
-                            <option value="urgent" ${note.priority === 'urgent' ? 'selected' : ''}>Urgent</option>
-                        </select>
-                    </div>
-                    
-                    <div class="deadline-section">
-                        <label for="edit-deadline">Deadline:</label>
-                        <input type="datetime-local" id="edit-deadline" 
-                               value="${note.deadline ? new Date(note.deadline).toISOString().slice(0, 16) : ''}">
-                    </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button data-action="save" type="button">Save Changes</button>
-                    <button data-action="cancel" type="button">Cancel</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        const buttons = modal.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const action = e.target.getAttribute('data-action');
-                if (action === 'save') {
-                    this.saveEditedNote();
-                } else if (action === 'cancel') {
-                    closeModal();
-                    this.editingNote = null;
-                    this.restoreFocus(); // Restore focus when canceling edit
-                }
-            });
-        });
-    }
-
-    saveEditedNote() {
-        const textArea = document.getElementById('editNoteText');
-        const frequencySelect = document.getElementById('editFrequency');
-        const prioritySelect = document.getElementById('editPriority');
-        const deadlineInput = document.getElementById('edit-deadline');
-        
-        // Validate the textarea input
-        if (!this.validateInput(textArea, 'Please enter a Note description')) {
-            return;
-        }
-        
-        const newText = textArea.value.trim();
-        if (!this.editingNote) return;
-        
-        try {
-            const notes = this.getNotes();
-            const noteIndex = notes.findIndex(note => note.id === this.editingNote.id);
-            
-            if (noteIndex !== -1) {
-                notes[noteIndex].text = newText;
-                notes[noteIndex].frequency = frequencySelect.value;
-                notes[noteIndex].priority = prioritySelect.value;
-                
-                // Handle frequency changes
-                if (frequencySelect.value !== 'once') {
-                    notes[noteIndex].nextReset = this.calculateNextReset(frequencySelect.value);
-                } else {
-                    delete notes[noteIndex].nextReset;
-                }
-                
-                // Handle deadline changes
-                if (deadlineInput.value) {
-                    notes[noteIndex].deadline = new Date(deadlineInput.value).toISOString();
-                } else {
-                    delete notes[noteIndex].deadline;
-                    delete notes[noteIndex].alertTime;
-                }
-                
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-                this.displayNotes();
-                this.updateProgress();
-                this.emitNoteUpdate('note-updated', notes[noteIndex]);
-            }
-        } catch (error) {
-            console.error('Could not save edited note:', error);
-        }
-        
-        this.editingNote = null;
-        closeModal();
-        this.restoreFocus(); // Restore focus after saving
-    }
-
-    updateProgress() {
-        const notes = this.getNotes();
-        const completedNotes = notes.filter(note => note.completed);
-        const overdueNotes = notes.filter(note => 
-            note.deadline && this.isOverdue(note.deadline) && !note.completed
-        );
-        
-        // Update progress bar
-        const progressBar = document.querySelector('.note-progress-bar');
-        const progressText = document.querySelector('.note-progress-text');
-        
-        if (progressBar && progressText) {
-            const percentage = notes.length > 0 ? (completedNotes.length / notes.length) * 100 : 0;
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${completedNotes.length}/${notes.length} notes completed`;
-        }
-        
-        // Update stats
-        this.updateNoteStats(notes, completedNotes, overdueNotes);
-    }
-
-    updateNoteStats(notes, completedNotes, overdueNotes) {
-        const statElements = {
-            total: document.querySelector('.stat-total-notes'),
-            completed: document.querySelector('.stat-completed-notes'),
-            remaining: document.querySelector('.stat-remaining-notes'),
-            overdue: document.querySelector('.stat-overdue-notes')
-        };
-        
-        if (statElements.total) statElements.total.textContent = notes.length;
-        if (statElements.completed) statElements.completed.textContent = completedNotes.length;
-        if (statElements.remaining) statElements.remaining.textContent = notes.length - completedNotes.length;
-        if (statElements.overdue) statElements.overdue.textContent = overdueNotes.length;
-    }
-
-    // Utility methods
-    formatDeadline(deadline) {
-        const date = new Date(deadline);
-        const now = new Date();
-        const diff = date - now;
-        
-        if (diff < 0) return `Overdue by ${this.formatTimeDiff(Math.abs(diff))}`;
-        if (diff < 24 * 60 * 60 * 1000) return `Due in ${this.formatTimeDiff(diff)}`;
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
-
-    formatTimeDiff(ms) {
-        const hours = Math.floor(ms / (1000 * 60 * 60));
-        const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-        
-        if (hours > 0) return `${hours}h ${minutes}m`;
-        return `${minutes}m`;
-    }
-
-    isOverdue(deadline) {
-        return new Date(deadline) < new Date();
-    }
-
-    showEmptyState(container) {
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
-        emptyState.innerHTML = `
-            <div class="empty-icon"><i class="bi bi-list-task"></i></div>
-            <p>No notes yet. Create your first note!</p>
-        `;
-        container.appendChild(emptyState);
-    }
-
-    // Event system for inter-module communication
-    emitNoteUpdate(eventType, noteData) {
-        const event = new CustomEvent('noteUpdate', {
-            detail: { type: eventType, note: noteData }
-        });
-        document.dispatchEvent(event);
-    }
-
-    // Alert and notification system
-    setupDeadlineAlerts() {
-        setInterval(() => this.checkAlerts(), 60000); // Check every minute
-        this.checkAlerts(); // Check immediately
-    }
-
-    checkAlerts() {
-        try {
-            const notes = this.getNotes();
-            const now = new Date();
-            let hasUpdates = false;
-            
-            notes.forEach(note => {
-                if (note.alertTime && !note.alerted && !note.completed) {
-                    const alertTime = new Date(note.alertTime);
-                    
-                    if (now >= alertTime) {
-                        this.sendNotification(note);
-                        note.alerted = true;
-                        hasUpdates = true;
-                    }
-                }
-            });
-            
-            if (hasUpdates) {
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            }
-        } catch (error) {
-            console.error('Could not check alerts:', error);
-        }
-    }
-
-    sendNotification(note) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('Note Deadline Alert', {
-                body: `Note "${note.text}" is due soon!`,
-                icon: '/assets/icon.png'
-            });
-        }
-    }
-
-    // Recurring note management
-    setupProgressTracking() {
-        setInterval(() => this.checkNoteResets(), 60000);
-        this.checkNoteResets();
-    }
-
-    checkNoteResets() {
-        try {
-            const notes = this.getNotes();
-            const now = new Date();
-            let updated = false;
-            
-            const updatedNotes = notes.map(note => {
-                if (note.nextReset && new Date(note.nextReset) <= now) {
-                    note.completed = false;
-                    note.nextReset = this.calculateNextReset(note.frequency);
-                    delete note.alerted; // Reset alert flag
-                    updated = true;
-                }
-                return note;
-            });
-            
-            if (updated) {
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedNotes));
-                this.displayNotes();
-                this.updateProgress();
-            }
-        } catch (error) {
-            console.error('Could not check note resets:', error);
-        }
-    }
-
-    // IST timezone reset for daily notes
-    setupISTReset() {
-        const checkMidnight = () => {
-            const now = new Date();
-            const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-            
-            if (istTime.getHours() === 0 && istTime.getMinutes() === 1) {
-                this.resetDailyNotes();
-            }
-        };
-        
-        setInterval(checkMidnight, 60000);
-        checkMidnight();
-    }
-
-    resetDailyNotes() {
-        try {
-            const notes = this.getNotes();
-            let updated = false;
-            
-            const updatedNotes = notes.map(note => {
-                if (note.frequency === 'daily' && note.completed) {
-                    note.completed = false;
-                    delete note.alerted;
-                    updated = true;
-                }
-                return note;
-            });
-            
-            if (updated) {
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedNotes));
-                this.displayNotes();
-                this.updateProgress();
-            }
-        } catch (error) {
-            console.error('Could not reset daily notes:', error);
-        }
-    }
-
-    // Public API methods
-    getNoteStats() {
-        const notes = this.getNotes();
-        return {
-            total: notes.length,
-            completed: notes.filter(t => t.completed).length,
-            pending: notes.filter(t => !t.completed).length,
-            overdue: notes.filter(t => t.deadline && this.isOverdue(t.deadline) && !t.completed).length
-        };
-    }
-
-    getNotesByPriority(priority) {
-        return this.getNotes().filter(note => note.priority === priority);
-    }
-
-    getNotesByFrequency(frequency) {
-        return this.getNotes().filter(note => note.frequency === frequency);
-    }
-}
-
-// Export for use in other modules
-export default NotesManager;
-
-/*
-*
-// notes.js - Enhanced Note Manager with rich text editing and organization
-import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
-
-class NotesManager {
-    constructor() {
-        this.STORAGE_KEY = 'stitchNotes';
-        this.editingNote = null;
-        this.tempNoteData = null;
-        this.lastFocusedElement = null;
-        this.autoSaveTimer = null;
-        this.debug = true;
-
-        this.init();
-    }
-
-    init() {
-        // Clear any corrupted data on initialization
-        try {
-            const testData = this.getNotes();
-            if (!Array.isArray(testData)) {
-                localStorage.removeItem(this.STORAGE_KEY);
-            }
-        } catch (error) {
-            localStorage.removeItem(this.STORAGE_KEY);
-        }
-        
-        this.setupEventListeners();
-        this.loadNotes();
-        this.setupAutoSave();
-        this.setupFocusTracking();
-        this.setupKeyboardShortcuts();
-    }
-
-    // Focus tracking for input elements
-    setupFocusTracking() {
-        const trackableFocusElements = ['noteTitle', 'note-search', 'noteContent'];
-        
-        trackableFocusElements.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('focus', () => {
-                    this.lastFocusedElement = element;
-                });
-            }
-        });
-    }
-
-    // Restore focus to the last focused input
-    restoreFocus() {
-        setTimeout(() => {
-            if (this.lastFocusedElement && document.contains(this.lastFocusedElement)) {
-                this.lastFocusedElement.focus();
-            } else {
-                // Default to note title if no last focused element
-                const noteTitle = document.getElementById('noteTitle');
-                if (noteTitle) {
-                    noteTitle.focus();
-                }
-            }
-        }, 100);
-    }
-
-    // Enhanced input validation with shake animation
-    validateInput(inputElement, errorMessage = 'Please enter a valid value') {
-        const value = inputElement.value.trim();
-        
-        if (!value || value === '') {
-            this.shakeInput(inputElement);
-            return false;
-        }
-        return true;
-    }
-
-    // Shake animation for invalid inputs
-    shakeInput(inputElement) {
-        inputElement.classList.remove('shake-animation');
-        // Force reflow to restart animation
-        inputElement.offsetHeight;
-        inputElement.classList.add('shake-animation');
-        
-        // Remove shake class after animation
-        setTimeout(() => {
-            inputElement.classList.remove('shake-animation');
-        }, 600);
-    }
-
-    setupEventListeners() {
-        const addNoteBtn = document.getElementById('addNoteBtn');
-        const noteTitle = document.getElementById('noteTitle');
-        const notesContainer = document.getElementById('notesContainer');
-        const searchInput = document.getElementById('note-search');
-        const categoryFilter = document.getElementById('category-filter');
-        
-        console.log('Setting up event listeners...');
-        
-        if (addNoteBtn) {
-            addNoteBtn.addEventListener('click', () => this.handleAddNote());
-        }
-        
-        if (noteTitle) {
-            noteTitle.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.handleAddNote();
-            });
-        }
-
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.handleSearch(e.target.value);
-            });
-        }
-
-        if (categoryFilter) {
-            categoryFilter.addEventListener('change', (e) => {
-                this.handleCategoryFilter(e.target.value);
-            });
-        }
-
-        if (notesContainer) {
-            notesContainer.addEventListener('click', (e) => {
-                const target = e.target;
-                const button = target.closest('button');
-                
-                if (button) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const noteId = parseInt(button.getAttribute('data-note-id'));
-                    
-                    if (button.classList.contains('edit-note') || target.classList.contains('bi-pencil')) {
-                        console.log('Edit button clicked for note:', noteId);
-                        this.editNote(noteId);
-                    } else if (button.classList.contains('delete-note') || target.classList.contains('bi-trash')) {
-                        console.log('Delete button clicked for note:', noteId);
-                        this.deleteNote(noteId);
-                    } else if (button.classList.contains('pin-note') || target.classList.contains('bi-pin')) {
-                        console.log('Pin button clicked for note:', noteId);
-                        this.togglePin(noteId);
-                    } else if (button.classList.contains('duplicate-note') || target.classList.contains('bi-files')) {
-                        console.log('Duplicate button clicked for note:', noteId);
-                        this.duplicateNote(noteId);
-                    }
-                }
-
-                // Handle note card clicks for quick view
-                const noteCard = target.closest('.note-item');
-                if (noteCard && !button) {
-                    const noteId = parseInt(noteCard.getAttribute('data-note-id'));
-                    this.showNotePreview(noteId);
-                }
-            });
-
-            console.log('✓ Notes container listeners attached');
-        }
-    }
-
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+N for new note
-            if (e.ctrlKey && e.key === 'n' && !e.shiftKey) {
-                e.preventDefault();
-                this.handleAddNote();
-            }
-            
-            // Ctrl+S for save (when editing)
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                if (this.editingNote) {
-                    this.saveEditedNote();
-                }
-            }
-            
-            // Escape to close modals
-            if (e.key === 'Escape') {
-                closeModal();
-                this.editingNote = null;
-                this.restoreFocus();
-            }
-        });
-    }
-
-    setupAutoSave() {
-        // Auto-save every 30 seconds when editing
-        setInterval(() => {
-            if (this.editingNote) {
-                this.autoSaveNote();
-            }
-        }, 30000);
-    }
-
-    autoSaveNote() {
-        const titleInput = document.getElementById('editNoteTitle');
-        const contentInput = document.getElementById('editNoteContent');
-        
-        if (titleInput && contentInput && this.editingNote) {
-            const title = titleInput.value.trim();
-            const content = contentInput.value.trim();
-            
-            if (title || content) {
-                // Save silently without UI updates
-                const notes = this.getNotes();
-                const noteIndex = notes.findIndex(note => note.id === this.editingNote.id);
-                
-                if (noteIndex !== -1) {
-                    notes[noteIndex].title = title || 'Untitled Note';
-                    notes[noteIndex].content = content;
-                    notes[noteIndex].lastModified = new Date().toISOString();
-                    notes[noteIndex].wordCount = this.getWordCount(content);
-                    
-                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-                    console.log('Auto-saved note:', this.editingNote.id);
-                }
-            }
-        }
-    }
-
-    handleAddNote() {
-        const noteTitle = document.getElementById('noteTitle');
-        
-        // Validate input with shake animation
-        if (!this.validateInput(noteTitle, 'Please enter a note title')) {
-            return;
-        }
-        
-        const title = noteTitle.value.trim();
-        this.showNoteModal(title);
-        noteTitle.value = '';
-    }
-
-    showNoteModal(title = '') {
-        const modal = document.createElement('div');
-        modal.className = 'note-create-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h3>Create New Note</h3>
-                <div class="note-form">
-                    <div class="title-section">
-                        <label for="new-note-title">Title:</label>
-                        <input type="text" id="new-note-title" value="${title}" placeholder="Enter note title...">
-                    </div>
-                    
-                    <div class="content-section">
-                        <label for="new-note-content">Content:</label>
-                        <textarea id="new-note-content" rows="10" placeholder="Start typing your note..."></textarea>
-                    </div>
-                    
-                    <div class="category-section">
-                        <label for="note-category">Category:</label>
-                        <select id="note-category">
-                            <option value="general">General</option>
-                            <option value="work">Work</option>
-                            <option value="personal">Personal</option>
-                            <option value="ideas">Ideas</option>
-                            <option value="projects">Projects</option>
-                            <option value="meetings">Meetings</option>
-                        </select>
-                        <input type="text" id="custom-category" placeholder="Or enter custom category..." style="margin-top: 5px;">
-                    </div>
-                    
-                    <div class="color-section">
-                        <label>Color Theme:</label>
-                        <div class="color-picker">
-                            <button class="color-option" data-color="default" style="background: #f8f9fa;"></button>
-                            <button class="color-option" data-color="blue" style="background: #e3f2fd;"></button>
-                            <button class="color-option" data-color="green" style="background: #e8f5e8;"></button>
-                            <button class="color-option" data-color="yellow" style="background: #fff3e0;"></button>
-                            <button class="color-option" data-color="pink" style="background: #fce4ec;"></button>
-                            <button class="color-option" data-color="purple" style="background: #f3e5f5;"></button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button data-action="create">Create Note</button>
-                    <button data-action="cancel">Cancel</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        this.tempNoteData = { title: title };
-        
-        // Handle color picker
-        const colorOptions = modal.querySelectorAll('.color-option');
-        let selectedColor = 'default';
-        
-        colorOptions.forEach(option => {
-            option.addEventListener('click', (e) => {
-                colorOptions.forEach(opt => opt.classList.remove('selected'));
-                e.target.classList.add('selected');
-                selectedColor = e.target.getAttribute('data-color');
-            });
-        });
-        
-        // Set default selection
-        colorOptions[0].classList.add('selected');
-        
-        // Add event listeners
-        const buttons = modal.querySelectorAll('button[data-action]');
-        buttons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                const action = e.target.getAttribute('data-action');
-                if (action === 'create') {
-                    this.createNoteFromModal(selectedColor);
-                } else if (action === 'cancel') {
-                    this.cancelNoteCreation(title);
-                }
-            });
-        });
-
-        // Focus on title input
-        setTimeout(() => {
-            const titleInput = document.getElementById('new-note-title');
-            if (titleInput) {
-                titleInput.focus();
-                if (title) {
-                    titleInput.setSelectionRange(title.length, title.length);
-                }
-            }
-        }, 100);
-    }
-
-    createNoteFromModal(selectedColor) {
-        if (!this.tempNoteData) return;
-        
-        const titleInput = document.getElementById('new-note-title');
-        const contentInput = document.getElementById('new-note-content');
-        const categorySelect = document.getElementById('note-category');
-        const customCategoryInput = document.getElementById('custom-category');
-        
-        // Validate title
-        if (!this.validateInput(titleInput, 'Please enter a note title')) {
-            return;
-        }
-        
-        const title = titleInput.value.trim();
-        const content = contentInput.value.trim();
-        const category = customCategoryInput.value.trim() || categorySelect.value;
-        
-        const noteData = {
-            id: Date.now(),
-            title: title,
-            content: content,
-            category: category,
-            color: selectedColor,
-            timestamp: new Date().toISOString(),
-            lastModified: new Date().toISOString(),
-            pinned: false,
-            wordCount: this.getWordCount(content),
-            tags: this.extractTags(content)
-        };
-        
-        this.saveNote(noteData);
-        closeModal();
-        this.tempNoteData = null;
-        this.restoreFocus();
-    }
-
-    cancelNoteCreation(title) {
-        // Return text to input field
-        const noteTitle = document.getElementById('noteTitle');
-        if (noteTitle) {
-            noteTitle.value = title;
-        }
-        closeModal();
-        this.tempNoteData = null;
-        this.restoreFocus();
-    }
-
-    saveNote(noteData) {
-        try {
-            const notes = this.getNotes();
-            notes.push(noteData);
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            this.displayNotes();
-            this.updateStats();
-            this.emitNoteUpdate('note-added', noteData);
-        } catch (error) {
-            console.error('Could not save note to localStorage:', error);
-        }
-    }
-
-    getNotes() {
-        try {
-            const stored = localStorage.getItem(this.STORAGE_KEY);
-            if (!stored) {
-                return [];
-            }
-            const parsed = JSON.parse(stored);
-            // Ensure we always return an array
             return Array.isArray(parsed) ? parsed : [];
         } catch (error) {
             console.error('Could not load notes from localStorage:', error);
-            // Clear corrupted data
             localStorage.removeItem(this.STORAGE_KEY);
             return [];
         }
@@ -1315,8 +290,6 @@ class NotesManager {
     loadNotes() {
         const notes = this.getNotes();
         this.displayNotes();
-        this.updateStats();
-        this.updateCategoryFilter();
     }
     
     displayNotes(filter = null) {
@@ -1325,26 +298,29 @@ class NotesManager {
         if (!container) return;
         
         container.innerHTML = '';
-        
-        // Ensure notes is always an array
         if (!Array.isArray(notes)) {
             console.error('Notes is not an array:', notes);
             this.showEmptyState(container);
             return;
         }
-        
+
         let filteredNotes = filter ? notes.filter(filter) : notes;
-        
-        // Double-check that filteredNotes is an array
+
         if (!Array.isArray(filteredNotes)) {
             console.error('Filtered notes is not an array:', filteredNotes);
             filteredNotes = [];
         }
-        
-        // Sort by pinned status and last modified date
+
+        // FEATURE IMPROVEMENT: Enhanced sorting - pinned first, then by last modified
         filteredNotes.sort((a, b) => {
-            if (a.pinned !== b.pinned) return b.pinned - a.pinned;
-            return new Date(b.lastModified) - new Date(a.lastModified);
+            // Pinned notes first
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            
+            // Then by last modified (most recent first)
+            const aTime = new Date(a.lastModified || a.timestamp);
+            const bTime = new Date(b.lastModified || b.timestamp);
+            return bTime - aTime;
         });
         
         filteredNotes.forEach(note => {
@@ -1359,66 +335,184 @@ class NotesManager {
 
     createNoteElement(note) {
         const div = document.createElement('div');
-        div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''}`;
-        div.setAttribute('data-note-id', note.id);
+        div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
         
-        const preview = this.getPreview(note.content);
+        // FEATURE IMPROVEMENT: Truncate long notes with expand/collapse functionality
+        const isLongNote = note.text.length > 200;
+        const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
         
         div.innerHTML = `
-            <div class="note-header">
-                <h4 class="note-title">${detectAndCreateLinks(note.title)}</h4>
-                ${note.pinned ? '<i class="bi bi-pin-fill pin-indicator"></i>' : ''}
-            </div>
-            <div class="note-content-preview">
-                ${preview ? detectAndCreateLinks(preview) : '<em>No content</em>'}
+            <div class="note-content">
+                <div class="note-header">
+                    ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
+                    <span class="note-category">${note.category}</span>
+                    <span class="note-word-count">${note.wordCount} words</span>
+                </div>
+                <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
+                    ${detectAndCreateLinks(isLongNote ? truncatedText : note.text)}
+                    ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
+                </div>
+                ${note.tags.length > 0 ? `
+                    <div class="note-tags">
+                        ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
             </div>
             <div class="note-meta">
-                <span class="note-category">${note.category}</span>
-                <span class="note-word-count">${note.wordCount} words</span>
-                ${note.tags.length > 0 ? `<div class="note-tags">${note.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
+                <div class="note-timestamp">
+                    Created: ${formatTimestamp(note.timestamp)}
+                    ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+                </div>
             </div>
-            <div class="note-timestamp">${formatTimestamp(note.lastModified)}</div>
             <div class="note-actions">
-                <button class="pin-note" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
-                    <i class="bi ${note.pinned ? 'bi-pin-fill' : 'bi-pin'}"></i>
+                <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
+                    <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
+                </button>
+                <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
+                    <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
                 </button>
                 <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
                     <i class="bi bi-pencil"></i>
-                </button>
-                <button class="duplicate-note" data-note-id="${note.id}" title="Duplicate" type="button">
-                    <i class="bi bi-files"></i>
                 </button>
                 <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
         `;
+
+        // FEATURE IMPROVEMENT: Expand/collapse functionality for long notes
+        const expandBtn = div.querySelector('.expand-note-btn');
+        const noteTextDiv = div.querySelector('.note-text');
+        
+        if (expandBtn && noteTextDiv) {
+            expandBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const isExpanded = noteTextDiv.classList.contains('expanded');
+                
+                if (isExpanded) {
+                    noteTextDiv.innerHTML = detectAndCreateLinks(truncatedText) + '<button class="expand-note-btn" type="button">Show more</button>';
+                    noteTextDiv.classList.remove('expanded');
+                } else {
+                    noteTextDiv.innerHTML = detectAndCreateLinks(note.text) + '<button class="expand-note-btn" type="button">Show less</button>';
+                    noteTextDiv.classList.add('expanded');
+                }
+                
+                // Re-attach event listener to the new button
+                const newExpandBtn = noteTextDiv.querySelector('.expand-note-btn');
+                if (newExpandBtn) {
+                    newExpandBtn.addEventListener('click', arguments.callee);
+                }
+            });
+        }
         
         return div;
     }
 
-    getPreview(content, maxLength = 150) {
-        if (!content) return '';
-        const stripped = content.replace(/\n/g, ' ').trim();
-        return stripped.length > maxLength ? stripped.substring(0, maxLength) + '...' : stripped;
-    }
-
-    getWordCount(content) {
-        if (!content) return 0;
-        return content.trim().split(/\s+/).filter(word => word.length > 0).length;
-    }
-
-    extractTags(content) {
-        if (!content) return [];
-        const tagRegex = /#(\w+)/g;
-        const tags = [];
-        let match;
+    // FEATURE IMPROVEMENT: Pin/unpin functionality
+    togglePinNote(noteId) {
+        console.log('togglePinNote called with ID:', noteId);
         
-        while ((match = tagRegex.exec(content)) !== null) {
-            tags.push(match[1]);
+        if (!noteId || isNaN(noteId)) {
+            console.error('Invalid note ID provided to togglePinNote:', noteId);
+            return;
         }
         
-        return [...new Set(tags)]; // Remove duplicates
+        try {
+            const notes = this.getNotes();
+            const noteIndex = notes.findIndex(note => note.id === noteId);
+            
+            if (noteIndex !== -1) {
+                const oldPinned = notes[noteIndex].pinned;
+                notes[noteIndex].pinned = !notes[noteIndex].pinned;
+                notes[noteIndex].lastModified = new Date().toISOString();
+                const newPinned = notes[noteIndex].pinned;
+                
+                console.log(`✓ Note ${noteId} pin toggled: ${oldPinned} → ${newPinned}`);
+                
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+                this.displayNotes();
+                this.emitNoteUpdate('note-pinned', notes[noteIndex]);
+                
+            } else {
+                console.error('Note not found with ID:', noteId);
+            }
+        } catch (error) {
+            console.error('Error in togglePinNote:', error);
+        }
+    }
+
+    // FEATURE IMPROVEMENT: Archive/unarchive functionality
+    toggleArchiveNote(noteId) {
+        console.log('toggleArchiveNote called with ID:', noteId);
+        
+        if (!noteId || isNaN(noteId)) {
+            console.error('Invalid note ID provided to toggleArchiveNote:', noteId);
+            return;
+        }
+        
+        try {
+            const notes = this.getNotes();
+            const noteIndex = notes.findIndex(note => note.id === noteId);
+            
+            if (noteIndex !== -1) {
+                const oldArchived = notes[noteIndex].archived;
+                notes[noteIndex].archived = !notes[noteIndex].archived;
+                notes[noteIndex].lastModified = new Date().toISOString();
+                const newArchived = notes[noteIndex].archived;
+                
+                console.log(`✓ Note ${noteId} archive toggled: ${oldArchived} → ${newArchived}`);
+                
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+                this.displayNotes();
+                this.emitNoteUpdate('note-archived', notes[noteIndex]);
+                
+            } else {
+                console.error('Note not found with ID:', noteId);
+            }
+        } catch (error) {
+            console.error('Error in toggleArchiveNote:', error);
+        }
+    }
+
+    deleteNote(noteId) {
+        console.log('deleteNote called with ID:', noteId);
+        
+        if (!noteId || isNaN(noteId)) {
+            console.error('Invalid note ID:', noteId);
+            return;
+        }
+
+        if (!confirm('Are you sure you want to delete this note?')) {
+            this.restoreFocus();
+            return;
+        }
+        
+        try {
+            let notes = this.getNotes();
+            console.log('Notes before delete:', notes.length);
+            
+            const noteToDelete = notes.find(note => note.id === noteId);
+            console.log('Note to delete:', noteToDelete);
+            
+            if (!noteToDelete) {
+                console.error('Note not found with ID:', noteId);
+                this.restoreFocus();
+                return;
+            }
+            
+            notes = notes.filter(note => note.id !== noteId);
+            console.log('Notes after delete:', notes.length);
+            
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+            this.displayNotes();
+            this.emitNoteUpdate('note-deleted', noteToDelete);
+            
+            console.log('Note deleted successfully');
+            this.restoreFocus();
+        } catch (error) {
+            console.error('Could not delete note:', error);
+            this.restoreFocus();
+        }
     }
 
     editNote(noteId) {
@@ -1444,7 +538,6 @@ class NotesManager {
     }
 
     showEditModal(note) {
-        // Close any existing modals first
         closeModal();
         
         const modal = document.createElement('div');
@@ -1452,46 +545,54 @@ class NotesManager {
         modal.innerHTML = `
             <div class="modal-content">
                 <h3>Edit Note</h3>
-                <div class="edit-form">
-                    <div class="title-section">
-                        <label for="editNoteTitle">Title:</label>
-                        <input type="text" id="editNoteTitle" value="${note.title}">
+                <textarea id="editNoteText" rows="6">${note.text}</textarea>
+                
+                <div class="edit-sections">
+                    <div class="category-section">
+                        <label>Category:</label>
+                        <select id="editCategory">
+                            <option value="general" ${note.category === 'general' ? 'selected' : ''}>General</option>
+                            <option value="work" ${note.category === 'work' ? 'selected' : ''}>Work</option>
+                            <option value="personal" ${note.category === 'personal' ? 'selected' : ''}>Personal</option>
+                            <option value="ideas" ${note.category === 'ideas' ? 'selected' : ''}>Ideas</option>
+                            <option value="reminders" ${note.category === 'reminders' ? 'selected' : ''}>Reminders</option>
+                            <option value="quotes" ${note.category === 'quotes' ? 'selected' : ''}>Quotes</option>
+                            <option value="research" ${note.category === 'research' ? 'selected' : ''}>Research</option>
+                        </select>
                     </div>
                     
-                    <div class="content-section">
-                        <label for="editNoteContent">Content:</label>
-                        <textarea id="editNoteContent" rows="15">${note.content}</textarea>
-                        <div class="content-stats">
-                            <span id="current-word-count">${note.wordCount} words</span>
-                            <span class="auto-save-indicator">Auto-save enabled</span>
+                    <div class="color-section">
+                        <label>Color:</label>
+                        <div class="color-picker">
+                            <input type="radio" name="edit-note-color" value="default" id="edit-color-default" ${note.color === 'default' ? 'checked' : ''}>
+                            <label for="edit-color-default" class="color-option color-default"></label>
+                            
+                            <input type="radio" name="edit-note-color" value="yellow" id="edit-color-yellow" ${note.color === 'yellow' ? 'checked' : ''}>
+                            <label for="edit-color-yellow" class="color-option color-yellow"></label>
+                            
+                            <input type="radio" name="edit-note-color" value="blue" id="edit-color-blue" ${note.color === 'blue' ? 'checked' : ''}>
+                            <label for="edit-color-blue" class="color-option color-blue"></label>
+                            
+                            <input type="radio" name="edit-note-color" value="green" id="edit-color-green" ${note.color === 'green' ? 'checked' : ''}>
+                            <label for="edit-color-green" class="color-option color-green"></label>
+                            
+                            <input type="radio" name="edit-note-color" value="pink" id="edit-color-pink" ${note.color === 'pink' ? 'checked' : ''}>
+                            <label for="edit-color-pink" class="color-option color-pink"></label>
+                            
+                            <input type="radio" name="edit-note-color" value="purple" id="edit-color-purple" ${note.color === 'purple' ? 'checked' : ''}>
+                            <label for="edit-color-purple" class="color-option color-purple"></label>
                         </div>
                     </div>
                     
-                    <div class="edit-sections">
-                        <div class="category-section">
-                            <label for="editCategory">Category:</label>
-                            <select id="editCategory">
-                                <option value="general" ${note.category === 'general' ? 'selected' : ''}>General</option>
-                                <option value="work" ${note.category === 'work' ? 'selected' : ''}>Work</option>
-                                <option value="personal" ${note.category === 'personal' ? 'selected' : ''}>Personal</option>
-                                <option value="ideas" ${note.category === 'ideas' ? 'selected' : ''}>Ideas</option>
-                                <option value="projects" ${note.category === 'projects' ? 'selected' : ''}>Projects</option>
-                                <option value="meetings" ${note.category === 'meetings' ? 'selected' : ''}>Meetings</option>
-                            </select>
-                            <input type="text" id="editCustomCategory" placeholder="Custom category..." value="${!['general', 'work', 'personal', 'ideas', 'projects', 'meetings'].includes(note.category) ? note.category : ''}">
-                        </div>
-                        
-                        <div class="color-section">
-                            <label>Color Theme:</label>
-                            <div class="color-picker">
-                                <button class="color-option ${note.color === 'default' ? 'selected' : ''}" data-color="default" style="background: #f8f9fa;"></button>
-                                <button class="color-option ${note.color === 'blue' ? 'selected' : ''}" data-color="blue" style="background: #e3f2fd;"></button>
-                                <button class="color-option ${note.color === 'green' ? 'selected' : ''}" data-color="green" style="background: #e8f5e8;"></button>
-                                <button class="color-option ${note.color === 'yellow' ? 'selected' : ''}" data-color="yellow" style="background: #fff3e0;"></button>
-                                <button class="color-option ${note.color === 'pink' ? 'selected' : ''}" data-color="pink" style="background: #fce4ec;"></button>
-                                <button class="color-option ${note.color === 'purple' ? 'selected' : ''}" data-color="purple" style="background: #f3e5f5;"></button>
-                            </div>
-                        </div>
+                    <div class="tags-section">
+                        <label for="edit-tags">Tags:</label>
+                        <input type="text" id="edit-tags" value="${note.tags.join(', ')}">
+                    </div>
+                    
+                    <div class="options-section">
+                        <label>
+                            <input type="checkbox" id="edit-pinned" ${note.pinned ? 'checked' : ''}> Pin this note
+                        </label>
                     </div>
                 </div>
                 
@@ -1504,27 +605,7 @@ class NotesManager {
         
         document.body.appendChild(modal);
         
-        // Handle color picker
-        const colorOptions = modal.querySelectorAll('.color-option');
-        colorOptions.forEach(option => {
-            option.addEventListener('click', (e) => {
-                colorOptions.forEach(opt => opt.classList.remove('selected'));
-                e.target.classList.add('selected');
-            });
-        });
-
-        // Live word count update
-        const contentTextarea = document.getElementById('editNoteContent');
-        const wordCountSpan = document.getElementById('current-word-count');
-        
-        if (contentTextarea && wordCountSpan) {
-            contentTextarea.addEventListener('input', () => {
-                const wordCount = this.getWordCount(contentTextarea.value);
-                wordCountSpan.textContent = `${wordCount} words`;
-            });
-        }
-        
-        const buttons = modal.querySelectorAll('button[data-action]');
+        const buttons = modal.querySelectorAll('button');
         buttons.forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1534,37 +615,24 @@ class NotesManager {
                 } else if (action === 'cancel') {
                     closeModal();
                     this.editingNote = null;
-                    this.restoreFocus();
+                    this.restoreFocus(); 
                 }
             });
         });
-
-        // Focus on title input
-        setTimeout(() => {
-            const titleInput = document.getElementById('editNoteTitle');
-            if (titleInput) {
-                titleInput.focus();
-                titleInput.setSelectionRange(0, titleInput.value.length);
-            }
-        }, 100);
     }
 
     saveEditedNote() {
-        const titleInput = document.getElementById('editNoteTitle');
-        const contentInput = document.getElementById('editNoteContent');
+        const textArea = document.getElementById('editNoteText');
         const categorySelect = document.getElementById('editCategory');
-        const customCategoryInput = document.getElementById('editCustomCategory');
-        const selectedColor = document.querySelector('.color-option.selected')?.getAttribute('data-color') || 'default';
+        const colorInput = document.querySelector('input[name="edit-note-color"]:checked');
+        const tagsInput = document.getElementById('edit-tags');
+        const pinnedCheckbox = document.getElementById('edit-pinned');
         
-        // Validate the title input
-        if (!this.validateInput(titleInput, 'Please enter a note title')) {
+        if (!this.validateInput(textArea, 'Please enter a note')) {
             return;
         }
         
-        const newTitle = titleInput.value.trim();
-        const newContent = contentInput.value.trim();
-        const newCategory = customCategoryInput.value.trim() || categorySelect.value;
-        
+        const newText = textArea.value.trim();
         if (!this.editingNote) return;
         
         try {
@@ -1572,18 +640,16 @@ class NotesManager {
             const noteIndex = notes.findIndex(note => note.id === this.editingNote.id);
             
             if (noteIndex !== -1) {
-                notes[noteIndex].title = newTitle;
-                notes[noteIndex].content = newContent;
-                notes[noteIndex].category = newCategory;
-                notes[noteIndex].color = selectedColor;
+                notes[noteIndex].text = newText;
+                notes[noteIndex].category = categorySelect.value;
+                notes[noteIndex].color = colorInput ? colorInput.value : 'default';
+                notes[noteIndex].tags = tagsInput.value ? tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+                notes[noteIndex].pinned = pinnedCheckbox.checked;
+                notes[noteIndex].wordCount = this.countWords(newText);
                 notes[noteIndex].lastModified = new Date().toISOString();
-                notes[noteIndex].wordCount = this.getWordCount(newContent);
-                notes[noteIndex].tags = this.extractTags(newContent);
                 
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
                 this.displayNotes();
-                this.updateStats();
-                this.updateCategoryFilter();
                 this.emitNoteUpdate('note-updated', notes[noteIndex]);
             }
         } catch (error) {
@@ -1595,132 +661,91 @@ class NotesManager {
         this.restoreFocus();
     }
 
-    deleteNote(noteId) {
-        console.log('deleteNote called with ID:', noteId);
-        
-        if (!noteId || isNaN(noteId)) {
-            console.error('Invalid note ID:', noteId);
-            return;
-        }
-
-        if (!confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
-            this.restoreFocus();
-            return;
-        }
-        
-        try {
-            let notes = this.getNotes();
-            console.log('Notes before delete:', notes.length);
-            
-            const noteToDelete = notes.find(note => note.id === noteId);
-            console.log('Note to delete:', noteToDelete);
-            
-            if (!noteToDelete) {
-                console.error('Note not found with ID:', noteId);
-                this.restoreFocus();
-                return;
-            }
-            
-            notes = notes.filter(note => note.id !== noteId);
-            console.log('Notes after delete:', notes.length);
-            
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            this.displayNotes();
-            this.updateStats();
-            this.updateCategoryFilter();
-            this.emitNoteUpdate('note-deleted', noteToDelete);
-            
-            console.log('Note deleted successfully');
-            this.restoreFocus();
-        } catch (error) {
-            console.error('Could not delete note:', error);
-            this.restoreFocus();
-        }
+    showEmptyState(container) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+            <div class="empty-icon"><i class="bi bi-journal-text"></i></div>
+            <p>No notes yet. Create your first note!</p>
+        `;
+        container.appendChild(emptyState);
     }
 
-    togglePin(noteId) {
-        console.log('togglePin called with ID:', noteId);
-        
-        if (!noteId || isNaN(noteId)) {
-            console.error('Invalid note ID:', noteId);
-            return;
-        }
-        
-        try {
-            const notes = this.getNotes();
-            const noteIndex = notes.findIndex(note => note.id === noteId);
-            
-            if (noteIndex !== -1) {
-                notes[noteIndex].pinned = !notes[noteIndex].pinned;
-                notes[noteIndex].lastModified = new Date().toISOString();
-                
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-                this.displayNotes();
-                this.emitNoteUpdate('note-pinned', notes[noteIndex]);
-                
-                console.log(`Note ${noteId} pin toggled to: ${notes[noteIndex].pinned}`);
-            }
-        } catch (error) {
-            console.error('Could not toggle pin:', error);
-        }
+    emitNoteUpdate(eventType, noteData) {
+        const event = new CustomEvent('noteUpdate', {
+            detail: { type: eventType, note: noteData }
+        });
+        document.dispatchEvent(event);
     }
 
-    duplicateNote(noteId) {
-        console.log('duplicateNote called with ID:', noteId);
-        
-        if (!noteId || isNaN(noteId)) {
-            console.error('Invalid note ID:', noteId);
-            return;
-        }
-        
-        try {
-            const notes = this.getNotes();
-            const originalNote = notes.find(note => note.id === noteId);
-            
-            if (!originalNote) {
-                console.error('Note not found with ID:', noteId);
-                return;
-            }
-            
-            const duplicatedNote = {
-                ...originalNote,
-                id: Date.now(),
-                title: `${originalNote.title} (Copy)`,
-                timestamp: new Date().toISOString(),
-                lastModified: new Date().toISOString(),
-                pinned: false // Duplicated notes are not pinned by default
-            };
-            
-            notes.push(duplicatedNote);
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            this.displayNotes();
-            this.updateStats();
-            this.emitNoteUpdate('note-duplicated', duplicatedNote);
-            
-            console.log('Note duplicated successfully');
-        } catch (error) {
-            console.error('Could not duplicate note:', error);
-        }
-    }
-
-    showNotePreview(noteId) {
+    // FEATURE IMPROVEMENT: Search functionality for notes
+    searchNotes(query) {
         const notes = this.getNotes();
-        const note = notes.find(n => n.id === noteId);
+        const searchTerm = query.toLowerCase();
         
-        if (!note) return;
+        return notes.filter(note => 
+            note.text.toLowerCase().includes(searchTerm) ||
+            note.category.toLowerCase().includes(searchTerm) ||
+            note.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    // FEATURE IMPROVEMENT: Filter notes by category
+    getNotesByCategory(category) {
+        return this.getNotes().filter(note => note.category === category);
+    }
+
+    // FEATURE IMPROVEMENT: Filter notes by tag
+    getNotesByTag(tag) {
+        return this.getNotes().filter(note => 
+            note.tags.some(noteTag => noteTag.toLowerCase() === tag.toLowerCase())
+        );
+    }
+
+    // FEATURE IMPROVEMENT: Get pinned notes
+    getPinnedNotes() {
+        return this.getNotes().filter(note => note.pinned && !note.archived);
+    }
+
+    // FEATURE IMPROVEMENT: Get archived notes
+    getArchivedNotes() {
+        return this.getNotes().filter(note => note.archived);
+    }
+
+    // FEATURE IMPROVEMENT: Export notes as JSON
+    exportNotes() {
+        const notes = this.getNotes();
+        const dataStr = JSON.stringify(notes, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
         
-        const modal = document.createElement('div');
-        modal.className = 'note-preview-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="preview-header">
-                    <h3>${detectAndCreateLinks(note.title)}</h3>
-                    <button class="close-preview" type="button">&times;</button>
-                </div>
-                <div class="preview-meta">
-                    <span class="preview-category">${note.category}</span>
-                    <span class="preview-word-count">${note.wordCount} words</span>
-                    <span class="preview-date">${formatTimestamp(note.lastModified)}</span>
-                </div>
-                <div class="preview-content">
-*/
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `notes-export-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+    }
+
+    // FEATURE IMPROVEMENT: Import notes from JSON
+    importNotes(jsonData) {
+        try {
+            const importedNotes = JSON.parse(jsonData);
+            if (!Array.isArray(importedNotes)) {
+                throw new Error('Invalid notes format');
+            }
+            
+            const existingNotes = this.getNotes();
+            const mergedNotes = [...existingNotes, ...importedNotes];
+            
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(mergedNotes));
+            this.displayNotes();
+            
+            return true;
+        } catch (error) {
+            console.error('Could not import notes:', error);
+            return false;
+        }
+    }
+}
+export default NotesManager;
