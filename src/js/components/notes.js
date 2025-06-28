@@ -1,4 +1,4 @@
-// // notes.js - Enhanced Note Manager with focus restoration and input validation
+// notes.js - Enhanced Note Manager with focus restoration and input validation
 import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 
 class NotesManager {
