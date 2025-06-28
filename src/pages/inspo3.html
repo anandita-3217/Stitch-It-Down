@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lilo & Stitch Productivity Dashboard</title>
+  <title>Stitch Productivity Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
-
-:root[data-theme="light"] {
+    :root[data-theme="light"] {
   --primary-purple: #a1e0ff;
   --medium-purple: #d6f3ff;
   --dark-purple: #6ab6ff;
@@ -18,215 +17,230 @@
   --text-primary: #244c5a;
   --text-secondary: #6ab6ff;
   --border-color: var(--primary-purple);
-  --card-bg: #f6fbff;
-  --shadow: rgba(0, 0, 0, 0.05);
-  --shadow-hover: rgba(106, 182, 255, 0.12);
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-hover: rgba(106, 182, 255, 0.2);
 }
 
+/* General */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background: var(--light-bg);
   color: var(--text-primary);
+  overflow: hidden;
 }
 
-.dashboard-container {
+.dashboard-bg {
   display: flex;
   height: 100vh;
+  background: linear-gradient(145deg, #d6f3ff 0%, #a1e0ff 100%);
 }
 
 /* Sidebar */
 .sidebar {
   width: 220px;
-  background-color: var(--darker-blue);
-  padding: 20px;
+  background: var(--darker-blue);
   color: var(--white);
+  padding: 30px 20px;
   display: flex;
   flex-direction: column;
+  border-top-right-radius: 40px;
+  border-bottom-right-radius: 40px;
+  box-shadow: 6px 0 16px var(--shadow);
 }
 
-.sidebar .logo {
+.logo {
   font-size: 24px;
-  margin-bottom: 30px;
-}
-
-.nav-links {
-  list-style: none;
-  padding: 0;
-}
-
-.nav-links li {
-  margin-bottom: 15px;
+  font-weight: bold;
+  margin-bottom: 40px;
+  text-align: center;
 }
 
 .nav-links a {
+  display: block;
   color: var(--white);
   text-decoration: none;
-  font-weight: 500;
-  display: block;
-  transition: color 0.2s ease;
+  margin: 10px 0;
+  padding: 10px 15px;
+  border-radius: 12px;
+  transition: 0.3s;
 }
 
-.nav-links a:hover {
-  color: var(--dark-purple);
+.nav-links a:hover,
+.nav-links .active {
+  background: var(--dark-purple);
+  color: var(--white);
 }
 
-/* Main content */
-.main-content {
+/* Main Content */
+.dashboard-main {
   flex: 1;
-  padding: 30px;
+  padding: 40px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 30px;
 }
 
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px var(--shadow);
+}
+
 /* Date-Time Widget */
 .date-time {
-  background: linear-gradient(135deg, var(--dark-purple) 0%, var(--medium-purple) 100%);
+  background: linear-gradient(135deg, var(--dark-purple), var(--medium-purple));
   color: white;
-  padding: 20px 35px;
+  padding: 20px 30px;
   border-radius: 20px;
-  box-shadow: 0 8px 16px var(--shadow);
   text-align: center;
-  min-width: 180px;
-  max-height: 240px;
-  height: 240px;
+  width: 220px;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.day {
-  font-size: 20px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  opacity: 0.9;
-}
-
-.date {
-  font-size: 52px;
-  font-weight: bold;
-  line-height: 1;
-  margin-bottom: 10px;
-}
-
-.month {
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.9;
-  margin-bottom: 12px;
-}
-
-.digital-clock {
-  font-size: 20px;
-  font-weight: 500;
-  color: white;
-  font-family: 'Orbitron', monospace;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-  letter-spacing: 1px;
-}
-
-/* Cards */
-.widgets {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
-}
-
-.card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 10px var(--shadow);
-  transition: box-shadow 0.2s ease;
-}
-
-.card:hover {
   box-shadow: 0 6px 16px var(--shadow-hover);
 }
 
-.card h2 {
-  margin: 0 0 10px;
+.date-circle {
+  border-radius: 50%;
+  background: white;
+  color: var(--dark-purple);
+  width: 80px;
+  height: 80px;
+  margin: 10px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  font-weight: bold;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.digital-clock {
+  font-family: 'Orbitron', monospace;
   font-size: 18px;
-  color: var(--text-primary);
+  margin-top: 12px;
+  color: white;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Stitch Mood Image */
+.stitch-gif {
+  height: 120px;
+  border-radius: 20px;
+  object-fit: cover;
+  margin-left: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Widgets Grid */
+.widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 25px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px var(--shadow);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px var(--shadow-hover);
+}
+
+.card h2 {
+  margin-bottom: 10px;
+  font-size: 20px;
 }
 
 .card p {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-secondary);
 }
 
   </style>
 </head>
 <body>
-  <div class="dashboard-container">
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar">
-      <h1 class="logo">🌺 StitchBoard</h1>
-      <ul class="nav-links">
-        <li><a href="index.html">🏠 Dashboard</a></li>
-        <li><a href="timer.html">⏲️ Timer</a></li>
-        <li><a href="calendar.html">📅 Calendar</a></li>
-        <li><a href="notes.html">📝 Notes</a></li>
-        <li><a href="tasks.html">✅ Tasks</a></li>
-        <li><a href="stats.html">📊 Stats</a></li>
-        <li><a href="settings.html">⚙️ Settings</a></li>
-      </ul>
-    </nav>
+  <div class="dashboard-bg">
+    <aside class="sidebar">
+      <div class="logo">🌺 StitchBoard</div>
+      <nav class="nav-links">
+        <a href="index.html" class="active">🏝️ Dashboard</a>
+        <a href="timer.html">⏲️ Timer</a>
+        <a href="calendar.html">📅 Calendar</a>
+        <a href="notes.html">📝 Notes</a>
+        <a href="tasks.html">✅ Tasks</a>
+        <a href="stats.html">📊 Stats</a>
+        <a href="settings.html">⚙️ Settings</a>
+      </nav>
+    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <section class="top-section">
+    <main class="dashboard-main">
+      <!-- Date Time + Stitch Mood -->
+      <section class="hero-section">
         <div class="date-time">
-          <div class="day" id="current-day">Monday</div>
+          <div class="day" id="current-day"></div>
           <div class="date-circle">
-            <div class="date" id="current-date">24</div>
+            <div class="date" id="current-date"></div>
           </div>
-          <div class="month" id="current-month">June</div>
-          <div class="digital-clock" id="digital-clock">12:34 PM</div>
+          <div class="month" id="current-month"></div>
+          <div class="digital-clock" id="digital-clock"></div>
         </div>
+        <img src="assets/stitch.gif" alt="Stitch Mood" class="stitch-gif">
       </section>
 
-      <section class="widgets">
+      <!-- Widgets -->
+      <section class="widgets-grid">
         <div class="card task-card">
           <h2>Tasks</h2>
-          <p>3 pending</p>
+          <p>🌟 4 pending tasks</p>
         </div>
         <div class="card notes-card">
           <h2>Notes</h2>
-          <p>12 saved</p>
+          <p>📔 9 saved ideas</p>
         </div>
         <div class="card calendar-card">
           <h2>Calendar</h2>
-          <p>2 events today</p>
+          <p>📅 3 events today</p>
         </div>
         <div class="card stats-card">
           <h2>Stats</h2>
-          <p>Focus time: 4h</p>
+          <p>⏳ Focus time: 3h 20m</p>
         </div>
       </section>
     </main>
   </div>
+
   <script>
-  function updateClock() {
-    const now = new Date();
-    const day = now.toLocaleDateString(undefined, { weekday: 'long' });
-    const date = now.getDate();
-    const month = now.toLocaleDateString(undefined, { month: 'long' });
-    const time = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    function updateClock() {
+      const now = new Date();
+      const day = now.toLocaleDateString(undefined, { weekday: 'long' });
+      const date = now.getDate();
+      const month = now.toLocaleDateString(undefined, { month: 'long' });
+      const time = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
-    document.getElementById('current-day').textContent = day;
-    document.getElementById('current-date').textContent = date;
-    document.getElementById('current-month').textContent = month;
-    document.getElementById('digital-clock').textContent = time;
-  }
-
-  setInterval(updateClock, 1000);
-  updateClock();
-</script>
-
+      document.getElementById('current-day').textContent = day;
+      document.getElementById('current-date').textContent = date;
+      document.getElementById('current-month').textContent = month;
+      document.getElementById('digital-clock').textContent = time;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
 </body>
 </html>

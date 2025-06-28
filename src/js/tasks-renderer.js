@@ -32,21 +32,12 @@ let taskManager;
 function initialize() {
     loadAllImages();
     setDailyQuote();
-    debugFunctions();
+    // debugFunctions();
     initTheme();
-    
-    // Initialize TaskManager with debugging
     console.log('Initializing TaskManager...');
     window.taskManager = new TaskManager(); // Make globally accessible
     taskManager = window.taskManager;
-    
-    // Debug after DOM is ready
-    setTimeout(() => {
-        console.log('Running task completion debug...');
-        if (window.debugTaskCompletion) {
-            window.debugTaskCompletion();
-        }
-    }, 1000);
+
     
     requestNotificationPermission();
     setupTaskFilters();
