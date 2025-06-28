@@ -3,6 +3,7 @@ import '@css/main.css';
 import '@css/components/calendar.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
+import '@components/calendar.js';
 import {
     setImage,
     setDailyQuote,

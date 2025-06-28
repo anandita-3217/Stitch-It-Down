@@ -3,7 +3,7 @@ import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/u
 
 class NoteManager {
     constructor() {
-        this.STORAGE_KEY = 'stitchNotes';
+        this.STORAGE_KEY = 'stitchNote';
         this.editingNote = null;
         this.tempNoteData = null;
         this.lastFocusedElement = null; // Track last focused element
@@ -761,7 +761,7 @@ class NoteManager {
         const emptyState = document.createElement('div');
         emptyState.className = 'empty-state';
         emptyState.innerHTML = `
-            <div class="empty-icon"><i class="bi bi-pin-angle"></i></div>
+            <div class="empty-icon"><i class="bi bi-list-task"></i></div>
             <p>No notes yet. Create your first note!</p>
         `;
         container.appendChild(emptyState);

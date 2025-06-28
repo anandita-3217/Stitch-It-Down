@@ -3,6 +3,7 @@ import '@css/main.css';
 import '@css/components/stats.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
+import '@components/stats.js';
 import {
     setImage,
     setDailyQuote,

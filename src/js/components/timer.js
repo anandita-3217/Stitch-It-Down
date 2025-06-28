@@ -285,33 +285,6 @@ class PomodoroTimer {
             setTimeout(() => this.startTimer(), 1000);
         }
     }
-    
-    // switchSession(e) {
-    //     const type = e.target.dataset.type;
-    //     const duration = parseInt(e.target.dataset.duration);
-        
-    //     this.currentSession = type;
-    //     this.currentTime = duration * 60;
-    //     this.totalTime = this.currentTime;
-        
-    //     // Update active button - add null check
-    //     if (this.sessionBtns && this.sessionBtns.length > 0) {
-    //         this.sessionBtns.forEach(btn => btn.classList.remove('active'));
-    //         if (e.target && e.target.classList) {
-    //             e.target.classList.add('active');
-    //         }
-    //     }
-        
-    //     // Update UI theme
-    //     this.updateTheme();
-    //     this.updateDisplay();
-    //     this.updateProgress();
-    //     this.updateStitchState('ready');
-        
-    //     if (this.isRunning) {
-    //         this.pauseTimer();
-    //     }
-    // }
     switchSession(e) {
     const clickedButton = e.target.closest('.session-btn'); // Use closest to handle clicks on child elements
     
