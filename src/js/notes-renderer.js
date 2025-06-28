@@ -6,36 +6,21 @@ import '@css/components/sidebar.css';
 import '@components/sidebar.js';
 import {setImage,setDailyQuote,setRandomGif,loadAllImages,initTheme,setTheme,toggleTheme,updateDate,updateClock} from '@components/utils.js';
 
-// Import NoteManager
-import NoteManager from '@components/notes.js';
+// Import NotesManager
+import NotesManager from '@components/notes.js';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 let noteManager;
 
-// function initialize() {
-//     loadAllImages();
-//     setDailyQuote();
-//     debugFunctions();
-//     initTheme();
-    
-//     // Initialize NoteManager
-//     noteManager = new NoteManager();
-    
-//     // Request notification permission
-//     requestNotificationPermission();
-    
-//     // Setup note filters if they exist
-//     setupNoteFilters();
-// }
-// Replace your current initialize function with this enhanced version
+
 function initialize() {
     loadAllImages();
     setDailyQuote();
     // debugFunctions();
     initTheme();
-    console.log('Initializing NoteManager...');
-    window.noteManager = new NoteManager(); // Make globally accessible
+    console.log('Initializing NotesManager...');
+    window.noteManager = new NotesManager(); // Make globally accessible
     noteManager = window.noteManager;
 
     
@@ -60,7 +45,7 @@ function requestNotificationPermission() {
 function debugNoteCompletion() {
     console.log('=== TASK COMPLETION DEBUG ===');
     
-    // Check if NoteManager instance exists
+    // Check if NotesManager instance exists
     if (window.noteManager) {
         const notes = window.noteManager.getNotes();
         console.log('Total notes:', notes.length);
@@ -76,7 +61,7 @@ function debugNoteCompletion() {
             });
         });
     } else {
-        console.log('NoteManager instance not found in window object');
+        console.log('NotesManager instance not found in window object');
     }
     
     // Check DOM elements

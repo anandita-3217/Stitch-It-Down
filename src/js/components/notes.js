@@ -1,12 +1,14 @@
 // notes.js - Enhanced Note Manager with focus restoration and input validation
 import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 
-class NoteManager {
+class NotesManager {
     constructor() {
-        this.STORAGE_KEY = 'stitchNote';
+        this.STORAGE_KEY = 'stitchNotes';
         this.editingNote = null;
         this.tempNoteData = null;
         this.lastFocusedElement = null; // Track last focused element
+        this.autoSaveTimer = null;
+
         this.debug = true;
 
         this.init();
@@ -908,4 +910,817 @@ class NoteManager {
 }
 
 // Export for use in other modules
-export default NoteManager;
+export default NotesManager;
+
+/*
+*
+// notes.js - Enhanced Note Manager with rich text editing and organization
+import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
+
+class NotesManager {
+    constructor() {
+        this.STORAGE_KEY = 'stitchNotes';
+        this.editingNote = null;
+        this.tempNoteData = null;
+        this.lastFocusedElement = null;
+        this.autoSaveTimer = null;
+        this.debug = true;
+
+        this.init();
+    }
+
+    init() {
+        // Clear any corrupted data on initialization
+        try {
+            const testData = this.getNotes();
+            if (!Array.isArray(testData)) {
+                localStorage.removeItem(this.STORAGE_KEY);
+            }
+        } catch (error) {
+            localStorage.removeItem(this.STORAGE_KEY);
+        }
+        
+        this.setupEventListeners();
+        this.loadNotes();
+        this.setupAutoSave();
+        this.setupFocusTracking();
+        this.setupKeyboardShortcuts();
+    }
+
+    // Focus tracking for input elements
+    setupFocusTracking() {
+        const trackableFocusElements = ['noteTitle', 'note-search', 'noteContent'];
+        
+        trackableFocusElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('focus', () => {
+                    this.lastFocusedElement = element;
+                });
+            }
+        });
+    }
+
+    // Restore focus to the last focused input
+    restoreFocus() {
+        setTimeout(() => {
+            if (this.lastFocusedElement && document.contains(this.lastFocusedElement)) {
+                this.lastFocusedElement.focus();
+            } else {
+                // Default to note title if no last focused element
+                const noteTitle = document.getElementById('noteTitle');
+                if (noteTitle) {
+                    noteTitle.focus();
+                }
+            }
+        }, 100);
+    }
+
+    // Enhanced input validation with shake animation
+    validateInput(inputElement, errorMessage = 'Please enter a valid value') {
+        const value = inputElement.value.trim();
+        
+        if (!value || value === '') {
+            this.shakeInput(inputElement);
+            return false;
+        }
+        return true;
+    }
+
+    // Shake animation for invalid inputs
+    shakeInput(inputElement) {
+        inputElement.classList.remove('shake-animation');
+        // Force reflow to restart animation
+        inputElement.offsetHeight;
+        inputElement.classList.add('shake-animation');
+        
+        // Remove shake class after animation
+        setTimeout(() => {
+            inputElement.classList.remove('shake-animation');
+        }, 600);
+    }
+
+    setupEventListeners() {
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        const noteTitle = document.getElementById('noteTitle');
+        const notesContainer = document.getElementById('notesContainer');
+        const searchInput = document.getElementById('note-search');
+        const categoryFilter = document.getElementById('category-filter');
+        
+        console.log('Setting up event listeners...');
+        
+        if (addNoteBtn) {
+            addNoteBtn.addEventListener('click', () => this.handleAddNote());
+        }
+        
+        if (noteTitle) {
+            noteTitle.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.handleAddNote();
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.handleSearch(e.target.value);
+            });
+        }
+
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', (e) => {
+                this.handleCategoryFilter(e.target.value);
+            });
+        }
+
+        if (notesContainer) {
+            notesContainer.addEventListener('click', (e) => {
+                const target = e.target;
+                const button = target.closest('button');
+                
+                if (button) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const noteId = parseInt(button.getAttribute('data-note-id'));
+                    
+                    if (button.classList.contains('edit-note') || target.classList.contains('bi-pencil')) {
+                        console.log('Edit button clicked for note:', noteId);
+                        this.editNote(noteId);
+                    } else if (button.classList.contains('delete-note') || target.classList.contains('bi-trash')) {
+                        console.log('Delete button clicked for note:', noteId);
+                        this.deleteNote(noteId);
+                    } else if (button.classList.contains('pin-note') || target.classList.contains('bi-pin')) {
+                        console.log('Pin button clicked for note:', noteId);
+                        this.togglePin(noteId);
+                    } else if (button.classList.contains('duplicate-note') || target.classList.contains('bi-files')) {
+                        console.log('Duplicate button clicked for note:', noteId);
+                        this.duplicateNote(noteId);
+                    }
+                }
+
+                // Handle note card clicks for quick view
+                const noteCard = target.closest('.note-item');
+                if (noteCard && !button) {
+                    const noteId = parseInt(noteCard.getAttribute('data-note-id'));
+                    this.showNotePreview(noteId);
+                }
+            });
+
+            console.log('✓ Notes container listeners attached');
+        }
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+N for new note
+            if (e.ctrlKey && e.key === 'n' && !e.shiftKey) {
+                e.preventDefault();
+                this.handleAddNote();
+            }
+            
+            // Ctrl+S for save (when editing)
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                if (this.editingNote) {
+                    this.saveEditedNote();
+                }
+            }
+            
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                closeModal();
+                this.editingNote = null;
+                this.restoreFocus();
+            }
+        });
+    }
+
+    setupAutoSave() {
+        // Auto-save every 30 seconds when editing
+        setInterval(() => {
+            if (this.editingNote) {
+                this.autoSaveNote();
+            }
+        }, 30000);
+    }
+
+    autoSaveNote() {
+        const titleInput = document.getElementById('editNoteTitle');
+        const contentInput = document.getElementById('editNoteContent');
+        
+        if (titleInput && contentInput && this.editingNote) {
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+            
+            if (title || content) {
+                // Save silently without UI updates
+                const notes = this.getNotes();
+                const noteIndex = notes.findIndex(note => note.id === this.editingNote.id);
+                
+                if (noteIndex !== -1) {
+                    notes[noteIndex].title = title || 'Untitled Note';
+                    notes[noteIndex].content = content;
+                    notes[noteIndex].lastModified = new Date().toISOString();
+                    notes[noteIndex].wordCount = this.getWordCount(content);
+                    
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+                    console.log('Auto-saved note:', this.editingNote.id);
+                }
+            }
+        }
+    }
+
+    handleAddNote() {
+        const noteTitle = document.getElementById('noteTitle');
+        
+        // Validate input with shake animation
+        if (!this.validateInput(noteTitle, 'Please enter a note title')) {
+            return;
+        }
+        
+        const title = noteTitle.value.trim();
+        this.showNoteModal(title);
+        noteTitle.value = '';
+    }
+
+    showNoteModal(title = '') {
+        const modal = document.createElement('div');
+        modal.className = 'note-create-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>Create New Note</h3>
+                <div class="note-form">
+                    <div class="title-section">
+                        <label for="new-note-title">Title:</label>
+                        <input type="text" id="new-note-title" value="${title}" placeholder="Enter note title...">
+                    </div>
+                    
+                    <div class="content-section">
+                        <label for="new-note-content">Content:</label>
+                        <textarea id="new-note-content" rows="10" placeholder="Start typing your note..."></textarea>
+                    </div>
+                    
+                    <div class="category-section">
+                        <label for="note-category">Category:</label>
+                        <select id="note-category">
+                            <option value="general">General</option>
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="ideas">Ideas</option>
+                            <option value="projects">Projects</option>
+                            <option value="meetings">Meetings</option>
+                        </select>
+                        <input type="text" id="custom-category" placeholder="Or enter custom category..." style="margin-top: 5px;">
+                    </div>
+                    
+                    <div class="color-section">
+                        <label>Color Theme:</label>
+                        <div class="color-picker">
+                            <button class="color-option" data-color="default" style="background: #f8f9fa;"></button>
+                            <button class="color-option" data-color="blue" style="background: #e3f2fd;"></button>
+                            <button class="color-option" data-color="green" style="background: #e8f5e8;"></button>
+                            <button class="color-option" data-color="yellow" style="background: #fff3e0;"></button>
+                            <button class="color-option" data-color="pink" style="background: #fce4ec;"></button>
+                            <button class="color-option" data-color="purple" style="background: #f3e5f5;"></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button data-action="create">Create Note</button>
+                    <button data-action="cancel">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        this.tempNoteData = { title: title };
+        
+        // Handle color picker
+        const colorOptions = modal.querySelectorAll('.color-option');
+        let selectedColor = 'default';
+        
+        colorOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                colorOptions.forEach(opt => opt.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedColor = e.target.getAttribute('data-color');
+            });
+        });
+        
+        // Set default selection
+        colorOptions[0].classList.add('selected');
+        
+        // Add event listeners
+        const buttons = modal.querySelectorAll('button[data-action]');
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const action = e.target.getAttribute('data-action');
+                if (action === 'create') {
+                    this.createNoteFromModal(selectedColor);
+                } else if (action === 'cancel') {
+                    this.cancelNoteCreation(title);
+                }
+            });
+        });
+
+        // Focus on title input
+        setTimeout(() => {
+            const titleInput = document.getElementById('new-note-title');
+            if (titleInput) {
+                titleInput.focus();
+                if (title) {
+                    titleInput.setSelectionRange(title.length, title.length);
+                }
+            }
+        }, 100);
+    }
+
+    createNoteFromModal(selectedColor) {
+        if (!this.tempNoteData) return;
+        
+        const titleInput = document.getElementById('new-note-title');
+        const contentInput = document.getElementById('new-note-content');
+        const categorySelect = document.getElementById('note-category');
+        const customCategoryInput = document.getElementById('custom-category');
+        
+        // Validate title
+        if (!this.validateInput(titleInput, 'Please enter a note title')) {
+            return;
+        }
+        
+        const title = titleInput.value.trim();
+        const content = contentInput.value.trim();
+        const category = customCategoryInput.value.trim() || categorySelect.value;
+        
+        const noteData = {
+            id: Date.now(),
+            title: title,
+            content: content,
+            category: category,
+            color: selectedColor,
+            timestamp: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
+            pinned: false,
+            wordCount: this.getWordCount(content),
+            tags: this.extractTags(content)
+        };
+        
+        this.saveNote(noteData);
+        closeModal();
+        this.tempNoteData = null;
+        this.restoreFocus();
+    }
+
+    cancelNoteCreation(title) {
+        // Return text to input field
+        const noteTitle = document.getElementById('noteTitle');
+        if (noteTitle) {
+            noteTitle.value = title;
+        }
+        closeModal();
+        this.tempNoteData = null;
+        this.restoreFocus();
+    }
+
+    saveNote(noteData) {
+        try {
+            const notes = this.getNotes();
+            notes.push(noteData);
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+            this.displayNotes();
+            this.updateStats();
+            this.emitNoteUpdate('note-added', noteData);
+        } catch (error) {
+            console.error('Could not save note to localStorage:', error);
+        }
+    }
+
+    getNotes() {
+        try {
+            const stored = localStorage.getItem(this.STORAGE_KEY);
+            if (!stored) {
+                return [];
+            }
+            const parsed = JSON.parse(stored);
+            // Ensure we always return an array
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            console.error('Could not load notes from localStorage:', error);
+            // Clear corrupted data
+            localStorage.removeItem(this.STORAGE_KEY);
+            return [];
+        }
+    }
+
+    loadNotes() {
+        const notes = this.getNotes();
+        this.displayNotes();
+        this.updateStats();
+        this.updateCategoryFilter();
+    }
+    
+    displayNotes(filter = null) {
+        const notes = this.getNotes();
+        const container = document.getElementById('notesContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        // Ensure notes is always an array
+        if (!Array.isArray(notes)) {
+            console.error('Notes is not an array:', notes);
+            this.showEmptyState(container);
+            return;
+        }
+        
+        let filteredNotes = filter ? notes.filter(filter) : notes;
+        
+        // Double-check that filteredNotes is an array
+        if (!Array.isArray(filteredNotes)) {
+            console.error('Filtered notes is not an array:', filteredNotes);
+            filteredNotes = [];
+        }
+        
+        // Sort by pinned status and last modified date
+        filteredNotes.sort((a, b) => {
+            if (a.pinned !== b.pinned) return b.pinned - a.pinned;
+            return new Date(b.lastModified) - new Date(a.lastModified);
+        });
+        
+        filteredNotes.forEach(note => {
+            const noteElement = this.createNoteElement(note);
+            container.appendChild(noteElement);
+        });
+        
+        if (filteredNotes.length === 0) {
+            this.showEmptyState(container);
+        }
+    }
+
+    createNoteElement(note) {
+        const div = document.createElement('div');
+        div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''}`;
+        div.setAttribute('data-note-id', note.id);
+        
+        const preview = this.getPreview(note.content);
+        
+        div.innerHTML = `
+            <div class="note-header">
+                <h4 class="note-title">${detectAndCreateLinks(note.title)}</h4>
+                ${note.pinned ? '<i class="bi bi-pin-fill pin-indicator"></i>' : ''}
+            </div>
+            <div class="note-content-preview">
+                ${preview ? detectAndCreateLinks(preview) : '<em>No content</em>'}
+            </div>
+            <div class="note-meta">
+                <span class="note-category">${note.category}</span>
+                <span class="note-word-count">${note.wordCount} words</span>
+                ${note.tags.length > 0 ? `<div class="note-tags">${note.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
+            </div>
+            <div class="note-timestamp">${formatTimestamp(note.lastModified)}</div>
+            <div class="note-actions">
+                <button class="pin-note" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
+                    <i class="bi ${note.pinned ? 'bi-pin-fill' : 'bi-pin'}"></i>
+                </button>
+                <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="duplicate-note" data-note-id="${note.id}" title="Duplicate" type="button">
+                    <i class="bi bi-files"></i>
+                </button>
+                <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        return div;
+    }
+
+    getPreview(content, maxLength = 150) {
+        if (!content) return '';
+        const stripped = content.replace(/\n/g, ' ').trim();
+        return stripped.length > maxLength ? stripped.substring(0, maxLength) + '...' : stripped;
+    }
+
+    getWordCount(content) {
+        if (!content) return 0;
+        return content.trim().split(/\s+/).filter(word => word.length > 0).length;
+    }
+
+    extractTags(content) {
+        if (!content) return [];
+        const tagRegex = /#(\w+)/g;
+        const tags = [];
+        let match;
+        
+        while ((match = tagRegex.exec(content)) !== null) {
+            tags.push(match[1]);
+        }
+        
+        return [...new Set(tags)]; // Remove duplicates
+    }
+
+    editNote(noteId) {
+        console.log('editNote called with ID:', noteId);
+        
+        if (!noteId || isNaN(noteId)) {
+            console.error('Invalid note ID:', noteId);
+            return;
+        }
+
+        const notes = this.getNotes();
+        const note = notes.find(n => n.id === noteId);
+        
+        if (!note) {
+            console.error('Note not found with ID:', noteId);
+            this.restoreFocus();
+            return;
+        }
+        
+        console.log('Editing note:', note);
+        this.editingNote = note;
+        this.showEditModal(note);
+    }
+
+    showEditModal(note) {
+        // Close any existing modals first
+        closeModal();
+        
+        const modal = document.createElement('div');
+        modal.className = 'note-edit-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>Edit Note</h3>
+                <div class="edit-form">
+                    <div class="title-section">
+                        <label for="editNoteTitle">Title:</label>
+                        <input type="text" id="editNoteTitle" value="${note.title}">
+                    </div>
+                    
+                    <div class="content-section">
+                        <label for="editNoteContent">Content:</label>
+                        <textarea id="editNoteContent" rows="15">${note.content}</textarea>
+                        <div class="content-stats">
+                            <span id="current-word-count">${note.wordCount} words</span>
+                            <span class="auto-save-indicator">Auto-save enabled</span>
+                        </div>
+                    </div>
+                    
+                    <div class="edit-sections">
+                        <div class="category-section">
+                            <label for="editCategory">Category:</label>
+                            <select id="editCategory">
+                                <option value="general" ${note.category === 'general' ? 'selected' : ''}>General</option>
+                                <option value="work" ${note.category === 'work' ? 'selected' : ''}>Work</option>
+                                <option value="personal" ${note.category === 'personal' ? 'selected' : ''}>Personal</option>
+                                <option value="ideas" ${note.category === 'ideas' ? 'selected' : ''}>Ideas</option>
+                                <option value="projects" ${note.category === 'projects' ? 'selected' : ''}>Projects</option>
+                                <option value="meetings" ${note.category === 'meetings' ? 'selected' : ''}>Meetings</option>
+                            </select>
+                            <input type="text" id="editCustomCategory" placeholder="Custom category..." value="${!['general', 'work', 'personal', 'ideas', 'projects', 'meetings'].includes(note.category) ? note.category : ''}">
+                        </div>
+                        
+                        <div class="color-section">
+                            <label>Color Theme:</label>
+                            <div class="color-picker">
+                                <button class="color-option ${note.color === 'default' ? 'selected' : ''}" data-color="default" style="background: #f8f9fa;"></button>
+                                <button class="color-option ${note.color === 'blue' ? 'selected' : ''}" data-color="blue" style="background: #e3f2fd;"></button>
+                                <button class="color-option ${note.color === 'green' ? 'selected' : ''}" data-color="green" style="background: #e8f5e8;"></button>
+                                <button class="color-option ${note.color === 'yellow' ? 'selected' : ''}" data-color="yellow" style="background: #fff3e0;"></button>
+                                <button class="color-option ${note.color === 'pink' ? 'selected' : ''}" data-color="pink" style="background: #fce4ec;"></button>
+                                <button class="color-option ${note.color === 'purple' ? 'selected' : ''}" data-color="purple" style="background: #f3e5f5;"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button data-action="save" type="button">Save Changes</button>
+                    <button data-action="cancel" type="button">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Handle color picker
+        const colorOptions = modal.querySelectorAll('.color-option');
+        colorOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                colorOptions.forEach(opt => opt.classList.remove('selected'));
+                e.target.classList.add('selected');
+            });
+        });
+
+        // Live word count update
+        const contentTextarea = document.getElementById('editNoteContent');
+        const wordCountSpan = document.getElementById('current-word-count');
+        
+        if (contentTextarea && wordCountSpan) {
+            contentTextarea.addEventListener('input', () => {
+                const wordCount = this.getWordCount(contentTextarea.value);
+                wordCountSpan.textContent = `${wordCount} words`;
+            });
+        }
+        
+        const buttons = modal.querySelectorAll('button[data-action]');
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const action = e.target.getAttribute('data-action');
+                if (action === 'save') {
+                    this.saveEditedNote();
+                } else if (action === 'cancel') {
+                    closeModal();
+                    this.editingNote = null;
+                    this.restoreFocus();
+                }
+            });
+        });
+
+        // Focus on title input
+        setTimeout(() => {
+            const titleInput = document.getElementById('editNoteTitle');
+            if (titleInput) {
+                titleInput.focus();
+                titleInput.setSelectionRange(0, titleInput.value.length);
+            }
+        }, 100);
+    }
+
+    saveEditedNote() {
+        const titleInput = document.getElementById('editNoteTitle');
+        const contentInput = document.getElementById('editNoteContent');
+        const categorySelect = document.getElementById('editCategory');
+        const customCategoryInput = document.getElementById('editCustomCategory');
+        const selectedColor = document.querySelector('.color-option.selected')?.getAttribute('data-color') || 'default';
+        
+        // Validate the title input
+        if (!this.validateInput(titleInput, 'Please enter a note title')) {
+            return;
+        }
+        
+        const newTitle = titleInput.value.trim();
+        const newContent = contentInput.value.trim();
+        const newCategory = customCategoryInput.value.trim() || categorySelect.value;
+        
+        if (!this.editingNote) return;
+        
+        try {
+            const notes = this.getNotes();
+            const noteIndex = notes.findIndex(note => note.id === this.editingNote.id);
+            
+            if (noteIndex !== -1) {
+                notes[noteIndex].title = newTitle;
+                notes[noteIndex].content = newContent;
+                notes[noteIndex].category = newCategory;
+                notes[noteIndex].color = selectedColor;
+                notes[noteIndex].lastModified = new Date().toISOString();
+                notes[noteIndex].wordCount = this.getWordCount(newContent);
+                notes[noteIndex].tags = this.extractTags(newContent);
+                
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+                this.displayNotes();
+                this.updateStats();
+                this.updateCategoryFilter();
+                this.emitNoteUpdate('note-updated', notes[noteIndex]);
+            }
+        } catch (error) {
+            console.error('Could not save edited note:', error);
+        }
+        
+        this.editingNote = null;
+        closeModal();
+        this.restoreFocus();
+    }
+
+    deleteNote(noteId) {
+        console.log('deleteNote called with ID:', noteId);
+        
+        if (!noteId || isNaN(noteId)) {
+            console.error('Invalid note ID:', noteId);
+            return;
+        }
+
+        if (!confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+            this.restoreFocus();
+            return;
+        }
+        
+        try {
+            let notes = this.getNotes();
+            console.log('Notes before delete:', notes.length);
+            
+            const noteToDelete = notes.find(note => note.id === noteId);
+            console.log('Note to delete:', noteToDelete);
+            
+            if (!noteToDelete) {
+                console.error('Note not found with ID:', noteId);
+                this.restoreFocus();
+                return;
+            }
+            
+            notes = notes.filter(note => note.id !== noteId);
+            console.log('Notes after delete:', notes.length);
+            
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+            this.displayNotes();
+            this.updateStats();
+            this.updateCategoryFilter();
+            this.emitNoteUpdate('note-deleted', noteToDelete);
+            
+            console.log('Note deleted successfully');
+            this.restoreFocus();
+        } catch (error) {
+            console.error('Could not delete note:', error);
+            this.restoreFocus();
+        }
+    }
+
+    togglePin(noteId) {
+        console.log('togglePin called with ID:', noteId);
+        
+        if (!noteId || isNaN(noteId)) {
+            console.error('Invalid note ID:', noteId);
+            return;
+        }
+        
+        try {
+            const notes = this.getNotes();
+            const noteIndex = notes.findIndex(note => note.id === noteId);
+            
+            if (noteIndex !== -1) {
+                notes[noteIndex].pinned = !notes[noteIndex].pinned;
+                notes[noteIndex].lastModified = new Date().toISOString();
+                
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+                this.displayNotes();
+                this.emitNoteUpdate('note-pinned', notes[noteIndex]);
+                
+                console.log(`Note ${noteId} pin toggled to: ${notes[noteIndex].pinned}`);
+            }
+        } catch (error) {
+            console.error('Could not toggle pin:', error);
+        }
+    }
+
+    duplicateNote(noteId) {
+        console.log('duplicateNote called with ID:', noteId);
+        
+        if (!noteId || isNaN(noteId)) {
+            console.error('Invalid note ID:', noteId);
+            return;
+        }
+        
+        try {
+            const notes = this.getNotes();
+            const originalNote = notes.find(note => note.id === noteId);
+            
+            if (!originalNote) {
+                console.error('Note not found with ID:', noteId);
+                return;
+            }
+            
+            const duplicatedNote = {
+                ...originalNote,
+                id: Date.now(),
+                title: `${originalNote.title} (Copy)`,
+                timestamp: new Date().toISOString(),
+                lastModified: new Date().toISOString(),
+                pinned: false // Duplicated notes are not pinned by default
+            };
+            
+            notes.push(duplicatedNote);
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+            this.displayNotes();
+            this.updateStats();
+            this.emitNoteUpdate('note-duplicated', duplicatedNote);
+            
+            console.log('Note duplicated successfully');
+        } catch (error) {
+            console.error('Could not duplicate note:', error);
+        }
+    }
+
+    showNotePreview(noteId) {
+        const notes = this.getNotes();
+        const note = notes.find(n => n.id === noteId);
+        
+        if (!note) return;
+        
+        const modal = document.createElement('div');
+        modal.className = 'note-preview-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="preview-header">
+                    <h3>${detectAndCreateLinks(note.title)}</h3>
+                    <button class="close-preview" type="button">&times;</button>
+                </div>
+                <div class="preview-meta">
+                    <span class="preview-category">${note.category}</span>
+                    <span class="preview-word-count">${note.wordCount} words</span>
+                    <span class="preview-date">${formatTimestamp(note.lastModified)}</span>
+                </div>
+                <div class="preview-content">
+*/
