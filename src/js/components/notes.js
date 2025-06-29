@@ -1,5 +1,14 @@
 // notes.js - Enhanced Note Manager with focus restoration and input validation
-import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
+import { detectAndCreateLinks, formatTimestamp } from '@components/utils.js';
+function closeModal() {
+    const modals = document.querySelectorAll('.note-category-modal, .note-edit-modal');
+    modals.forEach(modal => {
+        if (modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+    });
+}
+
 
 class NotesManager {
     constructor() {

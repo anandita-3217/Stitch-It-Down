@@ -99,9 +99,8 @@ function initialize() {
 }
 
 function debugFunctions() {
-    const now = new Date();
+
     console.log('Functions check:');
-    console.log('setDailyQuote:', typeof window.setDailyQuote);
 }
 
 function requestNotificationPermission() {
