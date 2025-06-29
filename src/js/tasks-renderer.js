@@ -13,22 +13,6 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 let taskManager;
 
-// function initialize() {
-//     loadAllImages();
-//     setDailyQuote();
-//     debugFunctions();
-//     initTheme();
-    
-//     // Initialize TaskManager
-//     taskManager = new TaskManager();
-    
-//     // Request notification permission
-//     requestNotificationPermission();
-    
-//     // Setup task filters if they exist
-//     setupTaskFilters();
-// }
-// Replace your current initialize function with this enhanced version
 function initialize() {
     loadAllImages();
     setDailyQuote();
@@ -101,7 +85,72 @@ function debugTaskCompletion() {
 
 // Add this to window for easy debugging
 window.debugTaskCompletion = debugTaskCompletion;
+// Add this function to your task-renderer.js
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+    
+    // Browser notification for important events
+    if (type === 'success' && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('Stitch Tasks', {
+            body: message,
+            icon: '@assets/images/characters/stitch-wink.ico' // Adjust path as needed
+        });
+    }
+}
 
+// Replace your existing taskUpdate listener with this enhanced version:
+document.addEventListener('taskUpdate', (event) => {
+    console.log('Task update received:', event.detail);
+    
+    // Show notification for certain events
+    const { type, task } = event.detail;
+    switch (type) {
+        case 'task-added':
+            showNotification('Task created successfully!', 'success');
+            break;
+        case 'task-updated':
+            showNotification('Task updated successfully!', 'success');
+            break;
+        case 'task-deleted':
+            showNotification('Task deleted', 'info');
+            break;
+        case 'task-completed':
+            showNotification(task.completed ? 'Task completed! 🎉' : 'Task marked as incomplete', 'success');
+            break;
+        case 'task-priority-changed':
+            showNotification(`Task priority changed to ${task.priority}`, 'info');
+            break;
+        case 'task-deadline-set':
+            showNotification('Task deadline updated', 'info');
+            break;
+    }
+});
+
+// Make notification function available globally for debugging
+window.taskRenderer = {
+    showNotification
+};
 
 
 function setupTaskFilters() {

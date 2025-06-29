@@ -471,7 +471,7 @@ class TaskManager {
     }
 
     toggleTask(taskId) {
-    console.log('toggleTask called with ID:', taskId);
+    // console.log('toggleTask called with ID:', taskId);
     
     if (!taskId || isNaN(taskId)) {
         console.error('Invalid task ID provided to toggleTask:', taskId);
@@ -512,6 +512,10 @@ class TaskManager {
         } else {
             console.error('Task not found with ID:', taskId);
         }
+        document.dispatchEvent(new CustomEvent('taskUpdate', {
+                detail: { type: 'task-completed', task: task }
+            }));
+
     } catch (error) {
         console.error('Error in toggleTask:', error);
     }
@@ -551,7 +555,10 @@ class TaskManager {
             this.displayTasks();
             this.updateProgress();
             this.emitTaskUpdate('task-deleted', taskToDelete);
-            
+            document.dispatchEvent(new CustomEvent('taskUpdate', {
+                detail: { type: 'task-deleted', task: deletedTask }
+            }));
+
             console.log('Task deleted successfully');
             this.restoreFocus(); // Restore focus after successful deletion
         } catch (error) {

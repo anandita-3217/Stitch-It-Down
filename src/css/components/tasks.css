@@ -737,17 +737,84 @@
 }
 
 
-/* @keyframes shake {
-    0%, 100% {
-        transform: translateX(0);
-    }
-    10%, 30%, 50%, 70%, 90% {
-        transform: translateX(-8px);
-    }
-    20%, 40%, 60%, 80% {
-        transform: translateX(8px);
-    }
-} */
+/* Notifications */
+.notification {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 8px 24px var(--shadow);
+  z-index: 9999;
+  transform: translateX(100%);
+  animation: slideIn 0.3s ease forwards;
+  max-width: 400px;
+}
+
+.notification-success {
+  border-color: var(--darker-blue);
+  background: linear-gradient(135deg, var(--dark-blue) 0%, var(--card-bg) 100%);
+}
+
+.notification-error {
+  border-color: #dc3545;
+  background: linear-gradient(135deg, #fce6e6 0%, var(--card-bg) 100%);
+}
+
+.notification-info {
+  border-color: var(--dark-blue);
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--card-bg) 100%);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notification-content i {
+  font-size: 1.2rem;
+}
+
+.notification-success .notification-content i {
+  color: var(--darker-blue);
+}
+
+.notification-error .notification-content i {
+  color: #dc3545;
+}
+
+.notification-info .notification-content i {
+  color: var(--dark-blue);
+}
+
+.notification.fade-out {
+  animation: slideOut 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
 
 /* Optional: Add red border during shake for better visual feedback */
 .shake-animation {
