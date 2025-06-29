@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stitch It Down | Notes</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
 </head>
 <body>
     <div class="app-container">
@@ -25,8 +24,6 @@
                 </label>
             </div>
         </header>
-
-        <!-- Sidebar Navigation -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-content">
                 <div class="sidebar-header">
@@ -65,257 +62,25 @@
                 </ul>
                 <div class="sidebar-footer">
                     <div class="stitch-quote" id="sidebarQuote">
-                        "Ohana means family!"
                     </div>
                 </div>
             </div>
         </nav>
-
-        <!-- Sidebar Overlay for Mobile -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-        <!-- Main Content Area -->
         <div class="main-content">
-            <!-- Daily Quote Section -->
             <div class="daily-quote-section">
                 <div class="daily-quote" id="dailyQuote">
-                    <!-- Daily quote will be populated here -->
                 </div>
             </div>
-
-            <!-- Notes Overview Stats -->
-            <div class="note-overview-container">
-                <div class="note-stats-section">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number stat-total-notes">0</div>
-                            <div class="stat-label">Total Notes</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number stat-pinned-notes">0</div>
-                            <div class="stat-label">Pinned</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number stat-archived-notes">0</div>
-                            <div class="stat-label">Archived</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number stat-total-words">0</div>
-                            <div class="stat-label">Total Words</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notes Management Section -->
             <div class="lower">
-                <!-- Notes Filters and Search -->
-                <div class="note-filters">
-                    <select id="category-filter" class="filter-select">
-                        <option value="all">All Categories</option>
-                        <option value="general">General</option>
-                        <option value="work">Work</option>
-                        <option value="personal">Personal</option>
-                        <option value="ideas">Ideas</option>
-                        <option value="reminders">Reminders</option>
-                        <option value="quotes">Quotes</option>
-                        <option value="research">Research</option>
-                    </select>
-                    
-                    <select id="color-filter" class="filter-select">
-                        <option value="all">All Colors</option>
-                        <option value="default">Default</option>
-                        <option value="yellow">Yellow</option>
-                        <option value="blue">Blue</option>
-                        <option value="green">Green</option>
-                        <option value="pink">Pink</option>
-                        <option value="purple">Purple</option>
-                    </select>
-                    
-                    <select id="view-filter" class="filter-select">
-                        <option value="all">All Notes</option>
-                        <option value="pinned">Pinned Only</option>
-                        <option value="archived">Archived Only</option>
-                        <option value="active">Active Only</option>
-                    </select>
-                    
-                    <input type="text" id="note-search" class="search-input" placeholder="Search notes, tags, or categories...">
-                    
-                    <!-- Additional Action Buttons -->
-                    <div class="action-buttons">
-                        <button id="exportNotesBtn" class="action-btn" title="Export Notes">
-                            <i class="bi bi-download"></i>
-                        </button>
-                        <button id="importNotesBtn" class="action-btn" title="Import Notes">
-                            <i class="bi bi-upload"></i>
-                        </button>
-                        <input type="file" id="importFileInput" accept=".json" style="display: none;">
-                    </div>
-                </div>
-
-                <!-- Add Note Section -->
                 <div class="add-note">
-                    <textarea class="addNote" id="noteInput" placeholder="Write your note here... (Press Enter to add, Shift+Enter for new line)" rows="3"></textarea>
-                    <button type="submit" class="AddNote" id="addNoteBtn">
-                        <i class="bi bi-plus-lg"></i>
-                    </button>
+                    <textarea class="addNote" id="noteInput" placeholder="Write your note here... (Press Enter to add, Shift+Enter for new line)" ></textarea>
+                    <button type="submit" class="AddNote" id="addNoteBtn">+</button>
                 </div>
-
-                <!-- Notes Container -->
                 <div class="notes-container" id="notesContainer">
-                    <!-- Notes will be dynamically populated here -->
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Modal Overlay (for note creation/editing modals) -->
-    <div class="modal-overlay" id="modalOverlay" style="display: none;"></div>
-
-    <!-- Script imports -->
-    <script type="module">
-        import NotesManager from './js/notes.js';
-        
-        // Initialize the notes manager when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            const notesManager = new NotesManager();
-            
-            // Set up additional event listeners for filters and actions
-            setupFilters(notesManager);
-            setupActionButtons(notesManager);
-            updateNoteStats(notesManager);
-        });
-
-        function setupFilters(notesManager) {
-            const categoryFilter = document.getElementById('category-filter');
-            const colorFilter = document.getElementById('color-filter');
-            const viewFilter = document.getElementById('view-filter');
-            const searchInput = document.getElementById('note-search');
-
-            // Category filter
-            if (categoryFilter) {
-                categoryFilter.addEventListener('change', (e) => {
-                    const category = e.target.value;
-                    if (category === 'all') {
-                        notesManager.displayNotes();
-                    } else {
-                        notesManager.displayNotes(note => note.category === category);
-                    }
-                });
-            }
-
-            // Color filter
-            if (colorFilter) {
-                colorFilter.addEventListener('change', (e) => {
-                    const color = e.target.value;
-                    if (color === 'all') {
-                        notesManager.displayNotes();
-                    } else {
-                        notesManager.displayNotes(note => note.color === color);
-                    }
-                });
-            }
-
-            // View filter (pinned, archived, active)
-            if (viewFilter) {
-                viewFilter.addEventListener('change', (e) => {
-                    const view = e.target.value;
-                    let filter;
-                    switch (view) {
-                        case 'pinned':
-                            filter = note => note.pinned && !note.archived;
-                            break;
-                        case 'archived':
-                            filter = note => note.archived;
-                            break;
-                        case 'active':
-                            filter = note => !note.archived;
-                            break;
-                        default:
-                            filter = null;
-                    }
-                    notesManager.displayNotes(filter);
-                });
-            }
-
-            // Search functionality
-            if (searchInput) {
-                let searchTimeout;
-                searchInput.addEventListener('input', (e) => {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => {
-                        const query = e.target.value.trim();
-                        if (query) {
-                            const results = notesManager.searchNotes(query);
-                            notesManager.displayNotes(note => results.some(r => r.id === note.id));
-                        } else {
-                            notesManager.displayNotes();
-                        }
-                    }, 300);
-                });
-            }
-        }
-
-        function setupActionButtons(notesManager) {
-            const exportBtn = document.getElementById('exportNotesBtn');
-            const importBtn = document.getElementById('importNotesBtn');
-            const importFileInput = document.getElementById('importFileInput');
-
-            // Export functionality
-            if (exportBtn) {
-                exportBtn.addEventListener('click', () => {
-                    notesManager.exportNotes();
-                });
-            }
-
-            // Import functionality
-            if (importBtn && importFileInput) {
-                importBtn.addEventListener('click', () => {
-                    importFileInput.click();
-                });
-
-                importFileInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            const success = notesManager.importNotes(event.target.result);
-                            if (success) {
-                                alert('Notes imported successfully!');
-                                updateNoteStats(notesManager);
-                            } else {
-                                alert('Failed to import notes. Please check the file format.');
-                            }
-                        };
-                        reader.readAsText(file);
-                    }
-                });
-            }
-        }
-
-        function updateNoteStats(notesManager) {
-            const notes = notesManager.getNotes();
-            const totalNotes = notes.length;
-            const pinnedNotes = notes.filter(note => note.pinned && !note.archived).length;
-            const archivedNotes = notes.filter(note => note.archived).length;
-            const totalWords = notes.reduce((sum, note) => sum + (note.wordCount || 0), 0);
-
-            // Update stat displays
-            const totalElement = document.querySelector('.stat-total-notes');
-            const pinnedElement = document.querySelector('.stat-pinned-notes');
-            const archivedElement = document.querySelector('.stat-archived-notes');
-            const wordsElement = document.querySelector('.stat-total-words');
-
-            if (totalElement) totalElement.textContent = totalNotes;
-            if (pinnedElement) pinnedElement.textContent = pinnedNotes;
-            if (archivedElement) archivedElement.textContent = archivedNotes;
-            if (wordsElement) wordsElement.textContent = totalWords;
-        }
-
-        // Listen for note updates to refresh stats
-        document.addEventListener('noteUpdate', () => {
-            updateNoteStats(window.notesManager);
-        });
-    </script>
 </body>
 </html>

@@ -344,16 +344,6 @@ body {
     margin-right: 5px;
     font-size: 13px; 
 }
-/* Motivational quote styling */
-/* .daily-quote {
-    font-style: italic;
-    color: var(--text-secondary);
-    font-size: 13px; 
-    line-height: 1.4; 
-    position: relative;
-    padding-left: 18px;
-    border-left: 3px solid var(--primary-purple);
-} */
 
 .daily-quote-section {
     max-width: 800px;
