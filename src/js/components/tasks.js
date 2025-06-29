@@ -66,6 +66,7 @@ class TaskManager {
         
         if (!value || value === '') {
             this.shakeInput(inputElement);
+            this.emitToastNotification(errorMessage, 'error', 2000);
             return false;
         }
         return true;
@@ -324,8 +325,12 @@ class TaskManager {
             this.displayTasks();
             this.updateProgress();
             this.emitTaskUpdate('task-added', taskData);
+            this.emitToastNotification(`Task "${taskData.text}" created successfully!`, 'success');
+
         } catch (error) {
             console.error('Could not save task to localStorage:', error);
+            this.emitToastNotification('Failed to save task', 'error');
+
         }
     }
 
@@ -488,7 +493,9 @@ class TaskManager {
             const newStatus = tasks[taskIndex].completed;
             
             console.log(`✓ Task ${taskId} toggled: ${oldStatus} → ${newStatus}`);
-            
+            const statusText = newStatus ? 'completed' : 'uncompleted';
+            this.emitToastNotification(`Task ${statusText}!`, newStatus ? 'success' : 'info', 2000);
+
             // Reset alert flag if task is being uncompleted
             if (!tasks[taskIndex].completed) {
                 delete tasks[taskIndex].alerted;
@@ -555,6 +562,9 @@ class TaskManager {
             this.displayTasks();
             this.updateProgress();
             this.emitTaskUpdate('task-deleted', taskToDelete);
+            this.emitToastNotification(`Task "${taskToDelete.text}" deleted`, 'info');
+            console.log('Task deleted successfully');
+
             document.dispatchEvent(new CustomEvent('taskUpdate', {
                 detail: { type: 'task-deleted', task: deletedTask }
             }));
@@ -696,9 +706,12 @@ class TaskManager {
                 this.displayTasks();
                 this.updateProgress();
                 this.emitTaskUpdate('task-updated', tasks[taskIndex]);
+                this.emitToastNotification('Task updated successfully!', 'success');
             }
         } catch (error) {
             console.error('Could not save edited task:', error);
+            this.emitToastNotification('Failed to update task', 'error');
+
         }
         
         this.editingTask = null;
@@ -781,7 +794,12 @@ class TaskManager {
         });
         document.dispatchEvent(event);
     }
-
+    emitToastNotification(message, type = 'success', duration = 3000) {
+    const event = new CustomEvent('showToast', {
+        detail: { message, type, duration }
+    });
+    document.dispatchEvent(event);
+    }
     // Alert and notification system
     setupDeadlineAlerts() {
         setInterval(() => this.checkAlerts(), 60000); // Check every minute
@@ -815,6 +833,14 @@ class TaskManager {
     }
 
     sendNotification(task) {
+        // Emit toast notification
+        this.emitToastNotification(
+            `Task "${task.text}" is due soon!`, 
+            'warning', 
+            5000
+        );
+
+        // Keep browser notification as fallback
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('Task Deadline Alert', {
                 body: `Task "${task.text}" is due soon!`,
