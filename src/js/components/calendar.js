@@ -704,56 +704,56 @@ class ProductivityCalendar {
     }
 
     // Analytics and productivity tracking
-    getProductivityStats() {
-        const now = new Date();
-        const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - now.getDay());
+//     getProductivityStats() {
+//         const now = new Date();
+//         const weekStart = new Date(now);
+//         weekStart.setDate(now.getDate() - now.getDay());
         
-        const weekEvents = this.events.filter(event => 
-            event.date >= weekStart && event.date <= now
-        );
+//         const weekEvents = this.events.filter(event => 
+//             event.date >= weekStart && event.date <= now
+//         );
         
-        const stats = {
-            weeklyHours: 0,
-            focusTime: 0,
-            meetingTime: 0,
-            completedEvents: 0
-        };
+//         const stats = {
+//             weeklyHours: 0,
+//             focusTime: 0,
+//             meetingTime: 0,
+//             completedEvents: 0
+//         };
         
-        weekEvents.forEach(event => {
-            const duration = this.getEventDuration(event);
-            stats.weeklyHours += duration;
+//         weekEvents.forEach(event => {
+//             const duration = this.getEventDuration(event);
+//             stats.weeklyHours += duration;
             
-            if (event.category === 'focus') {
-                stats.focusTime += duration;
-            } else if (event.category === 'meetings') {
-                stats.meetingTime += duration;
-            }
+//             if (event.category === 'focus') {
+//                 stats.focusTime += duration;
+//             } else if (event.category === 'meetings') {
+//                 stats.meetingTime += duration;
+//             }
             
-            if (event.completed) {
-                stats.completedEvents++;
-            }
-        });
+//             if (event.completed) {
+//                 stats.completedEvents++;
+//             }
+//         });
         
-        stats.completionRate = weekEvents.length > 0 ? 
-            Math.round((stats.completedEvents / weekEvents.length) * 100) : 0;
+//         stats.completionRate = weekEvents.length > 0 ? 
+//             Math.round((stats.completedEvents / weekEvents.length) * 100) : 0;
         
-        return stats;
-    }
+//         return stats;
+//     }
 
-    updateAnalytics() {
-        const stats = this.getProductivityStats();
+//     updateAnalytics() {
+//         const stats = this.getProductivityStats();
         
-        document.getElementById('weeklyHours').textContent = `${Math.round(stats.weeklyHours)}h`;
-        document.getElementById('focusTime').textContent = `${Math.round(stats.focusTime)}h`;
-        document.getElementById('meetingTime').textContent = `${Math.round(stats.meetingTime)}h`;
-        document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
+//         document.getElementById('weeklyHours').textContent = `${Math.round(stats.weeklyHours)}h`;
+//         document.getElementById('focusTime').textContent = `${Math.round(stats.focusTime)}h`;
+//         document.getElementById('meetingTime').textContent = `${Math.round(stats.meetingTime)}h`;
+//         document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
         
-        // Show analytics panel periodically
-        setTimeout(() => {
-            document.getElementById('analyticsPanel').classList.add('show');
-        }, 2000);
-    }
+//         // Show analytics panel periodically
+//         setTimeout(() => {
+//             document.getElementById('analyticsPanel').classList.add('show');
+//         }, 2000);
+//     }
 }
 
 // Initialize calendar when DOM is loaded
@@ -762,6 +762,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update analytics every 5 seconds for demo
     setInterval(() => {
-        calendar.updateAnalytics();
+        // calendar.updateAnalytics();
     }, 5000);
 });
