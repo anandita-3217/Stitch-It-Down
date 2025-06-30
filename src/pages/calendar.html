@@ -198,14 +198,20 @@
             </div>
 
             <!-- Week View -->
-            <div id="weekViewContainer" class="view-container">
-                <div class="time-column">
-                    <div class="time-header"></div>
-                    <div class="time-slots"></div>
+<!-- Week View Container Structure -->
+            <div id="weekViewContainer" class="view-container week-view-container">
+                <div class="week-header">
+                    <!-- Time header and day headers will be populated by JavaScript -->
                 </div>
-                <div class="week-grid">
-                    <div class="week-header"></div>
-                    <div class="week-body"></div>
+                <div class="week-body">
+                    <div class="time-column">
+                        <div class="time-slots">
+                            <!-- Time slots will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="week-days-container">
+                        <!-- Day columns will be populated by JavaScript -->
+                    </div>
                 </div>
             </div>
 
@@ -289,7 +295,7 @@
     </div>
 
     <!-- Analytics Panel -->
-    <!-- <div id="analyticsPanel" class="analytics-panel">
+    <div id="analyticsPanel" class="analytics-panel">
         <h3>Productivity Analytics</h3>
         <div class="analytics-grid">
             <div class="stat-card">
@@ -309,7 +315,7 @@
                 <span class="stat-label">Completion</span>
             </div>
         </div>
-    </div> -->
+    </div>
             
         </div>
     </div>

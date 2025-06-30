@@ -237,79 +237,160 @@ class ProductivityCalendar {
         }
     }
 
+    // renderWeekView() {
+    //     const weekContainer = document.getElementById('weekViewContainer');
+    //     const weekHeader = weekContainer.querySelector('.week-header');
+    //     const weekBody = weekContainer.querySelector('.week-body');
+    //     const timeSlots = weekContainer.querySelector('.time-slots');
+        
+    //     // Clear existing content
+    //     weekHeader.innerHTML = '';
+    //     weekBody.innerHTML = '';
+    //     timeSlots.innerHTML = '';
+        
+    //     // Generate time slots
+    //     for (let hour = 0; hour < 24; hour++) {
+    //         const timeSlot = document.createElement('div');
+    //         timeSlot.className = 'time-slot';
+    //         timeSlot.textContent = this.formatHour(hour);
+    //         timeSlots.appendChild(timeSlot);
+    //     }
+        
+    //     // Get week start (Sunday)
+    //     const weekStart = new Date(this.currentDate);
+    //     const dayOfWeek = weekStart.getDay();
+    //     weekStart.setDate(weekStart.getDate() - dayOfWeek);
+        
+    //     const today = new Date();
+        
+    //     // Generate week header and body
+    //     for (let i = 0; i < 7; i++) {
+    //         const currentDay = new Date(weekStart);
+    //         currentDay.setDate(weekStart.getDate() + i);
+            
+    //         // Header
+    //         const headerCell = document.createElement('div');
+    //         headerCell.className = 'week-day-header';
+    //         if (this.isSameDate(currentDay, today)) {
+    //             headerCell.classList.add('today');
+    //         }
+            
+    //         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    //         headerCell.innerHTML = `
+    //             <div>${dayNames[i]}</div>
+    //             <div style="font-size: 18px; margin-top: 4px;">${currentDay.getDate()}</div>
+    //         `;
+    //         weekHeader.appendChild(headerCell);
+            
+    //         // Body column
+    //         const columnElement = document.createElement('div');
+    //         columnElement.className = 'week-day-column';
+            
+    //         // Add horizontal grid lines
+    //         for (let hour = 0; hour < 24; hour++) {
+    //             const hourLine = document.createElement('div');
+    //             hourLine.style.cssText = `
+    //                 position: absolute;
+    //                 top: ${hour * 60}px;
+    //                 left: 0;
+    //                 right: 0;
+    //                 height: 1px;
+    //                 background: #f1f5f9;
+    //             `;
+    //             columnElement.appendChild(hourLine);
+    //         }
+            
+    //         // Add events for this day
+    //         const eventsForDay = this.getEventsForDate(currentDay);
+    //         eventsForDay.forEach(event => {
+    //             const eventElement = this.createTimedEventElement(event);
+    //             columnElement.appendChild(eventElement);
+    //         });
+            
+    //         weekBody.appendChild(columnElement);
+    //     }
+    // }
+
     renderWeekView() {
-        const weekContainer = document.getElementById('weekViewContainer');
-        const weekHeader = weekContainer.querySelector('.week-header');
-        const weekBody = weekContainer.querySelector('.week-body');
-        const timeSlots = weekContainer.querySelector('.time-slots');
-        
-        // Clear existing content
-        weekHeader.innerHTML = '';
-        weekBody.innerHTML = '';
+    const weekContainer = document.getElementById('weekViewContainer');
+    const weekHeader = weekContainer.querySelector('.week-header');
+    const timeColumn = weekContainer.querySelector('.time-column');
+    const weekDaysContainer = weekContainer.querySelector('.week-days-container');
+    
+    // Clear existing content
+    weekHeader.innerHTML = '';
+    if (timeColumn) {
+        const timeSlots = timeColumn.querySelector('.time-slots');
         timeSlots.innerHTML = '';
-        
-        // Generate time slots
+    }
+    if (weekDaysContainer) {
+        weekDaysContainer.innerHTML = '';
+    }
+
+    // Add time header cell
+    const timeHeader = document.createElement('div');
+    timeHeader.className = 'week-time-header';
+    timeHeader.textContent = 'Time';
+    weekHeader.appendChild(timeHeader);
+
+    // Generate time slots
+    if (timeColumn) {
+        const timeSlots = timeColumn.querySelector('.time-slots');
         for (let hour = 0; hour < 24; hour++) {
             const timeSlot = document.createElement('div');
             timeSlot.className = 'time-slot';
             timeSlot.textContent = this.formatHour(hour);
             timeSlots.appendChild(timeSlot);
         }
+    }
+
+    // Calculate week start date
+    const weekStart = new Date(this.currentDate);
+    const dayOfWeek = weekStart.getDay();
+    weekStart.setDate(weekStart.getDate() - dayOfWeek);
+    
+    const today = new Date();
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Create week header and day columns
+    for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(weekStart);
+        currentDay.setDate(weekStart.getDate() + i);
         
-        // Get week start (Sunday)
-        const weekStart = new Date(this.currentDate);
-        const dayOfWeek = weekStart.getDay();
-        weekStart.setDate(weekStart.getDate() - dayOfWeek);
+        // Create header cell
+        const headerCell = document.createElement('div');
+        headerCell.className = 'week-day-header';
+        if (this.isSameDate(currentDay, today)) {
+            headerCell.classList.add('today');
+        }
         
-        const today = new Date();
+        headerCell.innerHTML = `
+            <div>${dayNames[i]}</div>
+            <div style="font-size: 16px; margin-top: 2px; font-weight: 700;">${currentDay.getDate()}</div>
+        `;
+        weekHeader.appendChild(headerCell);
         
-        // Generate week header and body
-        for (let i = 0; i < 7; i++) {
-            const currentDay = new Date(weekStart);
-            currentDay.setDate(weekStart.getDate() + i);
-            
-            // Header
-            const headerCell = document.createElement('div');
-            headerCell.className = 'week-day-header';
-            if (this.isSameDate(currentDay, today)) {
-                headerCell.classList.add('today');
-            }
-            
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            headerCell.innerHTML = `
-                <div>${dayNames[i]}</div>
-                <div style="font-size: 18px; margin-top: 4px;">${currentDay.getDate()}</div>
-            `;
-            weekHeader.appendChild(headerCell);
-            
-            // Body column
-            const columnElement = document.createElement('div');
-            columnElement.className = 'week-day-column';
-            
-            // Add horizontal grid lines
-            for (let hour = 0; hour < 24; hour++) {
-                const hourLine = document.createElement('div');
-                hourLine.style.cssText = `
-                    position: absolute;
-                    top: ${hour * 60}px;
-                    left: 0;
-                    right: 0;
-                    height: 1px;
-                    background: #f1f5f9;
-                `;
-                columnElement.appendChild(hourLine);
-            }
-            
-            // Add events for this day
-            const eventsForDay = this.getEventsForDate(currentDay);
-            eventsForDay.forEach(event => {
-                const eventElement = this.createTimedEventElement(event);
-                columnElement.appendChild(eventElement);
-            });
-            
-            weekBody.appendChild(columnElement);
+        // Create day column
+        const columnElement = document.createElement('div');
+        columnElement.className = 'week-day-column';
+        
+        // Add events for this day
+        const eventsForDay = this.getEventsForDate(currentDay);
+        eventsForDay.forEach(event => {
+            const eventElement = this.createTimedEventElement(event);
+            columnElement.appendChild(eventElement);
+        });
+        
+        // Add click handler for adding new events
+        columnElement.addEventListener('click', () => {
+            this.openEventForm(currentDay);
+        });
+        
+        if (weekDaysContainer) {
+            weekDaysContainer.appendChild(columnElement);
         }
     }
+}
 
     renderDayView() {
         const dayContainer = document.getElementById('dayViewContainer');
@@ -704,56 +785,56 @@ class ProductivityCalendar {
     }
 
     // Analytics and productivity tracking
-//     getProductivityStats() {
-//         const now = new Date();
-//         const weekStart = new Date(now);
-//         weekStart.setDate(now.getDate() - now.getDay());
+    getProductivityStats() {
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
         
-//         const weekEvents = this.events.filter(event => 
-//             event.date >= weekStart && event.date <= now
-//         );
+        const weekEvents = this.events.filter(event => 
+            event.date >= weekStart && event.date <= now
+        );
         
-//         const stats = {
-//             weeklyHours: 0,
-//             focusTime: 0,
-//             meetingTime: 0,
-//             completedEvents: 0
-//         };
+        const stats = {
+            weeklyHours: 0,
+            focusTime: 0,
+            meetingTime: 0,
+            completedEvents: 0
+        };
         
-//         weekEvents.forEach(event => {
-//             const duration = this.getEventDuration(event);
-//             stats.weeklyHours += duration;
+        weekEvents.forEach(event => {
+            const duration = this.getEventDuration(event);
+            stats.weeklyHours += duration;
             
-//             if (event.category === 'focus') {
-//                 stats.focusTime += duration;
-//             } else if (event.category === 'meetings') {
-//                 stats.meetingTime += duration;
-//             }
+            if (event.category === 'focus') {
+                stats.focusTime += duration;
+            } else if (event.category === 'meetings') {
+                stats.meetingTime += duration;
+            }
             
-//             if (event.completed) {
-//                 stats.completedEvents++;
-//             }
-//         });
+            if (event.completed) {
+                stats.completedEvents++;
+            }
+        });
         
-//         stats.completionRate = weekEvents.length > 0 ? 
-//             Math.round((stats.completedEvents / weekEvents.length) * 100) : 0;
+        stats.completionRate = weekEvents.length > 0 ? 
+            Math.round((stats.completedEvents / weekEvents.length) * 100) : 0;
         
-//         return stats;
-//     }
+        return stats;
+    }
 
-//     updateAnalytics() {
-//         const stats = this.getProductivityStats();
+    updateAnalytics() {
+        const stats = this.getProductivityStats();
         
-//         document.getElementById('weeklyHours').textContent = `${Math.round(stats.weeklyHours)}h`;
-//         document.getElementById('focusTime').textContent = `${Math.round(stats.focusTime)}h`;
-//         document.getElementById('meetingTime').textContent = `${Math.round(stats.meetingTime)}h`;
-//         document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
+        document.getElementById('weeklyHours').textContent = `${Math.round(stats.weeklyHours)}h`;
+        document.getElementById('focusTime').textContent = `${Math.round(stats.focusTime)}h`;
+        document.getElementById('meetingTime').textContent = `${Math.round(stats.meetingTime)}h`;
+        document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
         
-//         // Show analytics panel periodically
-//         setTimeout(() => {
-//             document.getElementById('analyticsPanel').classList.add('show');
-//         }, 2000);
-//     }
+        // Show analytics panel periodically
+        setTimeout(() => {
+            document.getElementById('analyticsPanel').classList.add('show');
+        }, 2000);
+    }
 }
 
 // Initialize calendar when DOM is loaded
@@ -762,6 +843,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update analytics every 5 seconds for demo
     setInterval(() => {
-        // calendar.updateAnalytics();
+        calendar.updateAnalytics();
     }, 5000);
 });
