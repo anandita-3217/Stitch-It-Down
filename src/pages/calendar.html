@@ -83,11 +83,11 @@
                 <div class="daily-quote" id="dailyQuote">
                 </div>
             </div> -->
-            <div class="calendar-container">
+            <!-- <div class="calendar-container">
         <header class="calendar-header">
             <div class="header-left">
                 <div class="stitch-character">
-                    <!-- 📅 -->
+
                     <i class="bi bi-calendar4-week"></i>
                 </div>
                 <h1 class="calendar-title">Calendar</h1>
@@ -102,7 +102,7 @@
 
         <div class="calendar-content">
             <div class="calendar-grid" id="calendarGrid">
-                <!-- Day headers -->
+                
                 <div class="calendar-day-header">Sun</div>
                 <div class="calendar-day-header">Mon</div>
                 <div class="calendar-day-header">Tue</div>
@@ -111,7 +111,7 @@
                 <div class="calendar-day-header">Fri</div>
                 <div class="calendar-day-header">Sat</div>
                 
-                <!-- Calendar days will be populated by JavaScript -->
+                
             </div>
         </div>
 
@@ -142,9 +142,174 @@
                 <button onclick="addEvent()">Add Event</button>
             </div>
         </div>
+    </div> -->
+
+    <div class="calendar-container">
+        <!-- Header Controls -->
+        <div class="calendar-header">
+            <div class="nav-controls">
+                <button id="prevBtn" class="nav-btn">&lt;</button>
+                <h2 id="currentMonth" class="month-title">January 2025</h2>
+                <button id="nextBtn" class="nav-btn">&gt;</button>
+            </div>
+            
+            <div class="view-controls">
+                <button id="monthView" class="view-btn active">Month</button>
+                <button id="weekView" class="view-btn">Week</button>
+                <button id="dayView" class="view-btn">Day</button>
+            </div>
+            
+            <div class="action-controls">
+                <button id="addEventBtn" class="add-event-btn">+ Add Event</button>
+                <button id="todayBtn" class="today-btn">Today</button>
+            </div>
+        </div>
+
+        <!-- Quick Filters -->
+        <div class="filter-bar">
+            <div class="category-filters">
+                <span class="filter-label">Categories:</span>
+                <button class="category-filter active" data-category="all">All</button>
+                <button class="category-filter" data-category="work">Work</button>
+                <button class="category-filter" data-category="personal">Personal</button>
+                <button class="category-filter" data-category="meetings">Meetings</button>
+                <button class="category-filter" data-category="deadlines">Deadlines</button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="eventSearch" placeholder="Search events..." class="search-input">
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-wrapper">
+            <!-- Month View -->
+            <div id="monthViewContainer" class="view-container active">
+                <div class="weekdays">
+                    <div class="weekday">Sun</div>
+                    <div class="weekday">Mon</div>
+                    <div class="weekday">Tue</div>
+                    <div class="weekday">Wed</div>
+                    <div class="weekday">Thu</div>
+                    <div class="weekday">Fri</div>
+                    <div class="weekday">Sat</div>
+                </div>
+                <div id="calendarGrid" class="calendar-grid"></div>
+            </div>
+
+            <!-- Week View -->
+            <div id="weekViewContainer" class="view-container">
+                <div class="time-column">
+                    <div class="time-header"></div>
+                    <div class="time-slots"></div>
+                </div>
+                <div class="week-grid">
+                    <div class="week-header"></div>
+                    <div class="week-body"></div>
+                </div>
+            </div>
+
+            <!-- Day View -->
+            <div id="dayViewContainer" class="view-container">
+                <div class="day-header">
+                    <h3 id="dayTitle">Today</h3>
+                    <div class="day-stats">
+                        <span id="dayEventCount">0 events</span>
+                        <span id="dayFocusTime">0h focus time</span>
+                    </div>
+                </div>
+                <div class="day-schedule">
+                    <div class="time-column">
+                        <div class="time-slots"></div>
+                    </div>
+                    <div class="events-column">
+                        <div class="event-slots"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Details Sidebar -->
+        <div id="eventSidebar" class="event-sidebar">
+            <div class="sidebar-header">
+                <h3>Event Details</h3>
+                <button id="closeSidebar" class="close-btn">&times;</button>
+            </div>
+            <div class="sidebar-content">
+                <div id="eventForm" class="event-form">
+                    <input type="text" id="eventTitle" placeholder="Event title" class="form-input">
+                    
+                    <div class="form-row">
+                        <input type="date" id="eventDate" class="form-input">
+                        <input type="time" id="eventStartTime" class="form-input">
+                        <input type="time" id="eventEndTime" class="form-input">
+                    </div>
+                    
+                    <select id="eventCategory" class="form-select">
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="meetings">Meeting</option>
+                        <option value="deadlines">Deadline</option>
+                        <option value="focus">Focus Time</option>
+                    </select>
+                    
+                    <textarea id="eventDescription" placeholder="Description..." class="form-textarea"></textarea>
+                    
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="isRecurring"> Recurring event
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="isAllDay"> All day
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="hasReminder"> Set reminder
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="saveEvent" class="save-btn">Save Event</button>
+                        <button id="deleteEvent" class="delete-btn">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Quick Add Modal -->
+    <div id="quickAddModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Quick Add Event</h3>
+            <input type="text" id="quickEventText" placeholder="e.g., Meeting with team tomorrow 2pm" class="quick-input">
+            <div class="modal-actions">
+                <button id="parseEvent" class="parse-btn">Create Event</button>
+                <button id="cancelQuickAdd" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Analytics Panel -->
+    <div id="analyticsPanel" class="analytics-panel">
+        <h3>Productivity Analytics</h3>
+        <div class="analytics-grid">
+            <div class="stat-card">
+                <span class="stat-value" id="weeklyHours">0h</span>
+                <span class="stat-label">This Week</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="focusTime">0h</span>
+                <span class="stat-label">Focus Time</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="meetingTime">0h</span>
+                <span class="stat-label">Meetings</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="completionRate">0%</span>
+                <span class="stat-label">Completion</span>
+            </div>
+        </div>
+    </div>
             
         </div>
     </div>
