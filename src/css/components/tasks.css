@@ -59,12 +59,12 @@
 }
 
 .stat-card {
-    background: linear-gradient(135deg, var(--light-bg), var(--white));
+    background: var(--card-bg);
     padding: 16px;
     border-radius: 12px;
     text-align: center;
     transition: all 0.3s ease;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -72,23 +72,8 @@
     overflow: hidden;
 }
 
-[data-theme="dark"] .stat-card {
-    background: linear-gradient(135deg, var(--darker-blue), var(--dark-blue));
-    border: 1px solid var(--dark-purple);
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary-purple), var(--dark-purple));
-}
-
 .stat-card:hover {
-    transform: translateY(-3px);
+    /* transform: translateY(-3px); */
     box-shadow: 0 8px 25px var(--shadow-hover);
 }
 
@@ -102,14 +87,10 @@
     border-color: #dc3545;
 }
 
-.stat-card.overdue::before {
-    background: #dc3545;
-}
-
 .stat-number {
     font-size: 2rem;
     font-weight: bold;
-    color: var(--text-primary);
+    color: var(--dark-purple);
     margin-bottom: 8px;
 }
 
