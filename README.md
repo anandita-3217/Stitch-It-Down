@@ -16,7 +16,70 @@ A desktop notes application inspired by Lilo & Stitch, built with Electron.js to
 - **Auto-save**: Never lose your thoughts - all notes are automatically saved
 - **Cross-platform**: Works on Windows, macOS, and Linux
 - **Task-Tracking**: Shows all tasks for the day, tasks that need to be done everyday and tasks that are done are crossed out and daily report at the end of the day
+# 📅 Calendar - Advanced Scheduling & Productivity Tracking
 
+The **Calendar** module is a comprehensive scheduling and productivity tracking system built into Stitch It Down. It provides multiple views, intelligent event management, and detailed analytics to help you stay organized and productive.
+
+## ✨ Key Features
+
+### 📊 Multiple View Modes
+- **Month View**: Traditional calendar grid showing all events at a glance
+- **Week View**: Detailed timeline view with hourly slots for precise scheduling  
+- **Day View**: Focused single-day view with productivity statistics
+
+### 🎯 Smart Event Management
+- **Quick Add**: Natural language event creation (e.g., "Meeting with team tomorrow 2pm")
+- **Detailed Event Editor**: Full-featured form with categories, descriptions, and options
+- **Drag & Drop**: Visual event management (planned feature)
+- **Event Categories**: Organized color-coding (Work, Personal, Meetings, Deadlines, Focus Time)
+
+### 🔍 Advanced Features
+- **Real-time Search**: Find events instantly by title or description
+- **Category Filtering**: Filter events by type for focused viewing
+- **Overlap Detection**: Prevents scheduling conflicts
+- **Past Event Validation**: Prevents creating events in the past
+- **Recurring Events**: Support for repeating events (planned)
+
+### 📈 Productivity Analytics
+- **Weekly Hours**: Track total scheduled time
+- **Focus Time**: Monitor deep work sessions
+- **Meeting Time**: Analyze meeting overhead
+- **Completion Rate**: Track event completion percentage
+
+## 🎮 Keyboard Shortcuts
+
+### Navigation
+- `←/→ Arrow Keys`: Navigate between months/weeks
+- `T`: Jump to today
+- `Ctrl/Cmd + 1/2/3`: Switch between Day/Week/Month views
+
+### Event Management  
+- `Ctrl/Cmd + N`: Quick add event
+- `Ctrl/Cmd + E`: Open detailed event editor
+- `Ctrl/Cmd + F`: Focus search input
+- `Ctrl/Cmd + A`: Toggle analytics panel
+- `Escape`: Close modals
+
+## 🎨 Visual Design
+
+### Color-Coded Categories
+- **🔵 Work**: Blue - Professional tasks and projects
+- **🟢 Personal**: Green - Personal activities and commitments  
+- **🟡 Meetings**: Yellow - Calls, meetings, and collaborations
+- **🔴 Deadlines**: Red - Important deadlines and due dates
+- **🟣 Focus**: Purple - Deep work and focused sessions
+
+### Responsive Layout
+- **Desktop**: Full-featured with analytics panel
+- **Tablet**: Optimized touch interactions
+- **Mobile**: Compact view with gesture support
+
+## 📱 Usage Examples
+
+### Quick Event Creation
+```
+"Team standup tomorrow 9am"
+"Lunch with Sarah
 ## 🌺 Installation
 
 ```bash

@@ -147,7 +147,6 @@ function setupAnalyticsToggle() {
         });
     }
 }
-
 function setupModalHandlers() {
     // Handle modal close events
     document.addEventListener('click', (e) => {

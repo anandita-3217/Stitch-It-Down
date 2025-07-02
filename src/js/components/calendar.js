@@ -958,13 +958,7 @@ class ProductivityCalendar {
         document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
     }
 }
-
 // Initialize calendar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const calendar = new ProductivityCalendar();
-    
-    // Update analytics every 5 seconds for demo
-    setInterval(() => {
-        calendar.updateAnalytics();
-    }, 5000);
 });
