@@ -17,46 +17,9 @@ class ProductivityCalendar {
 
     init() {
         this.currentDate.setDate(1);
-        // this.events = [
-        //     {
-        //         id: 1,
-        //         title: 'Team Meeting',
-        //         date: new Date(2025, 0, 15),
-        //         startTime: '09:00',
-        //         endTime: '10:00',
-        //         category: 'meetings',
-        //         description: 'Weekly team sync',
-        //         isRecurring: true,
-        //         hasReminder: true
-        //     },
-        //     {
-        //         id: 2,
-        //         title: 'Project Deadline',
-        //         date: new Date(2025, 0, 20),
-        //         startTime: '17:00',
-        //         endTime: '17:30',
-        //         category: 'deadlines',
-        //         description: 'Final submission due',
-        //         isRecurring: false,
-        //         hasReminder: true
-        //     },
-        //     {
-        //         id: 3,
-        //         title: 'Focus Time: Development',
-        //         date: new Date(2025, 0, 16),
-        //         startTime: '14:00',
-        //         endTime: '16:00',
-        //         category: 'focus',
-        //         description: 'Deep work session',
-        //         isRecurring: false,
-        //         hasReminder: false
-        //     }
-        // ];
     }
 
     setupEventListeners() {
-        // Navigation controls
-        // In setupEventListeners, replace the navigation listeners:
         document.getElementById('prevBtn')?.addEventListener('click', () => {
             if (this.currentView === 'day') {
                 this.navigateDay(-1);
@@ -248,17 +211,31 @@ class ProductivityCalendar {
         this.render();
     }
 
-    changeView(view) {
-        this.currentView = view;
-        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`${view}View`)?.classList.add('active');
-        document.querySelectorAll('.view-container').forEach(container => {
-            container.classList.remove('active');
-        });
-        document.getElementById(`${view}ViewContainer`)?.classList.add('active');
-        this.render();
-    }
+    // changeView(view) {
+    //     this.currentView = view;
+    //     document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    //     document.getElementById(`${view}View`)?.classList.add('active');
+    //     document.querySelectorAll('.view-container').forEach(container => {
+    //         container.classList.remove('active');
+    //     });
+    //     document.getElementById(`${view}ViewContainer`)?.classList.add('active');
+    //     this.render();
+    // }
     // Add this method after the changeView method:
+    changeView(view) {
+    this.currentView = view;
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`${view}View`)?.classList.add('active');
+    
+    // Clear the container and populate with the new view
+    const container = document.getElementById('calendarContainer');
+    if (container) {
+        container.innerHTML = '';
+        container.className = `calendar-container-view ${view}-view`;
+    }
+    
+    this.render();
+}
     navigateDay(direction) {
         if (this.currentView === 'day') {
             this.currentDate.setDate(this.currentDate.getDate() + direction);
@@ -293,6 +270,23 @@ class ProductivityCalendar {
     }
 
     renderMonthView() {
+        const container = document.getElementById('calendarContainer');
+        if (!container) return;
+    
+    // Create month view structure
+        container.innerHTML = `
+            <div class="weekdays">
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+        `;
+    
         const grid = document.getElementById('calendarGrid');
         if (!grid) return;
         
@@ -344,12 +338,22 @@ class ProductivityCalendar {
     }
 
     renderWeekView() {
-        const weekContainer = document.getElementById('weekViewContainer');
-        if (!weekContainer) return;
-
-        const weekHeader = weekContainer.querySelector('.week-header');
-        const timeColumn = weekContainer.querySelector('.time-column');
-        const weekDaysContainer = weekContainer.querySelector('.week-days-container');
+        const container = document.getElementById('calendarContainer');
+        if (!container) return;
+    
+    // Create week view structure
+    container.innerHTML = `
+        <div class="week-header"></div>
+        <div class="week-body">
+            <div class="time-column">
+                <div class="time-slots"></div>
+            </div>
+            <div class="week-days-container"></div>
+        </div>
+    `;
+        const weekHeader = container.querySelector('.week-header');
+        const timeColumn = container.querySelector('.time-column');
+        const weekDaysContainer = container.querySelector('.week-days-container');
         
         if (weekHeader) weekHeader.innerHTML = '';
         if (timeColumn) {
@@ -420,16 +424,36 @@ class ProductivityCalendar {
             }
         }
     }
-
     renderDayView() {
-        const dayContainer = document.getElementById('dayViewContainer');
-        if (!dayContainer) return;
+        const container = document.getElementById('calendarContainer');
+    if (!container) return;
+    
+    // Create day view structure
+    container.innerHTML = `
+        <div class="day-header">
+            <h3 id="dayTitle">Today</h3>
+            <div class="day-stats">
+                <span id="dayEventCount">0 events</span>
+                <span id="dayFocusTime">0h focus time</span>
+            </div>
+        </div>
+        <div class="day-content">
+            <div class="day-schedule">
+                <div class="time-column">
+                    <div class="time-slots"></div>
+                </div>
+                <div class="events-column">
+                    <div class="event-slots"></div>
+                </div>
+            </div>
+        </div>
+    `;
 
         const dayTitle = document.getElementById('dayTitle');
         const dayEventCount = document.getElementById('dayEventCount');
         const dayFocusTime = document.getElementById('dayFocusTime');
-        const timeSlots = dayContainer.querySelector('.time-slots');
-        const eventSlots = dayContainer.querySelector('.event-slots');
+        const timeSlots = container.querySelector('.time-slots');
+        const eventSlots = container.querySelector('.event-slots');
 
         if (timeSlots) timeSlots.innerHTML = '';
         if (eventSlots) eventSlots.innerHTML = '';
@@ -543,46 +567,6 @@ class ProductivityCalendar {
             if (input) input.value = '';
         }
     }
-
-    // showEventModal(date = null, event = null) {
-    //     const modal = document.getElementById('eventModal');
-    //     if (!modal) return;
-
-    //     this.selectedEvent = event;
-    //     modal.classList.add('show');
-    //     this.hideValidationErrors();
-
-    //     if (event) {
-    //         // Editing existing event
-    //         document.getElementById('eventTitle').value = event.title;
-    //         document.getElementById('eventDate').value = this.formatDateForInput(event.date);
-    //         document.getElementById('eventStartTime').value = event.startTime;
-    //         document.getElementById('eventEndTime').value = event.endTime;
-    //         document.getElementById('eventCategory').value = event.category;
-    //         document.getElementById('eventDescription').value = event.description || '';
-    //         document.getElementById('isRecurring').checked = event.isRecurring;
-    //         document.getElementById('isAllDay').checked = event.isAllDay || false;
-    //         document.getElementById('hasReminder').checked = event.hasReminder;
-            
-    //         const deleteBtn = document.getElementById('deleteEvent');
-    //         if (deleteBtn) deleteBtn.style.display = 'block';
-    //     } else {
-    //         // Creating new event
-    //         this.clearEventForm();
-    //         if (date) {
-    //             document.getElementById('eventDate').value = this.formatDateForInput(date);
-    //         }
-    //         const deleteBtn = document.getElementById('deleteEvent');
-    //         if (deleteBtn) deleteBtn.style.display = 'none';
-    //     }
-
-    //     // Focus on title input
-    //     const titleInput = document.getElementById('eventTitle');
-    //     if (titleInput) {
-    //         setTimeout(() => titleInput.focus(), 100);
-    //     }
-    // }
-
     showEventModal(date = null, event = null) {
     const modal = document.getElementById('eventModal');
     if (!modal) return;
@@ -884,19 +868,6 @@ class ProductivityCalendar {
             }
         });
     }
-
-    // toggleAnalytics() {
-    //     const panel = document.getElementById('analyticsPanel');
-    //     if (panel) {
-    //         this.analyticsVisible = !this.analyticsVisible;
-    //         if (this.analyticsVisible) {
-    //             panel.classList.add('show');
-    //             this.updateAnalytics();
-    //         } else {
-    //             panel.classList.remove('show');
-    //         }
-    //     }
-    // }
     toggleAnalytics() {
     const panel = document.getElementById('analyticsPanel');
     const toggleBtn = document.getElementById('analyticsToggle');
@@ -926,7 +897,6 @@ class ProductivityCalendar {
             console.error('Error loading events from localStorage:', error);
         }
     }
-
     saveEvents() {
         try {
             localStorage.setItem('calendar-events', JSON.stringify(this.events));
@@ -934,7 +904,6 @@ class ProductivityCalendar {
             console.error('Error saving events to localStorage:', error);
         }
     }
-
     getProductivityStats() {
         const now = new Date();
         const weekStart = new Date(now);
@@ -971,7 +940,6 @@ class ProductivityCalendar {
         
         return stats;
     }
-
     updateAnalytics() {
         const stats = this.getProductivityStats();
         document.getElementById('weeklyHours').textContent = `${Math.round(stats.weeklyHours)}h`;
@@ -985,5 +953,4 @@ if (typeof window !== 'undefined') {
         const calendar = new ProductivityCalendar();
     });
 }
-
 export default ProductivityCalendar;
