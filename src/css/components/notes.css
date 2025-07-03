@@ -508,6 +508,7 @@
 .delete-note:hover {
   background: #dc3545;
   color: var(--white);
+  transform: scale(1.1);
 }
 
 /* View Modes */

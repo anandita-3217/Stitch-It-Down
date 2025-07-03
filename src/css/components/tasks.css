@@ -370,13 +370,13 @@
     background: var(--dark-blue);
 }
 
-.delete-task {
+#delete-task {
     position: absolute;
     top: 15px;
     right: 15px;
     background: transparent;
     border: none;
-    color: var(--text-secondary);
+    color: #dc3545;
     cursor: pointer;
     font-size: 18px;
     padding: 5px;
@@ -389,7 +389,7 @@
     transition: all 0.3s ease;
 }
 
-.delete-task:hover {
+#delete-task:hover {
     background: #dc3545;
     color: var(--white);
     transform: scale(1.1);

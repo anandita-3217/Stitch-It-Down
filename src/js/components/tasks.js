@@ -439,7 +439,7 @@ class TaskManager {
             <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
                 <i class="bi bi-pencil"></i>
             </button>
-            <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button">
+            <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button" id="delete-task">
                 <i class="bi bi-trash"></i>
             </button>
         </div>
