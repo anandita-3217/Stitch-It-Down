@@ -56,8 +56,22 @@ class ProductivityCalendar {
 
     setupEventListeners() {
         // Navigation controls
-        document.getElementById('prevBtn')?.addEventListener('click', () => this.navigateMonth(-1));
-        document.getElementById('nextBtn')?.addEventListener('click', () => this.navigateMonth(1));
+        // In setupEventListeners, replace the navigation listeners:
+        document.getElementById('prevBtn')?.addEventListener('click', () => {
+            if (this.currentView === 'day') {
+                this.navigateDay(-1);
+            } else {
+                this.navigateMonth(-1);
+            }
+        });
+        
+        document.getElementById('nextBtn')?.addEventListener('click', () => {
+            if (this.currentView === 'day') {
+                this.navigateDay(1);
+            } else {
+                this.navigateMonth(1);
+            }
+        });
         document.getElementById('todayBtn')?.addEventListener('click', () => this.goToToday());
         
         // View controls
@@ -137,23 +151,24 @@ class ProductivityCalendar {
 
         // Check if date is provided and not in the past (unless editing existing event)
         if (!eventData.date) {
-            errors.push('Event date is required');
-        } else {
-            const eventDate = new Date(eventData.date);
+    errors.push('Event date is required');
+} else {
+    const eventDate = new Date(eventData.date);
     const now = new Date();
     
-    // For new events, check if date is in the past
+    // Only validate past dates for new events (not when editing)
     if (!this.selectedEvent) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        eventDate.setHours(0, 0, 0, 0);
+        const eventDateCopy = new Date(eventDate);
+        eventDateCopy.setHours(0, 0, 0, 0);
         
-        if (eventDate < today) {
+        if (eventDateCopy < today) {
             errors.push('Cannot create events in the past');
         }
         
-        // If event is today, check if time has passed
-        if (eventDate.getTime() === today.getTime() && eventData.startTime) {
+        // Only check past time for today's events
+        if (eventDateCopy.getTime() === today.getTime() && eventData.startTime) {
             const currentTime = now.getHours() * 60 + now.getMinutes();
             const eventStartTime = this.timeToMinutes(eventData.startTime);
             
@@ -243,7 +258,13 @@ class ProductivityCalendar {
         document.getElementById(`${view}ViewContainer`)?.classList.add('active');
         this.render();
     }
-
+    // Add this method after the changeView method:
+    navigateDay(direction) {
+        if (this.currentView === 'day') {
+            this.currentDate.setDate(this.currentDate.getDate() + direction);
+            this.render();
+        }
+    }
     render() {
         this.updateHeader();
         switch(this.currentView) {
@@ -434,7 +455,8 @@ class ProductivityCalendar {
             }
         }
 
-        const eventsForDay = this.getEventsForDate(this.currentDate);
+        const displayDate = this.currentView === 'day' ? this.currentDate : new Date();
+        const eventsForDay = this.getEventsForDate(displayDate);
         
         if (dayEventCount) {
             dayEventCount.textContent = `${eventsForDay.length} events`;
@@ -958,7 +980,10 @@ class ProductivityCalendar {
         document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
     }
 }
-// Initialize calendar when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const calendar = new ProductivityCalendar();
-});
+if (typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        const calendar = new ProductivityCalendar();
+    });
+}
+
+export default ProductivityCalendar;

@@ -1,26 +1,49 @@
+// CSS imports
 import '@css/main.css';
 import '@css/components/calendar.css';
 import '@css/components/sidebar.css';
+
+// Component imports
 import '@components/sidebar.js';
 import '@components/calendar.js';
-import {setImage,setDailyQuote,setRandomGif,loadAllImages,initTheme,setTheme,toggleTheme,} from '@components/utils.js';
+import {
+    setImage,
+    setDailyQuote,
+    setRandomGif,
+    loadAllImages,
+    initTheme,
+    setTheme,
+    toggleTheme,
+} from '@components/utils.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// Calendar-specific initialization
 function initializeCalendar() {
+    // Initialize theme and images
     loadAllImages();
     initTheme();
     setDailyQuote();
+    
+    // Create and inject the event modal into the DOM
     createEventModal();
+    
+    // Setup analytics toggle functionality
     setupAnalyticsToggle();
+    
+    // Setup modal event handlers
     setupModalHandlers();
+    
+    // Setup keyboard shortcuts for calendar
     setupCalendarKeyboardShortcuts();
 }
+
 function createEventModal() {
     const modalHTML = `
         <div id="eventModal" class="modal-overlay">
             <div class="modal-content event-modal">
                 <div class="modal-header">
                     <h3 id="modalTitle">Create Event</h3>
-                    <button id="closeEventModal" class="close-btn">&times;</button>
+                    <button id="closeEventModal" class="close-btn" type="button">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div id="validationErrors" class="validation-errors" style="display: none;"></div>
@@ -28,7 +51,8 @@ function createEventModal() {
                         <div class="form-group">
                             <label for="eventTitle">Event Title</label>
                             <input type="text" id="eventTitle" placeholder="Enter event title" class="form-input" required>
-                        </div>                        
+                        </div>
+                        
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="eventDate">Date</label>
@@ -42,7 +66,8 @@ function createEventModal() {
                                 <label for="eventEndTime">End Time</label>
                                 <input type="time" id="eventEndTime" class="form-input" value="10:00">
                             </div>
-                        </div>                        
+                        </div>
+                        
                         <div class="form-group">
                             <label for="eventCategory">Category</label>
                             <select id="eventCategory" class="form-select">
@@ -52,11 +77,13 @@ function createEventModal() {
                                 <option value="deadlines">Deadline</option>
                                 <option value="focus">Focus Time</option>
                             </select>
-                        </div>                        
+                        </div>
+                        
                         <div class="form-group">
                             <label for="eventDescription">Description</label>
                             <textarea id="eventDescription" placeholder="Event description (optional)" class="form-textarea" rows="3"></textarea>
-                        </div>                        
+                        </div>
+                        
                         <div class="form-options">
                             <label class="checkbox-label">
                                 <input type="checkbox" id="isRecurring">
@@ -73,7 +100,8 @@ function createEventModal() {
                                 <span class="checkmark"></span>
                                 Set reminder
                             </label>
-                        </div>                        
+                        </div>
+                        
                         <div class="form-actions">
                             <button type="button" id="saveEvent" class="btn btn-primary">Save Event</button>
                             <button type="button" id="deleteEvent" class="btn btn-danger" style="display: none;">Delete Event</button>
@@ -84,13 +112,19 @@ function createEventModal() {
             </div>
         </div>
     `;
+    
+    // Remove existing modal if it exists
     const existingModal = document.getElementById('eventModal');
     if (existingModal) {
         existingModal.remove();
     }
+    
+    // Insert modal into DOM
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
+
 function setupAnalyticsToggle() {
+    // Create analytics toggle button if it doesn't exist
     const calendarHeader = document.querySelector('.calendar-header .action-controls');
     if (calendarHeader && !document.getElementById('analyticsToggle')) {
         const toggleButton = document.createElement('button');
@@ -100,6 +134,8 @@ function setupAnalyticsToggle() {
         toggleButton.title = 'Toggle Analytics Panel';
         calendarHeader.appendChild(toggleButton);
     }
+    
+    // Setup click handler for analytics toggle
     const analyticsToggle = document.getElementById('analyticsToggle');
     if (analyticsToggle) {
         analyticsToggle.addEventListener('click', () => {
@@ -155,6 +191,14 @@ function setupModalHandlers() {
                     endTime.value = '10:00';
                 }
             }
+        }
+    });
+    // Add this after the existing click event listener:
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'closeEventModal') {
+            e.preventDefault();
+            const eventModal = document.getElementById('eventModal');
+            if (eventModal) eventModal.classList.remove('show');
         }
     });
 }

@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Stitch It Down | Calendar</title>
-
 </head>
-
 <body>
     <div class="app-container">
         <header class="app-header">
@@ -32,37 +30,30 @@
                 </div>
                 <ul class="sidebar-menu">
                     <li class="menu-item active" data-page="index">
-                        
                         <i class="menu-icon bi bi-house"></i>
                         <span class="menu-text">Dashboard</span>
                     </li>
                     <li class="menu-item" data-page="timer">
-                        
                         <i class="menu-icon bi bi-clock"></i>
                         <span class="menu-text">Pomodoro</span>
                     </li>
                     <li class="menu-item" data-page="tasks">
-                        
                         <i class="menu-icon bi bi-pin-angle"></i>
                         <span class="menu-text">Tasks</span>
                     </li>
                     <li class="menu-item" data-page="notes">
-                        
                         <i class="menu-icon bi bi-list-task"></i>
                         <span class="menu-text">Notes</span>
                     </li>
                     <li class="menu-item" data-page="calendar">
-                        
                         <i class="menu-icon bi bi-calendar4-week"></i>
                         <span class="menu-text">Calendar</span>
                     </li>
                     <li class="menu-item" data-page="stats">
-                        
                         <i class="menu-icon bi bi-file-bar-graph"></i>
                         <span class="menu-text">Stats</span>
                     </li>
                     <li class="menu-item" data-page="settings">
-                        
                         <i class="menu-icon bi bi-gear"></i>
                         <span class="menu-text">Settings</span>
                     </li>
@@ -74,146 +65,116 @@
                 </div>
             </div>
         </nav>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="main-content">
-<!--             
-            <div class="daily-quote-section">
-                <div class="daily-quote" id="dailyQuote">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div class="nav-controls">
+                        <button id="prevBtn" class="nav-btn"><i class="bi bi-caret-left"></i></button>
+                        <h2 id="currentMonth" class="month-title">January 2025</h2>
+                        <button id="nextBtn" class="nav-btn"><i class="bi bi-caret-right"></i></button>
+                    </div>            
+                    <div class="view-controls">
+                        <button id="monthView" class="view-btn active">Month</button>
+                        <button id="weekView" class="view-btn">Week</button>
+                        <button id="dayView" class="view-btn">Day</button>
+                    </div>            
+                    <div class="action-controls">
+                        <button id="addEventBtn" class="add-event-btn">+ Add Event</button>
+                        <button id="todayBtn" class="today-btn">Today</button>
+                    </div>
                 </div>
-            </div> -->
-
-
-    <div class="calendar-container">
-        <!-- Header Controls -->
-        <div class="calendar-header">
-            <div class="nav-controls">
-                <button id="prevBtn" class="nav-btn"><i class="bi bi-caret-left"></i></button>
-                <h2 id="currentMonth" class="month-title">January 2025</h2>
-                <button id="nextBtn" class="nav-btn"><i class="bi bi-caret-right"></i></button>
-            </div>
-            
-            <div class="view-controls">
-                <button id="monthView" class="view-btn active">Month</button>
-                <button id="weekView" class="view-btn">Week</button>
-                <button id="dayView" class="view-btn">Day</button>
-            </div>
-            
-            <div class="action-controls">
-                <button id="addEventBtn" class="add-event-btn">+ Add Event</button>
-                <button id="todayBtn" class="today-btn">Today</button>
-            </div>
-        </div>
-
-        <!-- Quick Filters -->
-        <div class="filter-bar">
-            <div class="category-filters">
-                <span class="filter-label">Categories:</span>
-                <button class="category-filter active" data-category="all">All</button>
-                <button class="category-filter" data-category="work">Work</button>
-                <button class="category-filter" data-category="personal">Personal</button>
-                <button class="category-filter" data-category="meetings">Meetings</button>
-                <button class="category-filter" data-category="deadlines">Deadlines</button>
-            </div>
-            
-            <div class="search-container">
-                <input type="text" id="eventSearch" placeholder="Search events..." class="search-input">
-            </div>
-        </div>
-
-        <!-- Calendar Grid -->
-        <div class="calendar-wrapper">
-            <!-- Month View -->
-            <div id="monthViewContainer" class="view-container active">
-                <div class="weekdays">
-                    <div class="weekday">Sun</div>
-                    <div class="weekday">Mon</div>
-                    <div class="weekday">Tue</div>
-                    <div class="weekday">Wed</div>
-                    <div class="weekday">Thu</div>
-                    <div class="weekday">Fri</div>
-                    <div class="weekday">Sat</div>
+                <div class="filter-bar">
+                    <div class="category-filters">
+                        <span class="filter-label">Categories:</span>
+                        <button class="category-filter active" data-category="all">All</button>
+                        <button class="category-filter" data-category="work">Work</button>
+                        <button class="category-filter" data-category="personal">Personal</button>
+                        <button class="category-filter" data-category="meetings">Meetings</button>
+                        <button class="category-filter" data-category="deadlines">Deadlines</button>
+                    </div>            
+                    <div class="search-container">
+                        <input type="text" id="eventSearch" placeholder="Search events..." class="search-input">
+                    </div>
                 </div>
-                <div id="calendarGrid" class="calendar-grid"></div>
-            </div>
-
-            <!-- Week View -->
-<!-- Week View Container Structure -->
-            <div id="weekViewContainer" class="view-container week-view-container">
-                <div class="week-header">
-                    <!-- Time header and day headers will be populated by JavaScript -->
-                </div>
-                <div class="week-body">
-                    <div class="time-column">
-                        <div class="time-slots">
-                            <!-- Time slots will be populated by JavaScript -->
+                <div class="calendar-wrapper">
+                    <div id="monthViewContainer" class="view-container active">
+                        <div class="weekdays">
+                            <div class="weekday">Sun</div>
+                            <div class="weekday">Mon</div>
+                            <div class="weekday">Tue</div>
+                            <div class="weekday">Wed</div>
+                            <div class="weekday">Thu</div>
+                            <div class="weekday">Fri</div>
+                            <div class="weekday">Sat</div>
+                        </div>
+                        <div id="calendarGrid" class="calendar-grid"></div>
+                    </div>
+                    <div id="weekViewContainer" class="view-container week-view-container">
+                        <div class="week-header">
+                        </div>
+                        <div class="week-body">
+                            <div class="time-column">
+                                <div class="time-slots">
+                                </div>
+                            </div>
+                            <div class="week-days-container">
+                            </div>
                         </div>
                     </div>
-                    <div class="week-days-container">
-                        <!-- Day columns will be populated by JavaScript -->
+                    <div id="dayViewContainer" class="view-container">
+                        <div class="day-header">
+                            <h3 id="dayTitle">Today</h3>
+                            <div class="day-stats">
+                                <span id="dayEventCount">0 events</span>
+                                <span id="dayFocusTime">0h focus time</span>
+                            </div>
+                        </div>
+                        <div class="day-content">
+                            <div class="day-schedule">
+                                <div class="time-column">
+                                    <div class="time-slots"></div>
+                                </div>
+                                <div class="events-column">
+                                    <div class="event-slots"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Day View -->
-            <div id="dayViewContainer" class="view-container">
-                <div class="day-header">
-                    <h3 id="dayTitle">Today</h3>
-                    <div class="day-stats">
-                        <span id="dayEventCount">0 events</span>
-                        <span id="dayFocusTime">0h focus time</span>
-                    </div>
-                </div>
-                <div class="day-schedule">
-                    <div class="time-column">
-                        <div class="time-slots"></div>
-                    </div>
-                    <div class="events-column">
-                        <div class="event-slots"></div>
+            <div id="quickAddModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h3>Quick Add Event</h3>
+                    <input type="text" id="quickEventText" placeholder="e.g., Meeting with team tomorrow 2pm" class="quick-input">
+                    <div class="modal-actions">
+                        <button id="parseEvent" class="parse-btn">Create Event</button>
+                        <button id="cancelQuickAdd" class="cancel-btn">Cancel</button>
                     </div>
                 </div>
             </div>
+            <div id="analyticsPanel" class="analytics-panel">
+                <h3>Productivity Analytics</h3>
+                <div class="analytics-grid">
+                    <div class="stat-card">
+                        <span class="stat-value" id="weeklyHours">0h</span>
+                        <span class="stat-label">This Week</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="focusTime">0h</span>
+                        <span class="stat-label">Focus Time</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="meetingTime">0h</span>
+                        <span class="stat-label">Meetings</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="completionRate">0%</span>
+                        <span class="stat-label">Completion</span>
+                    </div>
+                </div>
+            </div>             
         </div>
     </div>
-
-    <!-- Quick Add Modal -->
-    <div id="quickAddModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Quick Add Event</h3>
-            <input type="text" id="quickEventText" placeholder="e.g., Meeting with team tomorrow 2pm" class="quick-input">
-            <div class="modal-actions">
-                <button id="parseEvent" class="parse-btn">Create Event</button>
-                <button id="cancelQuickAdd" class="cancel-btn">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Analytics Panel -->
-    <div id="analyticsPanel" class="analytics-panel">
-        <h3>Productivity Analytics</h3>
-        <div class="analytics-grid">
-            <div class="stat-card">
-                <span class="stat-value" id="weeklyHours">0h</span>
-                <span class="stat-label">This Week</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-value" id="focusTime">0h</span>
-                <span class="stat-label">Focus Time</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-value" id="meetingTime">0h</span>
-                <span class="stat-label">Meetings</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-value" id="completionRate">0%</span>
-                <span class="stat-label">Completion</span>
-            </div>
-        </div>
-    </div> 
-            
-        </div>
-    </div>
-
-    </div>
-
 </body>
 </html>

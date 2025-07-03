@@ -314,16 +314,33 @@
 }
 
 .task-actions {
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }
 
-.task-item:hover .task-actions {
+.task-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--light-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.task-item:hover  {
     opacity: 1;
 }
-
+.task-actions button:hover{ 
+  background: var(--medium-purple);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
 .edit-task, .link-button {
     padding: 6px 12px;
     border-radius: 6px;
@@ -339,8 +356,8 @@
 }
 
 .edit-task:hover {
-    background: var(--dark-purple);
-    color: var(--white);
+      background: var(--dark-blue);
+  color: var(--white);
 }
 
 .link-button {
