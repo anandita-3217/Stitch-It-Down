@@ -236,12 +236,18 @@ class ProductivityCalendar {
     
     this.render();
 }
+    // navigateDay(direction) {
+    //     if (this.currentView === 'day') {
+    //         this.currentDate.setDate(this.currentDate.getDate() + direction);
+    //         this.render();
+    //     }
+    // }
     navigateDay(direction) {
-        if (this.currentView === 'day') {
-            this.currentDate.setDate(this.currentDate.getDate() + direction);
-            this.render();
-        }
+    if (this.currentView === 'day') {
+        this.currentDate.setDate(this.currentDate.getDate() + direction);
+        this.render();
     }
+}
     render() {
         this.updateHeader();
         switch(this.currentView) {
@@ -323,9 +329,9 @@ class ProductivityCalendar {
                 eventElement.className = `event-item ${event.category}`;
                 eventElement.textContent = event.title;
                 eventElement.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.selectEvent(event);
-                });
+                e.stopPropagation();
+                this.showEventModal(event.date, event);
+            });
                 dayEvents.appendChild(eventElement);
             });
 
@@ -337,93 +343,175 @@ class ProductivityCalendar {
         }
     }
 
-    renderWeekView() {
-        const container = document.getElementById('calendarContainer');
-        if (!container) return;
+    // renderWeekView() {
+    //     const container = document.getElementById('calendarContainer');
+    //     if (!container) return;
     
-    // Create week view structure
+    // // Create week view structure
+    // container.innerHTML = `
+    //     <div class="week-header"></div>
+    //     <div class="week-body">
+    //         <div class="time-column">
+    //             <div class="time-slots"></div>
+    //         </div>
+    //         <div class="week-days-container"></div>
+    //     </div>
+    // `;
+    //     const weekHeader = container.querySelector('.week-header');
+    //     const timeColumn = container.querySelector('.time-column');
+    //     const weekDaysContainer = container.querySelector('.week-days-container');
+        
+    //     if (weekHeader) weekHeader.innerHTML = '';
+    //     if (timeColumn) {
+    //         const timeSlots = timeColumn.querySelector('.time-slots');
+    //         if (timeSlots) timeSlots.innerHTML = '';
+    //     }
+    //     if (weekDaysContainer) weekDaysContainer.innerHTML = '';
+
+    //     // Create time header
+    //     if (weekHeader) {
+    //         const timeHeader = document.createElement('div');
+    //         timeHeader.className = 'week-time-header';
+    //         timeHeader.textContent = 'Time';
+    //         weekHeader.appendChild(timeHeader);
+    //     }
+
+    //     // Create time slots
+    //     if (timeColumn) {
+    //         const timeSlots = timeColumn.querySelector('.time-slots');
+    //         if (timeSlots) {
+    //             for (let hour = 0; hour < 24; hour++) {
+    //                 const timeSlot = document.createElement('div');
+    //                 timeSlot.className = 'time-slot';
+    //                 timeSlot.textContent = this.formatHour(hour);
+    //                 timeSlots.appendChild(timeSlot);
+    //             }
+    //         }
+    //     }
+
+    //     // Create week days
+    //     const weekStart = new Date(this.currentDate);
+    //     const dayOfWeek = weekStart.getDay();
+    //     weekStart.setDate(weekStart.getDate() - dayOfWeek);
+    //     const today = new Date();
+    //     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    //     for (let i = 0; i < 7; i++) {
+    //         const currentDay = new Date(weekStart);
+    //         currentDay.setDate(weekStart.getDate() + i);
+            
+    //         if (weekHeader) {
+    //             const headerCell = document.createElement('div');
+    //             headerCell.className = 'week-day-header';
+    //             if (this.isSameDate(currentDay, today)) {
+    //                 headerCell.classList.add('today');
+    //             }
+    //             headerCell.innerHTML = `
+    //                 <div>${dayNames[i]}</div>
+    //                 <div style="font-size: 16px; margin-top: 2px; font-weight: 700;">${currentDay.getDate()}</div>
+    //             `;
+    //             weekHeader.appendChild(headerCell);
+    //         }
+
+    //         if (weekDaysContainer) {
+    //             const columnElement = document.createElement('div');
+    //             columnElement.className = 'week-day-column';
+    //             const eventsForDay = this.getEventsForDate(currentDay);
+                
+    //             eventsForDay.forEach(event => {
+    //                 const eventElement = this.createTimedEventElement(event);
+    //                 columnElement.appendChild(eventElement);
+    //             });
+
+    //             columnElement.addEventListener('click', () => {
+    //                 this.showEventModal(currentDay);
+    //             });
+    //             weekDaysContainer.appendChild(columnElement);
+    //         }
+    //     }
+    // }
+    renderWeekView() {
+    const container = document.getElementById('calendarContainer');
+    if (!container) return;
+    
     container.innerHTML = `
-        <div class="week-header"></div>
-        <div class="week-body">
-            <div class="time-column">
-                <div class="time-slots"></div>
+        <div class="week-view-container">
+            <div class="week-header">
+                <div class="week-time-header">Time</div>
+                <div class="week-days-header"></div>
             </div>
-            <div class="week-days-container"></div>
+            <div class="week-body">
+                <div class="time-column">
+                    <div class="time-slots"></div>
+                </div>
+                <div class="week-days-container"></div>
+            </div>
         </div>
     `;
-        const weekHeader = container.querySelector('.week-header');
-        const timeColumn = container.querySelector('.time-column');
-        const weekDaysContainer = container.querySelector('.week-days-container');
-        
-        if (weekHeader) weekHeader.innerHTML = '';
-        if (timeColumn) {
-            const timeSlots = timeColumn.querySelector('.time-slots');
-            if (timeSlots) timeSlots.innerHTML = '';
-        }
-        if (weekDaysContainer) weekDaysContainer.innerHTML = '';
-
-        // Create time header
-        if (weekHeader) {
-            const timeHeader = document.createElement('div');
-            timeHeader.className = 'week-time-header';
-            timeHeader.textContent = 'Time';
-            weekHeader.appendChild(timeHeader);
-        }
-
-        // Create time slots
-        if (timeColumn) {
-            const timeSlots = timeColumn.querySelector('.time-slots');
-            if (timeSlots) {
-                for (let hour = 0; hour < 24; hour++) {
-                    const timeSlot = document.createElement('div');
-                    timeSlot.className = 'time-slot';
-                    timeSlot.textContent = this.formatHour(hour);
-                    timeSlots.appendChild(timeSlot);
-                }
-            }
-        }
-
-        // Create week days
-        const weekStart = new Date(this.currentDate);
-        const dayOfWeek = weekStart.getDay();
-        weekStart.setDate(weekStart.getDate() - dayOfWeek);
-        const today = new Date();
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-        for (let i = 0; i < 7; i++) {
-            const currentDay = new Date(weekStart);
-            currentDay.setDate(weekStart.getDate() + i);
-            
-            if (weekHeader) {
-                const headerCell = document.createElement('div');
-                headerCell.className = 'week-day-header';
-                if (this.isSameDate(currentDay, today)) {
-                    headerCell.classList.add('today');
-                }
-                headerCell.innerHTML = `
-                    <div>${dayNames[i]}</div>
-                    <div style="font-size: 16px; margin-top: 2px; font-weight: 700;">${currentDay.getDate()}</div>
-                `;
-                weekHeader.appendChild(headerCell);
-            }
-
-            if (weekDaysContainer) {
-                const columnElement = document.createElement('div');
-                columnElement.className = 'week-day-column';
-                const eventsForDay = this.getEventsForDate(currentDay);
-                
-                eventsForDay.forEach(event => {
-                    const eventElement = this.createTimedEventElement(event);
-                    columnElement.appendChild(eventElement);
-                });
-
-                columnElement.addEventListener('click', () => {
-                    this.showEventModal(currentDay);
-                });
-                weekDaysContainer.appendChild(columnElement);
-            }
-        }
+    
+    const weekDaysHeader = container.querySelector('.week-days-header');
+    const timeSlots = container.querySelector('.time-slots');
+    const weekDaysContainer = container.querySelector('.week-days-container');
+    
+    // Create time slots
+    for (let hour = 0; hour < 24; hour++) {
+        const timeSlot = document.createElement('div');
+        timeSlot.className = 'time-slot';
+        timeSlot.textContent = this.formatHour(hour);
+        timeSlots.appendChild(timeSlot);
     }
+    
+    // Calculate week start
+    const weekStart = new Date(this.currentDate);
+    const dayOfWeek = weekStart.getDay();
+    weekStart.setDate(weekStart.getDate() - dayOfWeek);
+    
+    const today = new Date();
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    // Create day headers and columns
+    for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(weekStart);
+        currentDay.setDate(weekStart.getDate() + i);
+        
+        // Header
+        const headerCell = document.createElement('div');
+        headerCell.className = 'week-day-header';
+        if (this.isSameDate(currentDay, today)) {
+            headerCell.classList.add('today');
+        }
+        headerCell.innerHTML = `
+            <div>${dayNames[i]}</div>
+            <div style="font-size: 16px; margin-top: 2px; font-weight: 700;">${currentDay.getDate()}</div>
+        `;
+        weekDaysHeader.appendChild(headerCell);
+        
+        // Day column
+        const columnElement = document.createElement('div');
+        columnElement.className = 'week-day-column';
+        columnElement.dataset.date = currentDay.toISOString().split('T')[0];
+        
+        // Add events for this day
+        const eventsForDay = this.getEventsForDate(currentDay);
+        eventsForDay.forEach(event => {
+            const eventElement = this.createTimedEventElement(event);
+            eventElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showEventModal(event.date, event);
+            });
+            columnElement.appendChild(eventElement);
+        });
+        
+        // Add click handler for creating new events
+        columnElement.addEventListener('click', (e) => {
+            if (e.target === columnElement) {
+                this.showEventModal(currentDay);
+            }
+        });
+        
+        weekDaysContainer.appendChild(columnElement);
+    }
+}
     renderDayView() {
         const container = document.getElementById('calendarContainer');
     if (!container) return;
@@ -498,32 +586,77 @@ class ProductivityCalendar {
         if (eventSlots) {
             eventsForDay.forEach(event => {
                 const eventElement = this.createTimedEventElement(event);
+                eventElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showEventModal(event.date, event);
+                });
                 eventSlots.appendChild(eventElement);
             });
-        }
+
+            // Add click handler for creating new events
+            eventSlots.addEventListener('click', (e) => {
+                if (e.target === eventSlots) {
+                    this.showEventModal(this.currentDate);
+                }
+            });
+}
     }
 
+    // createTimedEventElement(event) {
+    //     const eventElement = document.createElement('div');
+    //     eventElement.className = `timed-event ${event.category}`;
+    //     const startMinutes = this.timeToMinutes(event.startTime);
+    //     const endMinutes = this.timeToMinutes(event.endTime);
+    //     const duration = endMinutes - startMinutes;
+        
+    //     eventElement.style.cssText = `
+    //         top: ${startMinutes}px;
+    //         height: ${duration}px;
+    //         z-index: 10;
+    //     `;
+        
+    //     eventElement.innerHTML = `
+    //         <div style="font-weight: 600; margin-bottom: 2px;">${event.title}</div>
+    //         <div style="font-size: 11px; opacity: 0.9;">${event.startTime} - ${event.endTime}</div>
+    //     `;
+        
+    //     eventElement.addEventListener('click', () => this.selectEvent(event));    
+    //     return eventElement;
+    // }
     createTimedEventElement(event) {
-        const eventElement = document.createElement('div');
-        eventElement.className = `timed-event ${event.category}`;
-        const startMinutes = this.timeToMinutes(event.startTime);
-        const endMinutes = this.timeToMinutes(event.endTime);
-        const duration = endMinutes - startMinutes;
-        
-        eventElement.style.cssText = `
-            top: ${startMinutes}px;
-            height: ${duration}px;
-            z-index: 10;
-        `;
-        
-        eventElement.innerHTML = `
-            <div style="font-weight: 600; margin-bottom: 2px;">${event.title}</div>
-            <div style="font-size: 11px; opacity: 0.9;">${event.startTime} - ${event.endTime}</div>
-        `;
-        
-        eventElement.addEventListener('click', () => this.selectEvent(event));    
-        return eventElement;
-    }
+    const eventElement = document.createElement('div');
+    eventElement.className = `timed-event ${event.category}`;
+    eventElement.dataset.eventId = event.id;
+    
+    const startMinutes = this.timeToMinutes(event.startTime);
+    const endMinutes = this.timeToMinutes(event.endTime);
+    const duration = endMinutes - startMinutes;
+    
+    // Convert minutes to pixels (1 minute = 1 pixel)
+    const topPosition = startMinutes;
+    const height = Math.max(duration, 30); // Minimum height of 30px
+    
+    eventElement.style.cssText = `
+        position: absolute;
+        top: ${topPosition}px;
+        left: 4px;
+        right: 4px;
+        height: ${height}px;
+        z-index: 10;
+        cursor: pointer;
+        border-radius: 4px;
+        padding: 4px;
+        font-size: 12px;
+        overflow: hidden;
+    `;
+    
+    eventElement.innerHTML = `
+        <div style="font-weight: 600; margin-bottom: 2px; line-height: 1.2;">${event.title}</div>
+        <div style="font-size: 10px; opacity: 0.9;">${event.startTime} - ${event.endTime}</div>
+    `;
+    
+    return eventElement;
+}
 
     getEventsForDate(date) {
         return this.events.filter(event => this.isSameDate(event.date, date));
