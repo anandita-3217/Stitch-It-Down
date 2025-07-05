@@ -1,36 +1,33 @@
-// CSS imports
 import '@css/main.css';
 import '@css/components/calendar.css';
 import '@css/components/sidebar.css';
-
-// Component imports
-import '@components/sidebar.js';
-// import '@components/calendar.js';
-import ProductivityCalendar from '@components/calendar.js';
-import {
-    setImage,
-    setDailyQuote,
-    setRandomGif,
-    loadAllImages,
-    initTheme,
-    setTheme,
-    toggleTheme,
-} from '@components/utils.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
-// Calendar-specific initialization
+import '@components/sidebar.js';
+import ProductivityCalendar from '@components/calendar.js';
+import {setImage,setDailyQuote,setRandomGif,loadAllImages,initTheme,setTheme,toggleTheme,} from '@components/utils.js';
 function initializeCalendar() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCalendar();
+        });
+    } else {
+        setupCalendar();
+    }
+}
+function setupCalendar() {
     loadAllImages();
     initTheme();
     setDailyQuote();
-    createEventModal();
-    setupAnalyticsToggle();
-    setupModalHandlers();
-    setupCalendarKeyboardShortcuts();
-    window.productivityCalendar = new ProductivityCalendar();
-
+    setTimeout(() => {
+        createEventModal();
+        createQuickAddModal();
+        setupAnalyticsToggle();
+        setupModalHandlers();
+        setupCalendarKeyboardShortcuts();
+        addEventValidation();
+        window.productivityCalendar = new ProductivityCalendar();
+    }, 100);
 }
-
 function createEventModal() {
     const modalHTML = `
         <div id="eventModal" class="modal-overlay">
@@ -45,8 +42,7 @@ function createEventModal() {
                         <div class="form-group">
                             <label for="eventTitle">Event Title</label>
                             <input type="text" id="eventTitle" placeholder="Enter event title" class="form-input" required>
-                        </div>
-                        
+                        </div>                        
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="eventDate">Date</label>
@@ -61,7 +57,6 @@ function createEventModal() {
                                 <input type="time" id="eventEndTime" class="form-input" value="10:00">
                             </div>
                         </div>
-                        
                         <div class="form-group">
                             <label for="eventCategory">Category</label>
                             <select id="eventCategory" class="form-select">
@@ -72,53 +67,104 @@ function createEventModal() {
                                 <option value="focus">Focus Time</option>
                             </select>
                         </div>
-                        
                         <div class="form-group">
                             <label for="eventDescription">Description</label>
                             <textarea id="eventDescription" placeholder="Event description (optional)" class="form-textarea" rows="3"></textarea>
                         </div>
-                        
                         <div class="form-options">
-                            <label class="checkbox-label">
+                            <label class="toggle-label">
                                 <input type="checkbox" id="isRecurring">
-                                <span class="checkmark"></span>
-                                Recurring event
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                    Recurring event
+                                </span>
                             </label>
-                            <label class="checkbox-label">
+                            <label class="toggle-label">
                                 <input type="checkbox" id="isAllDay">
-                                <span class="checkmark"></span>
-                                All day event
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">
+                                    <i class="bi bi-calendar-day"></i>
+                                    All day event
+                                </span>
                             </label>
-                            <label class="checkbox-label">
+                            <label class="toggle-label">
                                 <input type="checkbox" id="hasReminder">
-                                <span class="checkmark"></span>
-                                Set reminder
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">
+                                    <i class="bi bi-bell"></i>
+                                    Set reminder
+                                </span>
                             </label>
                         </div>
-                        
                         <div class="form-actions">
-                            <button type="button" id="saveEvent" class="btn btn-primary">Save Event</button>
-                            <button type="button" id="deleteEvent" class="btn btn-danger" style="display: none;">Delete Event</button>
-                            <button type="button" id="cancelEvent" class="btn btn-secondary">Cancel</button>
+                            <button type="button" id="saveEvent" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i>
+                                Save Event
+                            </button>
+                            <button type="button" id="deleteEvent" class="btn btn-danger" style="display: none;">
+                                <i class="bi bi-trash"></i>
+                                Delete Event
+                            </button>
+                            <button type="button" id="cancelEvent" class="btn btn-secondary">
+                                <i class="bi bi-x-lg"></i>
+                                Cancel
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     `;
-    
-    // Remove existing modal if it exists
     const existingModal = document.getElementById('eventModal');
     if (existingModal) {
         existingModal.remove();
     }
-    
-    // Insert modal into DOM
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+    console.log('Event modal created and added to DOM');
 }
 
+// Updated createQuickAddModal function
+function createQuickAddModal() {
+    const quickAddHTML = `
+        <div id="quickAddModal" class="modal-overlay">
+            <div class="modal-content quick-add-modal">
+                <div class="modal-header">
+                    <h3>Quick Add Event</h3>
+                    <button id="closeQuickAddModal" class="close-btn" type="button">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="quickEventText">Describe your event</label>
+                        <input type="text" id="quickEventText" placeholder="Team meeting at 2pm tomorrow" class="form-input">
+                        <small style="color: #6b7280; font-size: 0.75rem; margin-top: 4px; display: block;">
+                            e.g., "Meeting with team at 2pm tomorrow" or "Focus time 9am-11am"
+                        </small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="parseEvent" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Create Event
+                        </button>
+                        <button type="button" id="cancelQuickAdd" class="btn btn-secondary">
+                            <i class="bi bi-x-lg"></i>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    const existingQuickModal = document.getElementById('quickAddModal');
+    if (existingQuickModal) {
+        existingQuickModal.remove();
+    }
+    document.body.insertAdjacentHTML('beforeend', quickAddHTML);
+    console.log('Quick add modal created and added to DOM');
+}
+
+
 function setupAnalyticsToggle() {
-    // Create analytics toggle button if it doesn't exist
     const calendarHeader = document.querySelector('.calendar-header .action-controls');
     if (calendarHeader && !document.getElementById('analyticsToggle')) {
         const toggleButton = document.createElement('button');
@@ -128,8 +174,6 @@ function setupAnalyticsToggle() {
         toggleButton.title = 'Toggle Analytics Panel';
         calendarHeader.appendChild(toggleButton);
     }
-    
-    // Setup click handler for analytics toggle
     const analyticsToggle = document.getElementById('analyticsToggle');
     if (analyticsToggle) {
         analyticsToggle.addEventListener('click', () => {
@@ -142,34 +186,24 @@ function setupAnalyticsToggle() {
     }
 }
 function setupModalHandlers() {
-    // Handle modal close events
     document.addEventListener('click', (e) => {
-        const eventModal = document.getElementById('eventModal');
-        const quickAddModal = document.getElementById('quickAddModal');
-        
-        // Close modals when clicking overlay
         if (e.target.classList.contains('modal-overlay')) {
-            if (eventModal) eventModal.classList.remove('show');
-            if (quickAddModal) quickAddModal.classList.remove('show');
-        }
-        
-        // Close event modal with close button
-        if (e.target.id === 'closeEventModal' || e.target.id === 'cancelEvent') {
-            if (eventModal) eventModal.classList.remove('show');
+            closeAllModals();
         }
     });
-    
-    // Handle escape key for modal closing
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'closeEventModal' || e.target.id === 'cancelEvent') {
+            closeModal('eventModal');
+        }
+        if (e.target.id === 'closeQuickAddModal' || e.target.id === 'cancelQuickAdd') {
+            closeModal('quickAddModal');
+        }
+    });
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            const eventModal = document.getElementById('eventModal');
-            const quickAddModal = document.getElementById('quickAddModal');
-            if (eventModal) eventModal.classList.remove('show');
-            if (quickAddModal) quickAddModal.classList.remove('show');
+            closeAllModals();
         }
     });
-    
-    // Handle all-day checkbox toggle
     document.addEventListener('change', (e) => {
         if (e.target.id === 'isAllDay') {
             const startTime = document.getElementById('eventStartTime');
@@ -187,28 +221,28 @@ function setupModalHandlers() {
             }
         }
     });
-    // Add this after the existing click event listener:
-    document.addEventListener('click', (e) => {
-        if (e.target.id === 'closeEventModal') {
-            e.preventDefault();
-            const eventModal = document.getElementById('eventModal');
-            if (eventModal) eventModal.classList.remove('show');
-        }
+}
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+function closeAllModals() {
+    const modals = document.querySelectorAll('.modal-overlay');
+    modals.forEach(modal => {
+        modal.classList.remove('show');
     });
 }
-
 function setupCalendarKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-        // Only handle shortcuts when not in input fields
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
-        
         if (e.ctrlKey || e.metaKey) {
             switch(e.key) {
                 case 'n':
                     e.preventDefault();
-                    // Quick add functionality
                     const quickModal = document.getElementById('quickAddModal');
                     if (quickModal) {
                         quickModal.classList.add('show');
@@ -218,7 +252,6 @@ function setupCalendarKeyboardShortcuts() {
                     break;
                 case 'e':
                     e.preventDefault();
-                    // Show event modal
                     const eventModal = document.getElementById('eventModal');
                     if (eventModal) {
                         eventModal.classList.add('show');
@@ -228,14 +261,11 @@ function setupCalendarKeyboardShortcuts() {
                     break;
                 case 'a':
                     e.preventDefault();
-                    // Toggle analytics
                     const analyticsToggle = document.getElementById('analyticsToggle');
                     if (analyticsToggle) analyticsToggle.click();
                     break;
             }
         }
-        
-        // Arrow key navigation
         switch(e.key) {
             case 'ArrowLeft':
                 if (!e.shiftKey) {
@@ -261,9 +291,7 @@ function setupCalendarKeyboardShortcuts() {
         }
     });
 }
-
 function addEventValidation() {
-    // Add real-time validation to form inputs
     const eventForm = document.getElementById('eventForm');
     if (eventForm) {
         const inputs = eventForm.querySelectorAll('input[required]');
@@ -271,8 +299,6 @@ function addEventValidation() {
             input.addEventListener('blur', validateInput);
             input.addEventListener('input', clearValidationError);
         });
-        
-        // Validate time inputs
         const startTime = document.getElementById('eventStartTime');
         const endTime = document.getElementById('eventEndTime');
         if (startTime && endTime) {
@@ -280,18 +306,14 @@ function addEventValidation() {
                 input.addEventListener('change', validateTimeRange);
             });
         }
-        
-        // Validate date input
         const dateInput = document.getElementById('eventDate');
         if (dateInput) {
             dateInput.addEventListener('change', validateEventDate);
         }
     }
 }
-
 function validateInput(e) {
     const input = e.target;
-    const errorContainer = document.getElementById('validationErrors');
     
     if (!input.value.trim() && input.required) {
         input.classList.add('error');
@@ -300,14 +322,12 @@ function validateInput(e) {
         input.classList.remove('error');
     }
 }
-
 function validateEventDate(e) {
     const dateInput = e.target;
     const selectedDate = new Date(dateInput.value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
-    
     if (selectedDate < today) {
         dateInput.classList.add('error');
         showValidationError('Cannot create events in the past');
@@ -315,15 +335,12 @@ function validateEventDate(e) {
         dateInput.classList.remove('error');
     }
 }
-
 function validateTimeRange() {
     const startTime = document.getElementById('eventStartTime');
     const endTime = document.getElementById('eventEndTime');
-    
     if (startTime && endTime && startTime.value && endTime.value) {
         const startMinutes = timeToMinutes(startTime.value);
-        const endMinutes = timeToMinutes(endTime.value);
-        
+        const endMinutes = timeToMinutes(endTime.value);        
         if (startMinutes >= endMinutes) {
             endTime.classList.add('error');
             showValidationError('End time must be after start time');
@@ -333,19 +350,15 @@ function validateTimeRange() {
         }
     }
 }
-
 function timeToMinutes(timeString) {
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours * 60 + minutes;
 }
-
 function showValidationError(message) {
     const errorContainer = document.getElementById('validationErrors');
     if (errorContainer) {
         errorContainer.innerHTML = `<div class="error-message"><i class="bi bi-exclamation-triangle"></i> ${message}</div>`;
         errorContainer.style.display = 'block';
-        
-        // Auto-hide after 5 seconds
         setTimeout(() => {
             if (errorContainer.style.display === 'block') {
                 errorContainer.style.display = 'none';
@@ -353,12 +366,9 @@ function showValidationError(message) {
         }, 5000);
     }
 }
-
 function clearValidationError(e) {
     const input = e.target;
     input.classList.remove('error');
-    
-    // Check if all errors are cleared
     const errorInputs = document.querySelectorAll('.form-input.error, .form-select.error');
     if (errorInputs.length === 0) {
         const errorContainer = document.getElementById('validationErrors');
@@ -367,17 +377,5 @@ function clearValidationError(e) {
         }
     }
 }
-
-// Initialize everything when DOM is ready
-function initialize() {
-    initializeCalendar();
-    addEventValidation();
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-} else {
-    initialize();
-}
-
+initializeCalendar();
 console.log('Calendar page loaded with enhanced functionality');

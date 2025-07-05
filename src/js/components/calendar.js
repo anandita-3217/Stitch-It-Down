@@ -1,6 +1,5 @@
-import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
-
 // calendar.js
+import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 class ProductivityCalendar {
     constructor() {
         this.currentDate = new Date();
@@ -14,14 +13,11 @@ class ProductivityCalendar {
         this.setupEventListeners();
         this.render();
     }
-
     init() {
-        // this.currentDate.setDate(1);
         if (this.currentView === 'month') {
         this.currentDate.setDate(1);
     }
     }
-
     setupEventListeners() {
         document.getElementById('prevBtn')?.addEventListener('click', () => {
             if (this.currentView === 'day') {
@@ -30,7 +26,6 @@ class ProductivityCalendar {
                 this.navigateMonth(-1);
             }
         });
-        
         document.getElementById('nextBtn')?.addEventListener('click', () => {
             if (this.currentView === 'day') {
                 this.navigateDay(1);
@@ -39,34 +34,17 @@ class ProductivityCalendar {
             }
         });
         document.getElementById('todayBtn')?.addEventListener('click', () => this.goToToday());
-        
-        // View controls
         document.getElementById('monthView')?.addEventListener('click', () => this.changeView('month'));
         document.getElementById('weekView')?.addEventListener('click', () => this.changeView('week'));
         document.getElementById('dayView')?.addEventListener('click', () => this.changeView('day'));
-        
-        // Event controls
         document.getElementById('addEventBtn')?.addEventListener('click', () => this.showEventModal());
         document.getElementById('saveEvent')?.addEventListener('click', () => this.saveEvent());
         document.getElementById('deleteEvent')?.addEventListener('click', () => this.deleteEvent());
-        // document.getElementById('closeEventModal')?.addEventListener('click', () => this.hideEventModal());
-        
-        // Quick add controls
         document.getElementById('parseEvent')?.addEventListener('click', () => this.parseQuickEvent());
         document.getElementById('cancelQuickAdd')?.addEventListener('click', () => this.hideQuickAdd());
-        
         document.getElementById('cancelEvent')?.addEventListener('click', () => this.hideEventModal());
-        
-        // Search and filter
         document.getElementById('eventSearch')?.addEventListener('input', (e) => this.searchEvents(e.target.value));
-        document.querySelectorAll('.category-filter').forEach(btn => {
-            btn.addEventListener('click', (e) => this.filterByCategory(e.target.dataset.category));
-        });
-
-        // Analytics toggle
-        // document.getElementById('analyticsToggle')?.addEventListener('click', () => this.toggleAnalytics());
-
-        // Keyboard shortcuts
+        document.querySelectorAll('.category-filter').forEach(btn => {btn.addEventListener('click', (e) => this.filterByCategory(e.target.dataset.category));});
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 switch(e.key) {
@@ -97,8 +75,6 @@ class ProductivityCalendar {
                 this.hideQuickAdd();
             }
         });
-
-        // Modal overlay clicks
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
                 this.hideQuickAdd();
@@ -106,34 +82,24 @@ class ProductivityCalendar {
             }
         });
     }
-
     validateEventData(eventData) {
         const errors = [];
-        
-        // Check if title is provided
         if (!eventData.title?.trim()) {
             errors.push('Event title is required');
         }
-
-        // Check if date is provided and not in the past (unless editing existing event)
         if (!eventData.date) {
     errors.push('Event date is required');
 } else {
     const eventDate = new Date(eventData.date);
     const now = new Date();
-    
-    // Only validate past dates for new events (not when editing)
     if (!this.selectedEvent) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const eventDateCopy = new Date(eventDate);
         eventDateCopy.setHours(0, 0, 0, 0);
-        
         if (eventDateCopy < today) {
             errors.push('Cannot create events in the past');
         }
-        
-        // Only check past time for today's events
         if (eventDateCopy.getTime() === today.getTime() && eventData.startTime) {
             const currentTime = now.getHours() * 60 + now.getMinutes();
             const eventStartTime = this.timeToMinutes(eventData.startTime);
@@ -144,7 +110,6 @@ class ProductivityCalendar {
         }
     }
 }
-        // Validate time format and logical sequence
         if (eventData.startTime && eventData.endTime) {
             const startMinutes = this.timeToMinutes(eventData.startTime);
             const endMinutes = this.timeToMinutes(eventData.endTime);
@@ -153,7 +118,6 @@ class ProductivityCalendar {
                 errors.push('End time must be after start time');
             }
         }
-        // Check for overlapping events (optional - can be commented out if not needed)
         if (!this.selectedEvent) {
             const overlapping = this.checkForOverlappingEvents(eventData);
             if (overlapping.length > 0) {
@@ -168,12 +132,9 @@ class ProductivityCalendar {
         const newEndMinutes = this.timeToMinutes(newEvent.endTime);
         return this.events.filter(event => {
             if (this.selectedEvent && event.id === this.selectedEvent.id) return false;
-            
             if (!this.isSameDate(event.date, newDate)) return false;
-            
             const eventStartMinutes = this.timeToMinutes(event.startTime);
             const eventEndMinutes = this.timeToMinutes(event.endTime);
-            
             return (newStartMinutes < eventEndMinutes && newEndMinutes > eventStartMinutes);
         });
     }
@@ -216,19 +177,11 @@ class ProductivityCalendar {
     
     this.render();
 }
-//     navigateDay(direction) {
-//     if (this.currentView === 'day') {
-//         this.currentDate.setDate(this.currentDate.getDate() + direction);
-//         this.render();
-//     }
-   
-// }
     navigateDay(direction) {
         if (this.currentView === 'day') {
             this.currentDate.setDate(this.currentDate.getDate() + direction);
             this.render();
         } else if (this.currentView === 'week') {
-            // For week view, navigate by weeks
             this.currentDate.setDate(this.currentDate.getDate() + (direction * 7));
             this.render();
         }
@@ -248,7 +201,6 @@ class ProductivityCalendar {
         }
         this.updateAnalytics();
     }
-
     updateHeader() {
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
@@ -259,12 +211,9 @@ class ProductivityCalendar {
             currentMonth.textContent = `${monthNames[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
         }
     }
-
     renderMonthView() {
         const container = document.getElementById('calendarContainer');
         if (!container) return;
-    
-    // Create month view structure
         container.innerHTML = `
             <div class="weekdays">
                 <div class="weekday">Sun</div>
@@ -277,49 +226,39 @@ class ProductivityCalendar {
             </div>
             <div id="calendarGrid" class="calendar-grid"></div>
         `;
-    
         const grid = document.getElementById('calendarGrid');
         if (!grid) return;
-        
         grid.innerHTML = '';
         const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
         const startDate = new Date(firstDay);
         startDate.setDate(startDate.getDate() - firstDay.getDay());
         const today = new Date();
-
         for (let i = 0; i < 42; i++) {
             const currentDay = new Date(startDate);
             currentDay.setDate(startDate.getDate() + i);
             const dayElement = document.createElement('div');
-            dayElement.className = 'calendar-day';
-            
+            dayElement.className = 'calendar-day';            
             if (currentDay.getMonth() !== this.currentDate.getMonth()) {
                 dayElement.classList.add('other-month');
             }
             if (this.isSameDate(currentDay, today)) {
                 dayElement.classList.add('today');
             }
-
             const dayNumber = document.createElement('div');
             dayNumber.className = 'day-number';
             dayNumber.textContent = currentDay.getDate();
             dayElement.appendChild(dayNumber);
-
             const dayEvents = document.createElement('div');
             dayEvents.className = 'day-events';
-            const eventsForDay = this.getEventsForDate(currentDay);
-            
+            const eventsForDay = this.getEventsForDate(currentDay);            
             eventsForDay.forEach(event => {
                 const eventElement = document.createElement('div');
                 eventElement.className = `event-item ${event.category}`;
                 eventElement.textContent = event.title;
                 eventElement.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.showEventModal(event.date, event);
-            });
-                dayEvents.appendChild(eventElement);
-            });
-
+                this.showEventModal(event.date, event);});
+                dayEvents.appendChild(eventElement);});
             dayElement.appendChild(dayEvents);
             dayElement.addEventListener('click', () => {
                 this.showEventModal(currentDay);
@@ -330,7 +269,6 @@ class ProductivityCalendar {
     renderWeekView() {
     const container = document.getElementById('calendarContainer');
     if (!container) return;
-    
     container.innerHTML = `
         <div class="week-view-container">
             <div class="week-header">
@@ -345,33 +283,24 @@ class ProductivityCalendar {
             </div>
         </div>
     `;
-    
     const weekDaysHeader = container.querySelector('.week-days-header');
     const timeSlots = container.querySelector('.time-slots');
     const weekDaysContainer = container.querySelector('.week-days-container');
-    
-    // Create time slots
     for (let hour = 0; hour < 24; hour++) {
         const timeSlot = document.createElement('div');
         timeSlot.className = 'time-slot';
         timeSlot.textContent = this.formatHour(hour);
         timeSlots.appendChild(timeSlot);
     }
-    
-    // Calculate week start
     const weekStart = new Date(this.currentDate);
     const dayOfWeek = weekStart.getDay();
     weekStart.setDate(weekStart.getDate() - dayOfWeek);
     
     const today = new Date();
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
-    // Create day headers and columns
     for (let i = 0; i < 7; i++) {
         const currentDay = new Date(weekStart);
         currentDay.setDate(weekStart.getDate() + i);
-        
-        // Header
         const headerCell = document.createElement('div');
         headerCell.className = 'week-day-header';
         if (this.isSameDate(currentDay, today)) {
@@ -382,13 +311,9 @@ class ProductivityCalendar {
             <div style="font-size: 16px; margin-top: 2px; font-weight: 700;">${currentDay.getDate()}</div>
         `;
         weekDaysHeader.appendChild(headerCell);
-        
-        // Day column
         const columnElement = document.createElement('div');
         columnElement.className = 'week-day-column';
         columnElement.dataset.date = currentDay.toISOString().split('T')[0];
-        
-        // Add events for this day
         const eventsForDay = this.getEventsForDate(currentDay);
         eventsForDay.forEach(event => {
             const eventElement = this.createTimedEventElement(event);
@@ -398,22 +323,17 @@ class ProductivityCalendar {
             });
             columnElement.appendChild(eventElement);
         });
-        
-        // Add click handler for creating new events
         columnElement.addEventListener('click', (e) => {
             if (e.target === columnElement) {
                 this.showEventModal(currentDay);
             }
         });
-        
         weekDaysContainer.appendChild(columnElement);
     }
 }
     renderDayView() {
         const container = document.getElementById('calendarContainer');
     if (!container) return;
-    
-    // Create day view structure
     container.innerHTML = `
         <div class="day-header">
             <h3 id="dayTitle">Today</h3>
@@ -438,13 +358,10 @@ class ProductivityCalendar {
         const dayFocusTime = document.getElementById('dayFocusTime');
         const timeSlots = container.querySelector('.time-slots');
         const eventSlots = container.querySelector('.event-slots');
-
         if (timeSlots) timeSlots.innerHTML = '';
         if (eventSlots) eventSlots.innerHTML = '';
-
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const today = new Date();
-        
+        const today = new Date();        
         if (dayTitle) {
             if (this.isSameDate(this.currentDate, today)) {
                 dayTitle.textContent = 'Today';
@@ -452,8 +369,6 @@ class ProductivityCalendar {
                 dayTitle.textContent = `${dayNames[this.currentDate.getDay()]}, ${this.currentDate.toLocaleDateString()}`;
             }
         }
-
-        // Create time slots
         if (timeSlots) {
             for (let hour = 0; hour < 24; hour++) {
                 const timeSlot = document.createElement('div');
@@ -462,23 +377,19 @@ class ProductivityCalendar {
                 timeSlots.appendChild(timeSlot);
             }
         }
-
         const displayDate = this.currentDate;
         const eventsForDay = this.getEventsForDate(displayDate);
         
         if (dayEventCount) {
             dayEventCount.textContent = `${eventsForDay.length} events`;
         }
-
         const focusEvents = eventsForDay.filter(e => e.category === 'focus');
         const totalFocusTime = focusEvents.reduce((total, event) => {
             return total + this.getEventDuration(event);
-        }, 0);
-        
+        }, 0);        
         if (dayFocusTime) {
             dayFocusTime.textContent = `${Math.round(totalFocusTime)}h focus time`;
         }
-
         if (eventSlots) {
             eventsForDay.forEach(event => {
                 const eventElement = this.createTimedEventElement(event);
@@ -488,74 +399,62 @@ class ProductivityCalendar {
                 });
                 eventSlots.appendChild(eventElement);
             });
-
-            // Add click handler for creating new events
             eventSlots.addEventListener('click', (e) => {
                 if (e.target === eventSlots) {
                     this.showEventModal(this.currentDate);
                 }
             });
-}
+        }
     }
     createTimedEventElement(event) {
-    const eventElement = document.createElement('div');
-    eventElement.className = `timed-event ${event.category}`;
-    eventElement.dataset.eventId = event.id;    
-    const startMinutes = this.timeToMinutes(event.startTime);
-    const endMinutes = this.timeToMinutes(event.endTime);
-    const duration = endMinutes - startMinutes;    
-    // Convert minutes to pixels (1 minute = 1 pixel)
-    const pixelsPerMinute = 1; // Adjust this value based on your CSS time slot height
-    const topPosition = (startMinutes / 60) * 60; // 60px per hour, adjust as needed
-    const height = Math.max((duration / 60) * 60, 30); // Minimum 30px height
-    
-    eventElement.style.cssText = `
-        position: absolute;
-        top: ${topPosition}px;
-        left: 4px;
-        right: 4px;
-        height: ${height}px;
-        z-index: 10;
-        cursor: pointer;
-        border-radius: 4px;
-        padding: 4px;
-        font-size: 12px;
-        overflow: hidden;
-    `;
-    
-    eventElement.innerHTML = `
-        <div style="font-weight: 600; margin-bottom: 2px; line-height: 1.2;">${event.title}</div>
-        <div style="font-size: 10px; opacity: 0.9;">${event.startTime} - ${event.endTime}</div>
-    `;
-    
-    return eventElement;
-}
-
+        const eventElement = document.createElement('div');
+        eventElement.className = `timed-event ${event.category}`;
+        eventElement.dataset.eventId = event.id;    
+        const startMinutes = this.timeToMinutes(event.startTime);
+        const endMinutes = this.timeToMinutes(event.endTime);
+        const duration = endMinutes - startMinutes;    
+        const pixelsPerMinute = 1; 
+        const topPosition = (startMinutes / 60) * 60;
+        const height = Math.max((duration / 60) * 60, 30);
+        eventElement.style.cssText = `
+            position: absolute;
+            top: ${topPosition}px;
+            left: 4px;
+            right: 4px;
+            height: ${height}px;
+            z-index: 10;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 12px;
+            overflow: hidden;
+        `;
+        eventElement.innerHTML = `
+            <div style="font-weight: 600; margin-bottom: 2px; line-height: 1.2;">${event.title}</div>
+            <div style="font-size: 10px; opacity: 0.9;">${event.startTime} - ${event.endTime}</div>
+        `;
+        return eventElement;
+    }
     getEventsForDate(date) {
         return this.events.filter(event => this.isSameDate(event.date, date));
     }
-
     isSameDate(date1, date2) {
         return date1.toDateString() === date2.toDateString();
     }
-
     formatHour(hour) {
         const period = hour >= 12 ? 'PM' : 'AM';
         const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
         return `${displayHour}:00 ${period}`;
     }
-
     timeToMinutes(timeString) {
         const [hours, minutes] = timeString.split(':').map(Number);
         return hours * 60 + minutes;
     }
-
     getEventDuration(event) {
         const startMinutes = this.timeToMinutes(event.startTime);
         const endMinutes = this.timeToMinutes(event.endTime);
         return (endMinutes - startMinutes) / 60;
     }
-
     showQuickAdd() {
         const modal = document.getElementById('quickAddModal');
         if (modal) {
@@ -564,7 +463,6 @@ class ProductivityCalendar {
             if (input) input.focus();
         }
     }
-
     hideQuickAdd() {
         const modal = document.getElementById('quickAddModal');
         if (modal) {
@@ -576,19 +474,14 @@ class ProductivityCalendar {
     showEventModal(date = null, event = null) {
     const modal = document.getElementById('eventModal');
     if (!modal) return;
-    
     this.selectedEvent = event;
     modal.classList.add('show');
     this.hideValidationErrors();
-    
-    // Update modal title
     const modalTitle = document.getElementById('modalTitle');
     if (modalTitle) {
         modalTitle.textContent = event ? 'Edit Event' : 'Create Event';
     }
-    
     if (event) {
-        // Populate form with event data
         document.getElementById('eventTitle').value = event.title;
         document.getElementById('eventDate').value = this.formatDateForInput(event.date);
         document.getElementById('eventStartTime').value = event.startTime;
@@ -598,8 +491,6 @@ class ProductivityCalendar {
         document.getElementById('isRecurring').checked = event.isRecurring;
         document.getElementById('isAllDay').checked = event.isAllDay || false;
         document.getElementById('hasReminder').checked = event.hasReminder;
-        
-        // Show delete button for existing events
         const deleteBtn = document.getElementById('deleteEvent');
         if (deleteBtn) deleteBtn.style.display = 'inline-block';
     } else {
@@ -607,12 +498,9 @@ class ProductivityCalendar {
         if (date) {
             document.getElementById('eventDate').value = this.formatDateForInput(date);
         }
-        // Hide delete button for new events
         const deleteBtn = document.getElementById('deleteEvent');
         if (deleteBtn) deleteBtn.style.display = 'none';
     }
-    
-    // Focus on title input
     setTimeout(() => {
         const titleInput = document.getElementById('eventTitle');
         if (titleInput) titleInput.focus();
@@ -626,7 +514,6 @@ class ProductivityCalendar {
             this.hideValidationErrors();
         }
     }
-
     clearEventForm() {
         const inputs = [
             { id: 'eventTitle', value: '' },
@@ -636,28 +523,23 @@ class ProductivityCalendar {
             { id: 'eventCategory', value: 'work' },
             { id: 'eventDescription', value: '' }
         ];
-
         inputs.forEach(input => {
             const element = document.getElementById(input.id);
             if (element) element.value = input.value;
         });
-
         const checkboxes = ['isRecurring', 'isAllDay', 'hasReminder'];
         checkboxes.forEach(id => {
             const element = document.getElementById(id);
             if (element) element.checked = false;
         });
     }
-
     formatDateForInput(date) {
         return date.toISOString().split('T')[0];
     }
-
     selectEvent(event) {
         this.selectedEvent = event;
         this.showEventModal(event.date, event);
     }
-
     saveEvent() {
         const eventData = {
             title: document.getElementById('eventTitle')?.value?.trim() || '',
@@ -670,28 +552,21 @@ class ProductivityCalendar {
             isAllDay: document.getElementById('isAllDay')?.checked || false,
             hasReminder: document.getElementById('hasReminder')?.checked || false
         };
-
-        // Validate event data
         const validationErrors = this.validateEventData(eventData);
         if (validationErrors.length > 0) {
             this.showValidationErrors(validationErrors);
             return;
         }
-
         if (this.selectedEvent) {
-            // Update existing event
             Object.assign(this.selectedEvent, eventData);
         } else {
-            // Create new event
             eventData.id = Date.now();
             this.events.push(eventData);
         }
-
         this.saveEvents();
         this.render();
         this.hideEventModal();
     }
-
     deleteEvent() {
         if (this.selectedEvent && confirm('Are you sure you want to delete this event?')) {
             this.events = this.events.filter(event => event.id !== this.selectedEvent.id);
@@ -700,27 +575,22 @@ class ProductivityCalendar {
             this.hideEventModal();
         }
     }
-
     parseQuickEvent() {
         const text = document.getElementById('quickEventText')?.value;
         if (!text?.trim()) return;
-
         const event = this.parseNaturalLanguage(text);
         if (event) {
-            // Validate the parsed event
             const validationErrors = this.validateEventData(event);
             if (validationErrors.length > 0) {
                 alert('Cannot create event:\n' + validationErrors.join('\n'));
                 return;
             }
-
             this.events.push(event);
             this.saveEvents();
             this.render();
             this.hideQuickAdd();
         }
     }
-
     parseNaturalLanguage(text) {
         const event = {
             id: Date.now(),
@@ -733,8 +603,6 @@ class ProductivityCalendar {
             isRecurring: false,
             hasReminder: false
         };
-
-        // Parse time
         const timePattern = /(\d{1,2}):?(\d{2})?\s*(am|pm)?/gi;
         const timeMatches = text.match(timePattern);
         if (timeMatches && timeMatches.length > 0) {
@@ -747,15 +615,12 @@ class ProductivityCalendar {
                 event.endTime = this.minutesToTime(endMinutes);
             }
         }
-
-        // Parse date
         const datePatterns = [
             /tomorrow/i,
             /today/i,
             /(\d{1,2})\/(\d{1,2})/,
             /(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i
         ];
-        
         for (const pattern of datePatterns) {
             const match = text.match(pattern);
             if (match) {
@@ -763,8 +628,6 @@ class ProductivityCalendar {
                 break;
             }
         }
-
-        // Parse category
         if (/meeting|call|sync/i.test(text)) {
             event.category = 'meetings';
         } else if (/deadline|due|submit/i.test(text)) {
@@ -774,14 +637,11 @@ class ProductivityCalendar {
         } else if (/personal|home|family/i.test(text)) {
             event.category = 'personal';
         }
-
         return event;
     }
-
     normalizeTime(timeStr) {
         const cleaned = timeStr.replace(/\s+/g, '').toLowerCase();
-        let hours, minutes = 0;
-        
+        let hours, minutes = 0;        
         if (cleaned.includes('pm') || cleaned.includes('am')) {
             const isPM = cleaned.includes('pm');
             const timeOnly = cleaned.replace(/(am|pm)/, '');
@@ -798,22 +658,18 @@ class ProductivityCalendar {
             } else {
                 hours = parseInt(cleaned);
             }
-        }
-        
+        }        
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     }
-
     minutesToTime(minutes) {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
         return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
     }
-
     parseRelativeDate(dateStr) {
         const today = new Date();
         const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        
+        tomorrow.setDate(today.getDate() + 1);        
         switch (dateStr.toLowerCase()) {
             case 'today':
                 return today;
@@ -831,7 +687,6 @@ class ProductivityCalendar {
                 return today;
         }
     }
-
     searchEvents(query) {
         const filtered = this.events.filter(event => 
             event.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -839,14 +694,11 @@ class ProductivityCalendar {
         );
         this.highlightSearchResults(filtered);
     }
-
     highlightSearchResults(filteredEvents) {
         document.querySelectorAll('.event-item').forEach(el => {
             el.classList.remove('search-highlight');
         });
-        
         if (filteredEvents.length === 0) return;
-        
         filteredEvents.forEach(event => {
             const eventElements = document.querySelectorAll('.event-item');
             eventElements.forEach(el => {
@@ -856,15 +708,11 @@ class ProductivityCalendar {
             });
         });
     }
-
     filterByCategory(category) {
         document.querySelectorAll('.category-filter').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
+            btn.classList.remove('active');});
         const activeBtn = document.querySelector(`[data-category="${category}"]`);
         if (activeBtn) activeBtn.classList.add('active');
-        
         const eventElements = document.querySelectorAll('.event-item');
         eventElements.forEach(el => {
             if (category === 'all') {
@@ -877,7 +725,6 @@ class ProductivityCalendar {
     toggleAnalytics() {
     const panel = document.getElementById('analyticsPanel');
     const toggleBtn = document.getElementById('analyticsToggle');
-    
     if (panel) {
         this.analyticsVisible = !this.analyticsVisible;
         if (this.analyticsVisible) {
@@ -888,8 +735,8 @@ class ProductivityCalendar {
             panel.classList.remove('show');
             if (toggleBtn) toggleBtn.classList.remove('active');
         }
+        }
     }
-}
     loadEvents() {
         try {
             const savedEvents = localStorage.getItem('calendar-events');
@@ -913,19 +760,16 @@ class ProductivityCalendar {
     getProductivityStats() {
         const now = new Date();
         const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - now.getDay());
-        
+        weekStart.setDate(now.getDate() - now.getDay());        
         const weekEvents = this.events.filter(event => 
             event.date >= weekStart && event.date <= now
         );
-        
         const stats = {
             weeklyHours: 0,
             focusTime: 0,
             meetingTime: 0,
             completedEvents: 0
         };
-        
         weekEvents.forEach(event => {
             const duration = this.getEventDuration(event);
             stats.weeklyHours += duration;
@@ -939,11 +783,9 @@ class ProductivityCalendar {
             if (event.completed) {
                 stats.completedEvents++;
             }
-        });
-        
+        });        
         stats.completionRate = weekEvents.length > 0 ? 
             Math.round((stats.completedEvents / weekEvents.length) * 100) : 0;
-        
         return stats;
     }
     updateAnalytics() {
