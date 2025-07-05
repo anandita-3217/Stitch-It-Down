@@ -5,7 +5,8 @@ import '@css/components/sidebar.css';
 
 // Component imports
 import '@components/sidebar.js';
-import '@components/calendar.js';
+// import '@components/calendar.js';
+import ProductivityCalendar from '@components/calendar.js';
 import {
     setImage,
     setDailyQuote,
@@ -19,22 +20,15 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Calendar-specific initialization
 function initializeCalendar() {
-    // Initialize theme and images
     loadAllImages();
     initTheme();
     setDailyQuote();
-    
-    // Create and inject the event modal into the DOM
     createEventModal();
-    
-    // Setup analytics toggle functionality
     setupAnalyticsToggle();
-    
-    // Setup modal event handlers
     setupModalHandlers();
-    
-    // Setup keyboard shortcuts for calendar
     setupCalendarKeyboardShortcuts();
+    window.productivityCalendar = new ProductivityCalendar();
+
 }
 
 function createEventModal() {
