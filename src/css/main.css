@@ -635,7 +635,7 @@ body {
     color: var(--white);
     transform: scale(1.1);
 }
-.modal-content {
+/* .modal-content {
   background-color: var(--card-bg);
   border-radius: 12px;
   padding: 24px 30px;
@@ -646,7 +646,7 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
   animation: fadeInModal 0.3s ease forwards;
-}
+} */
 
 /* Optional: smooth fade-in animation */
 @keyframes fadeInModal {
@@ -660,7 +660,7 @@ body {
   }
 }
 /* Modal Styles */
-.note-type-modal,
+/* .note-type-modal,
 .calendar-modal {
     position: fixed;
     top: 0;
@@ -674,9 +674,9 @@ body {
     z-index: 1000;
     backdrop-filter: blur(4px);
     animation: modalFadeIn 0.3s ease-out;
-}
+} */
 
-.modal-content {
+/* .modal-content {
     background: var(--card-bg);
     border: 2px solid var(--border-color);
     border-radius: 16px;
@@ -686,9 +686,9 @@ body {
     box-shadow: 0 20px 40px var(--shadow), 0 0 0 1px rgba(255, 255, 255, 0.1);
     animation: modalSlideIn 0.3s ease-out;
     position: relative;
-}
+} */
 
-.modal-content h3 {
+/* .modal-content h3 {
     color: var(--text-primary);
     font-size: 1.5rem;
     font-weight: 600;
@@ -696,7 +696,7 @@ body {
     text-align: center;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 0.75rem;
-}
+} */
 
 .category {
     cursor: pointer;
@@ -736,7 +736,7 @@ body {
 }
 
 /* Modal Button Styles */
-.modal-content button {
+/* .modal-content button {
     display: block;
     width: 100%;
     padding: 0.875rem 1.25rem;
@@ -757,7 +757,7 @@ body {
 [data-theme="dark"] .modal-content button {
     background: linear-gradient(135deg, var(--dark-blue), var(--primary-purple));
     color: var(--text-primary);
-}
+} */
 
 .modal-content button:hover {
     transform: translateY(-2px);
@@ -827,6 +827,7 @@ body {
 }
 
 /* Frequency buttons with better spacing */
+/* 
 .modal-content button[onclick*="setTaskFrequency"] {
     background: linear-gradient(135deg, var(--medium-purple), var(--dark-purple));
     position: relative;
@@ -836,11 +837,10 @@ body {
     content: "🔄";
     margin-right: 0.5rem;
 }
-
 .modal-content button[onclick*="daily"]:before { content: "📅"; }
 .modal-content button[onclick*="weekly"]:before { content: "📆"; }
 .modal-content button[onclick*="biweekly"]:before { content: "🗓️"; }
-.modal-content button[onclick*="monthly"]:before { content: "📋"; }
+.modal-content button[onclick*="monthly"]:before { content: "📋"; } */
 
 /* Modal Animations */
 @keyframes modalFadeIn {
