@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import '@components/sidebar.js';
 import ProductivityCalendar from '@components/calendar.js';
 import {setImage,setDailyQuote,setRandomGif,loadAllImages,initTheme,setTheme,toggleTheme,} from '@components/utils.js';
+let productivityCalendar;
 function initializeCalendar() {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {

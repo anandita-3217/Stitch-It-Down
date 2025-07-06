@@ -748,6 +748,8 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(var(--danger-rgb), 0.4);
     }
+
+    
 /* Analytics Panel */
 .analytics-panel {
     position: fixed;
