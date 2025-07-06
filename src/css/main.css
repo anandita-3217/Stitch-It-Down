@@ -28,8 +28,6 @@
     --danger-rgb: 239, 68, 68;
     --info-color: #3b82f6;
     --info-hover: #2563eb;
-    
-    /* Primary variations */
     --primary-color: var(--dark-purple);
     --primary-hover: var(--darker-blue);
     --primary-rgb: 106, 182, 255;

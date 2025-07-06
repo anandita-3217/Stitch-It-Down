@@ -129,15 +129,9 @@ function createEventModal() {
         existingModal.remove();
     }
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // Initialize toggle functionality
     initializeToggleSwitches();
-    
     console.log('Event modal created and added to DOM');
 }
-
-
-// Updated createQuickAddModal function
 function createQuickAddModal() {
     const quickAddHTML = `
         <div id="quickAddModal" class="cal-modal-overlay">
@@ -175,69 +169,48 @@ function createQuickAddModal() {
     document.body.insertAdjacentHTML('beforeend', quickAddHTML);
     console.log('Quick add modal created and added to DOM');
 }
-
 function initializeToggleSwitches() {
-    // Get all toggle labels
-    const toggleLabels = document.querySelectorAll('.cal-toggle-label');
-    
+    const toggleLabels = document.querySelectorAll('.cal-toggle-label');    
     toggleLabels.forEach(label => {
         const toggleId = label.getAttribute('data-toggle');
         const checkbox = document.getElementById(toggleId);
-        const toggleSwitch = label.querySelector('.cal-toggle-switch');
-        
+        const toggleSwitch = label.querySelector('.cal-toggle-switch');        
         if (checkbox && toggleSwitch) {
-            // Handle click on the entire label
             label.addEventListener('click', (e) => {
                 e.preventDefault();
                 toggleCheckbox(checkbox);
             });
-            
-            // Handle click on just the switch
             toggleSwitch.addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleCheckbox(checkbox);
             });
-            
-            // Handle special logic for "All day" toggle
             if (toggleId === 'isAllDay') {
                 checkbox.addEventListener('change', handleAllDayToggle);
             }
         }
     });
 }
-
 function toggleCheckbox(checkbox) {
     checkbox.checked = !checkbox.checked;
-    
-    // Trigger change event for any additional logic
     const changeEvent = new Event('change', { bubbles: true });
     checkbox.dispatchEvent(changeEvent);
 }
-
 function handleAllDayToggle() {
     const startTimeInput = document.getElementById('eventStartTime');
     const endTimeInput = document.getElementById('eventEndTime');
     const isAllDay = document.getElementById('isAllDay').checked;
-    
     if (isAllDay) {
-        // Hide time inputs for all-day events
         startTimeInput.style.display = 'none';
         endTimeInput.style.display = 'none';
-        
-        // Update the grid layout to show only the date
         const formRow = document.querySelector('.cal-form-row');
         formRow.style.gridTemplateColumns = '1fr';
     } else {
-        // Show time inputs for regular events
         startTimeInput.style.display = 'block';
         endTimeInput.style.display = 'block';
-        
-        // Restore the grid layout
         const formRow = document.querySelector('.cal-form-row');
         formRow.style.gridTemplateColumns = '1fr 1fr 1fr';
     }
 }
-
 function setupAnalyticsToggle() {
     const calendarHeader = document.querySelector('.calendar-header .action-controls');
     if (calendarHeader && !document.getElementById('analyticsToggle')) {
@@ -272,8 +245,7 @@ function setupModalHandlers() {
         if (e.target.id === 'closeQuickAddModal' || e.target.id === 'cancelQuickAdd') {
             closeModal('quickAddModal');
         }
-    });
-    
+    });    
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeAllModals();
@@ -309,7 +281,6 @@ function closeAllModals() {
         modal.classList.remove('show');
     });
 }
-
 function setupCalendarKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
