@@ -28,106 +28,6 @@ function setupCalendar() {
         window.productivityCalendar = new ProductivityCalendar();
     }, 100);
 }
-// function createEventModal() {
-//     const modalHTML = `
-//         <div id="eventModal" class="cal-modal-overlay">
-//             <div class="cal-modal-content event-modal">
-//                 <div class="cal-modal-header">
-//                     <h3 class="cal-modal-h3" id="modalTitle">Create Event</h3>
-//                     <button id="closeEventModal" class="close-cal-btn" type="button">&times;</button>
-//                 </div>
-//                 <div class="cal-modal-body">
-//                     <div id="validationErrors" class="validation-errors" style="display: none;"></div>
-//                     <form id="eventForm" class="event-form">
-//                         <div class="cal-form-group">
-//                             <label for="eventTitle">Event Title</label>
-//                             <input type="text" id="eventTitle" placeholder="Enter event title" class="cal-form-input" required>
-//                         </div>                        
-//                         <div class="cal-form-row">
-//                             <div class="cal-form-group">
-//                                 <label for="eventDate">Date</label>
-//                                 <input type="date" id="eventDate" class="cal-form-input" required>
-//                             </div>
-//                             <div class="cal-form-group">
-//                                 <label for="eventStartTime">Start Time</label>
-//                                 <input type="time" id="eventStartTime" class="cal-form-input" value="09:00">
-//                             </div>
-//                             <div class="cal-form-group">
-//                                 <label for="eventEndTime">End Time</label>
-//                                 <input type="time" id="eventEndTime" class="cal-form-input" value="10:00">
-//                             </div>
-//                         </div>
-//                         <div class="cal-form-group">
-//                             <label for="eventCategory">Category</label>
-//                             <select id="eventCategory" class="cal-form-select">
-//                                 <option value="work">Work</option>
-//                                 <option value="personal">Personal</option>
-//                                 <option value="meetings">Meeting</option>
-//                                 <option value="deadlines">Deadline</option>
-//                                 <option value="focus">Focus Time</option>
-//                             </select>
-//                         </div>
-//                         <div class="cal-form-group">
-//                             <label for="eventDescription">Description</label>
-//                             <textarea id="eventDescription" placeholder="Event description (optional)" class="cal-form-textarea" rows="3"></textarea>
-//                         </div>
-//                         <div class="cal-form-options">
-//                             <div class="cal-toggle-label">
-//                                 <span class="cal-toggle-text">
-//                                 <i class="bi bi-arrow-repeat"></i>
-//                                 Recurring event
-//                             </span>
-//                             <div>
-//                                 <input type="checkbox" id="isRecurring" class="cal-toggle-input">
-//                                 <div class="cal-toggle-switch"></div>
-//                             </div>
-//                         </div>
-//                         <div class="cal-toggle-label">
-//                             <span class="cal-toggle-text">
-//                                 <i class="bi bi-calendar-day"></i>
-//                                 All day event
-//                             </span>
-//                             <div>
-//                                 <input type="checkbox" id="isAllDay" class="cal-toggle-input">
-//                                 <div class="cal-toggle-switch"></div>
-//                             </div>
-//                         </div>
-//                         <div class="cal-toggle-label">
-//                             <span class="cal-toggle-text">
-//                                 <i class="bi bi-bell"></i>
-//                                 Set reminder
-//                             </span>
-//                             <div>
-//                                 <input type="checkbox" id="hasReminder" class="cal-toggle-input">
-//                                 <div class="cal-toggle-switch"></div>
-//                             </div>
-//                         </div>
-//                         <div class="cal-form-actions">
-//                             <button type="button" id="saveEvent" class="cal-btn btn-primary">
-//                                 <i class="bi bi-check-lg"></i>
-//                                 Save Event
-//                             </button>
-//                             <button type="button" id="deleteEvent" class="cal-btn btn-danger" style="display: none;">
-//                                 <i class="bi bi-trash"></i>
-//                                 Delete Event
-//                             </button>
-//                             <button type="button" id="cancelEvent" class="cal-btn btn-secondary">
-//                                 <i class="bi bi-x-lg"></i>
-//                                 Cancel
-//                             </button>
-//                         </div>
-//                     </form>
-//                 </div>
-//             </div>
-//         </div>
-//     `;
-//     const existingModal = document.getElementById('eventModal');
-//     if (existingModal) {
-//         existingModal.remove();
-//     }
-//     document.body.insertAdjacentHTML('beforeend', modalHTML);
-//     console.log('Event modal created and added to DOM');
-// }
 
 function createEventModal() {
     const modalHTML = `
@@ -343,7 +243,7 @@ function setupAnalyticsToggle() {
         const toggleButton = document.createElement('button');
         toggleButton.id = 'analyticsToggle';
         toggleButton.className = 'analytics-toggle-btn';
-        toggleButton.innerHTML = '<i class="bi bi-graph-up"></i> Analytics';
+        toggleButton.innerHTML = '<i class="bi bi-graph-up"></i> Stats';
         toggleButton.title = 'Toggle Analytics Panel';
         calendarHeader.appendChild(toggleButton);
     }
@@ -358,52 +258,12 @@ function setupAnalyticsToggle() {
         });
     }
 }
-// function setupModalHandlers() {
-//     document.addEventListener('click', (e) => {
-//         if (e.target.classList.contains('modal-overlay')) {
-//             closeAllModals();
-//         }
-//     });
-//     document.addEventListener('click', (e) => {
-//         if (e.target.id === 'closeEventModal' || e.target.id === 'cancelEvent') {
-//             closeModal('eventModal');
-//         }
-//         if (e.target.id === 'closeQuickAddModal' || e.target.id === 'cancelQuickAdd') {
-//             closeModal('quickAddModal');
-//         }
-//     });
-//     document.addEventListener('keydown', (e) => {
-//         if (e.key === 'Escape') {
-//             closeAllModals();
-//         }
-//     });
-//     document.addEventListener('change', (e) => {
-//         if (e.target.id === 'isAllDay') {
-//             const startTime = document.getElementById('eventStartTime');
-//             const endTime = document.getElementById('eventEndTime');
-//             if (startTime && endTime) {
-//                 startTime.disabled = e.target.checked;
-//                 endTime.disabled = e.target.checked;
-//                 if (e.target.checked) {
-//                     startTime.value = '00:00';
-//                     endTime.value = '23:59';
-//                 } else {
-//                     startTime.value = '09:00';
-//                     endTime.value = '10:00';
-//                 }
-//             }
-//         }
-//     });
-// }
-
-
 function setupModalHandlers() {
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('cal-modal-overlay')) {
             closeAllModals();
         }
-    });
-    
+    });    
     document.addEventListener('click', (e) => {
         if (e.target.id === 'closeEventModal' || e.target.id === 'cancelEvent') {
             closeModal('eventModal');
@@ -418,8 +278,6 @@ function setupModalHandlers() {
             closeAllModals();
         }
     });
-    
-    // Keep the existing change event for backward compatibility
     document.addEventListener('change', (e) => {
         if (e.target.id === 'isAllDay') {
             const startTime = document.getElementById('eventStartTime');
@@ -438,21 +296,12 @@ function setupModalHandlers() {
         }
     });
 }
-
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.remove('show');
     }
 }
-// function closeAllModals() {
-//     const modals = document.querySelectorAll('.modal-overlay');
-//     modals.forEach(modal => {
-//         modal.classList.remove('show');
-//     });
-// }
-
-
 function closeAllModals() {
     const modals = document.querySelectorAll('.cal-modal-overlay');
     modals.forEach(modal => {
