@@ -461,8 +461,14 @@ renderDayView() {
     const today = new Date();
     if (dayTitle) {
         if (this.isSameDate(this.currentDate, today)) {
-            dayTitle.textContent = 'Today';
-        } else {
+            // Format current date for "Today" view
+            const dateStr = this.currentDate.toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric',
+                year: 'numeric'
+            });
+            dayTitle.textContent = `Today - ${dateStr}`;
+            } else {
             const dayName = dayNames[this.currentDate.getDay()];
             const dateStr = this.currentDate.toLocaleDateString('en-US', { 
                 month: 'long', 
@@ -567,6 +573,7 @@ renderDayView() {
 
     console.log('Day view rendered successfully');
 }
+
     createTimedEventElement(event) {
     const eventElement = document.createElement('div');
     eventElement.className = `timed-event ${event.category || 'work'}`;
