@@ -14,10 +14,16 @@ class ProductivityCalendar {
         this.render();
     }
     init() {
-        if (this.currentView === 'month') {
-        this.currentDate.setDate(1);
+    this.currentDate = new Date();
+    if (this.currentView === 'month') {
+        // Don't set to day 1 in constructor, do it in render
+        // this.currentDate.setDate(1);
     }
-    }
+    this.selectedDate = null;
+    this.filteredEvents = [];
+    this.searchQuery = '';
+    this.activeCategory = 'all';
+}
     setupEventListeners() {
         document.getElementById('prevBtn')?.addEventListener('click', () => {
             if (this.currentView === 'day') {
@@ -157,12 +163,16 @@ class ProductivityCalendar {
         }
     }
     navigateMonth(direction) {
-        this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+        const newDate = new Date(this.currentDate);
+        newDate.setMonth(newDate.getMonth() + direction);
+        if (newDate.getFullYear() < 1900 || newDate.getFullYear() > 2100) {
+            return;
+        }
+        this.currentDate = newDate;
         this.render();
     }
     goToToday() {
         this.currentDate = new Date();
-        this.currentDate.setDate(1);
         this.render();
     }
     changeView(view) {
@@ -174,17 +184,18 @@ class ProductivityCalendar {
         container.innerHTML = '';
         container.className = `calendar-container-view ${view}-view`;
     }
-    
     this.render();
-}
+    } 
     navigateDay(direction) {
-        if (this.currentView === 'day') {
-            this.currentDate.setDate(this.currentDate.getDate() + direction);
-            this.render();
-        } else if (this.currentView === 'week') {
-            this.currentDate.setDate(this.currentDate.getDate() + (direction * 7));
-            this.render();
-        }
+    const newDate = new Date(this.currentDate);
+    if (this.currentView === 'day') {
+        newDate.setDate(newDate.getDate() + direction);
+    } else if (this.currentView === 'week') {
+        newDate.setDate(newDate.getDate() + (direction * 7));
+    }
+    
+    this.currentDate = newDate;
+    this.render();
     }
     render() {
         this.updateHeader();
@@ -212,60 +223,89 @@ class ProductivityCalendar {
         }
     }
     renderMonthView() {
-        const container = document.getElementById('calendarContainer');
-        if (!container) return;
-        container.innerHTML = `
-            <div class="weekdays">
-                <div class="weekday">Sun</div>
-                <div class="weekday">Mon</div>
-                <div class="weekday">Tue</div>
-                <div class="weekday">Wed</div>
-                <div class="weekday">Thu</div>
-                <div class="weekday">Fri</div>
-                <div class="weekday">Sat</div>
-            </div>
-            <div id="calendarGrid" class="calendar-grid"></div>
-        `;
-        const grid = document.getElementById('calendarGrid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
-        const startDate = new Date(firstDay);
-        startDate.setDate(startDate.getDate() - firstDay.getDay());
-        const today = new Date();
-        for (let i = 0; i < 42; i++) {
-            const currentDay = new Date(startDate);
-            currentDay.setDate(startDate.getDate() + i);
-            const dayElement = document.createElement('div');
-            dayElement.className = 'calendar-day';            
-            if (currentDay.getMonth() !== this.currentDate.getMonth()) {
-                dayElement.classList.add('other-month');
-            }
-            if (this.isSameDate(currentDay, today)) {
-                dayElement.classList.add('today');
-            }
-            const dayNumber = document.createElement('div');
-            dayNumber.className = 'day-number';
-            dayNumber.textContent = currentDay.getDate();
-            dayElement.appendChild(dayNumber);
-            const dayEvents = document.createElement('div');
-            dayEvents.className = 'day-events';
-            const eventsForDay = this.getEventsForDate(currentDay);            
-            eventsForDay.forEach(event => {
-                const eventElement = document.createElement('div');
-                eventElement.className = `event-item ${event.category}`;
-                eventElement.textContent = event.title;
-                eventElement.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.showEventModal(event.date, event);});
-                dayEvents.appendChild(eventElement);});
-            dayElement.appendChild(dayEvents);
-            dayElement.addEventListener('click', () => {
-                this.showEventModal(currentDay);
-            });
-            grid.appendChild(dayElement);
-        }
+    const container = document.getElementById('calendarContainer');
+    if (!container) {
+        console.error('Calendar container not found');
+        return;
     }
+    
+    container.innerHTML = `
+        <div class="weekdays">
+            <div class="weekday">Sun</div>
+            <div class="weekday">Mon</div>
+            <div class="weekday">Tue</div>
+            <div class="weekday">Wed</div>
+            <div class="weekday">Thu</div>
+            <div class="weekday">Fri</div>
+            <div class="weekday">Sat</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+    `;
+    const grid = document.getElementById('calendarGrid');
+    if (!grid) {
+        console.error('Calendar grid not found');
+        return;
+    }
+    grid.innerHTML = '';
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    const today = new Date();
+    for (let i = 0; i < 42; i++) {
+        const currentDay = new Date(startDate);
+        currentDay.setDate(startDate.getDate() + i);
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        dayElement.dataset.date = currentDay.toISOString().split('T')[0];
+        if (currentDay.getMonth() !== month) {
+            dayElement.classList.add('other-month');
+        }
+        if (this.isSameDate(currentDay, today)) {
+            dayElement.classList.add('today');
+        }
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = currentDay.getDate();
+        dayElement.appendChild(dayNumber);
+        const dayEvents = document.createElement('div');
+        dayEvents.className = 'day-events';
+        const eventsForDay = this.getEventsForDate(currentDay);
+        const maxVisibleEvents = 3;
+        const visibleEvents = eventsForDay.slice(0, maxVisibleEvents);
+        visibleEvents.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = `event-item ${event.category || 'work'}`;
+            eventElement.textContent = event.title;
+            eventElement.title = `${event.title} (${event.startTime || ''} - ${event.endTime || ''})`;
+            eventElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showEventModal(event.date, event);
+            });
+            dayEvents.appendChild(eventElement);
+        });
+        if (eventsForDay.length > maxVisibleEvents) {
+            const moreElement = document.createElement('div');
+            moreElement.className = 'event-item more-events';
+            moreElement.textContent = `+${eventsForDay.length - maxVisibleEvents} more`;
+            moreElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showDayEvents(currentDay, eventsForDay);
+            });
+            dayEvents.appendChild(moreElement);
+        }        
+        dayElement.appendChild(dayEvents);
+        dayElement.addEventListener('click', (e) => {
+            if (e.target === dayElement || e.target === dayNumber) {
+                this.showEventModal(currentDay);
+            }
+        });        
+        grid.appendChild(dayElement);
+    }    
+    console.log('Month view rendered successfully');
+}
     renderWeekView() {
     const container = document.getElementById('calendarContainer');
     if (!container) return;
@@ -332,114 +372,170 @@ class ProductivityCalendar {
     }
 }
     renderDayView() {
-        const container = document.getElementById('calendarContainer');
-    if (!container) return;
+    const container = document.getElementById('calendarContainer');
+    if (!container) {
+        console.error('Calendar container not found');
+        return;
+    }
     container.innerHTML = `
-        <div class="day-header">
-            <h3 id="dayTitle">Today</h3>
-            <div class="day-stats">
-                <span id="dayEventCount">0 events</span>
-                <span id="dayFocusTime">0h focus time</span>
-            </div>
-        </div>
-        <div class="day-content">
-            <div class="day-schedule">
-                <div class="time-column">
-                    <div class="time-slots"></div>
+        <div class="day-view-container">
+            <div class="day-header">
+                <h3 id="dayTitle">Today</h3>
+                <div class="day-stats">
+                    <span id="dayEventCount">0 events</span>
+                    <span id="dayFocusTime">0h focus time</span>
                 </div>
-                <div class="events-column">
-                    <div class="event-slots"></div>
+            </div>
+            <div class="day-content">
+                <div class="day-schedule">
+                    <div class="time-column">
+                        <div class="time-slots"></div>
+                    </div>
+                    <div class="events-column">
+                        <div class="event-slots"></div>
+                    </div>
                 </div>
             </div>
         </div>
     `;
-        const dayTitle = document.getElementById('dayTitle');
-        const dayEventCount = document.getElementById('dayEventCount');
-        const dayFocusTime = document.getElementById('dayFocusTime');
-        const timeSlots = container.querySelector('.time-slots');
-        const eventSlots = container.querySelector('.event-slots');
-        if (timeSlots) timeSlots.innerHTML = '';
-        if (eventSlots) eventSlots.innerHTML = '';
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const today = new Date();        
-        if (dayTitle) {
-            if (this.isSameDate(this.currentDate, today)) {
-                dayTitle.textContent = 'Today';
-            } else {
-                dayTitle.textContent = `${dayNames[this.currentDate.getDay()]}, ${this.currentDate.toLocaleDateString()}`;
-            }
-        }
-        if (timeSlots) {
-            for (let hour = 0; hour < 24; hour++) {
-                const timeSlot = document.createElement('div');
-                timeSlot.className = 'time-slot';
-                timeSlot.textContent = this.formatHour(hour);
-                timeSlots.appendChild(timeSlot);
-            }
-        }
-        const displayDate = this.currentDate;
-        const eventsForDay = this.getEventsForDate(displayDate);
-        
-        if (dayEventCount) {
-            dayEventCount.textContent = `${eventsForDay.length} events`;
-        }
-        const focusEvents = eventsForDay.filter(e => e.category === 'focus');
-        const totalFocusTime = focusEvents.reduce((total, event) => {
-            return total + this.getEventDuration(event);
-        }, 0);        
-        if (dayFocusTime) {
-            dayFocusTime.textContent = `${Math.round(totalFocusTime)}h focus time`;
-        }
-        if (eventSlots) {
-            eventsForDay.forEach(event => {
-                const eventElement = this.createTimedEventElement(event);
-                eventElement.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.showEventModal(event.date, event);
-                });
-                eventSlots.appendChild(eventElement);
+    const dayTitle = document.getElementById('dayTitle');
+    const dayEventCount = document.getElementById('dayEventCount');
+    const dayFocusTime = document.getElementById('dayFocusTime');
+    const timeSlots = container.querySelector('.time-slots');
+    const eventSlots = container.querySelector('.event-slots');
+    if (!timeSlots || !eventSlots) {
+        console.error('Required day view elements not found');
+        return;
+    }
+    timeSlots.innerHTML = '';
+    eventSlots.innerHTML = '';
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = new Date();
+    if (dayTitle) {
+        if (this.isSameDate(this.currentDate, today)) {
+            dayTitle.textContent = 'Today';
+        } else {
+            const dayName = dayNames[this.currentDate.getDay()];
+            const dateStr = this.currentDate.toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric',
+                year: 'numeric'
             });
-            eventSlots.addEventListener('click', (e) => {
-                if (e.target === eventSlots) {
-                    this.showEventModal(this.currentDate);
-                }
-            });
+            dayTitle.textContent = `${dayName}, ${dateStr}`;
         }
+    }
+    for (let hour = 0; hour < 24; hour++) {
+        const timeSlot = document.createElement('div');
+        timeSlot.className = 'time-slot';
+        timeSlot.textContent = this.formatHour(hour);
+        timeSlot.dataset.hour = hour;
+        timeSlot.addEventListener('click', () => {
+            const eventDate = new Date(this.currentDate);
+            const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+            this.showEventModal(eventDate, null, timeStr);
+        });
+        timeSlots.appendChild(timeSlot);
+    }
+    eventSlots.style.position = 'relative';
+    eventSlots.style.height = '1440px';
+    const eventsForDay = this.getEventsForDate(this.currentDate);
+    if (dayEventCount) {
+        dayEventCount.textContent = `${eventsForDay.length} event${eventsForDay.length !== 1 ? 's' : ''}`;
+    }
+    const focusEvents = eventsForDay.filter(e => e.category === 'focus');
+    const totalFocusTime = focusEvents.reduce((total, event) => {
+        return total + this.getEventDuration(event);
+    }, 0);
+    if (dayFocusTime) {
+        dayFocusTime.textContent = `${Math.round(totalFocusTime * 10) / 10}h focus time`;
+    }
+    eventsForDay.sort((a, b) => {
+        const timeA = this.timeToMinutes(a.startTime || '09:00');
+        const timeB = this.timeToMinutes(b.startTime || '09:00');
+        return timeA - timeB;
+    });
+    eventsForDay.forEach(event => {
+        const eventElement = this.createTimedEventElement(event);
+        eventElement.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.showEventModal(event.date, event);
+        });
+        eventSlots.appendChild(eventElement);
+    });
+    eventSlots.addEventListener('click', (e) => {
+        if (e.target === eventSlots) {
+            const rect = eventSlots.getBoundingClientRect();
+            const clickY = e.clientY - rect.top;
+            const hour = Math.floor(clickY / 60);
+            const minute = Math.round(((clickY % 60) / 60) * 60);            
+            const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            this.showEventModal(this.currentDate, null, timeStr);
+        }
+    });    
+        console.log('Day view rendered successfully');
     }
     createTimedEventElement(event) {
         const eventElement = document.createElement('div');
-        eventElement.className = `timed-event ${event.category}`;
-        eventElement.dataset.eventId = event.id;    
-        const startMinutes = this.timeToMinutes(event.startTime);
-        const endMinutes = this.timeToMinutes(event.endTime);
-        const duration = endMinutes - startMinutes;    
-        const pixelsPerMinute = 1; 
+        eventElement.className = `timed-event ${event.category || 'work'}`;
+        eventElement.dataset.eventId = event.id;        
+        const startTime = event.startTime || '09:00';
+        const endTime = event.endTime || '10:00';        
+        const startMinutes = this.timeToMinutes(startTime);
+        const endMinutes = this.timeToMinutes(endTime);
+        const duration = endMinutes - startMinutes;        
         const topPosition = (startMinutes / 60) * 60;
-        const height = Math.max((duration / 60) * 60, 30);
+        const height = Math.max((duration / 60) * 60, 30);         
         eventElement.style.cssText = `
             position: absolute;
             top: ${topPosition}px;
-            left: 4px;
-            right: 4px;
+            left: 8px;
+            right: 8px;
             height: ${height}px;
             z-index: 10;
             cursor: pointer;
-            border-radius: 4px;
-            padding: 4px;
+            border-radius: 6px;
+            padding: 6px;
             font-size: 12px;
             overflow: hidden;
-        `;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        `;        
         eventElement.innerHTML = `
-            <div style="font-weight: 600; margin-bottom: 2px; line-height: 1.2;">${event.title}</div>
-            <div style="font-size: 10px; opacity: 0.9;">${event.startTime} - ${event.endTime}</div>
+            <div style="font-weight: 600; margin-bottom: 2px; line-height: 1.2; color: white;">
+                ${event.title}
+            </div>
+            <div style="font-size: 10px; opacity: 0.9; color: rgba(255, 255, 255, 0.8);">
+                ${startTime} - ${endTime}
+            </div>
         `;
+        eventElement.addEventListener('mouseenter', () => {
+            eventElement.style.transform = 'translateY(-2px)';
+            eventElement.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        });
+        eventElement.addEventListener('mouseleave', () => {
+            eventElement.style.transform = 'translateY(0)';
+            eventElement.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+        });        
         return eventElement;
     }
     getEventsForDate(date) {
-        return this.events.filter(event => this.isSameDate(event.date, date));
+        if (!date) return [];
+        
+        return this.events.filter(event => {
+            const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+            return this.isSameDate(eventDate, date);
+        });
     }
     isSameDate(date1, date2) {
-        return date1.toDateString() === date2.toDateString();
+        if (!date1 || !date2) return false;
+        
+        const d1 = typeof date1 === 'string' ? new Date(date1) : date1;
+        const d2 = typeof date2 === 'string' ? new Date(date2) : date2;
+        
+        return d1.getFullYear() === d2.getFullYear() &&
+                d1.getMonth() === d2.getMonth() &&
+                d1.getDate() === d2.getDate();
     }
     formatHour(hour) {
         const period = hour >= 12 ? 'PM' : 'AM';
@@ -471,41 +567,57 @@ class ProductivityCalendar {
             if (input) input.value = '';
         }
     }
-    showEventModal(date = null, event = null) {
-    const modal = document.getElementById('eventModal');
-    if (!modal) return;
-    this.selectedEvent = event;
-    modal.classList.add('show');
-    this.hideValidationErrors();
-    const modalTitle = document.getElementById('modalTitle');
-    if (modalTitle) {
-        modalTitle.textContent = event ? 'Edit Event' : 'Create Event';
-    }
-    if (event) {
-        document.getElementById('eventTitle').value = event.title;
-        document.getElementById('eventDate').value = this.formatDateForInput(event.date);
-        document.getElementById('eventStartTime').value = event.startTime;
-        document.getElementById('eventEndTime').value = event.endTime;
-        document.getElementById('eventCategory').value = event.category;
-        document.getElementById('eventDescription').value = event.description || '';
-        document.getElementById('isRecurring').checked = event.isRecurring;
-        document.getElementById('isAllDay').checked = event.isAllDay || false;
-        document.getElementById('hasReminder').checked = event.hasReminder;
-        const deleteBtn = document.getElementById('deleteEvent');
-        if (deleteBtn) deleteBtn.style.display = 'inline-block';
-    } else {
-        this.clearEventForm();
-        if (date) {
-            document.getElementById('eventDate').value = this.formatDateForInput(date);
+    showEventModal(date = null, event = null, defaultTime = null) {
+        const modal = document.getElementById('eventModal');
+        if (!modal) {
+            console.error('Event modal not found');
+            return;
+        }        
+        this.selectedEvent = event;
+        modal.classList.add('show');
+        this.hideValidationErrors();        
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) {
+            modalTitle.textContent = event ? 'Edit Event' : 'Create Event';
+        }        
+        if (event) {
+            const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+            document.getElementById('eventTitle').value = event.title || '';
+            document.getElementById('eventDate').value = this.formatDateForInput(eventDate);
+            document.getElementById('eventStartTime').value = event.startTime || '09:00';
+            document.getElementById('eventEndTime').value = event.endTime || '10:00';
+            document.getElementById('eventCategory').value = event.category || 'work';
+            document.getElementById('eventDescription').value = event.description || '';
+            document.getElementById('isRecurring').checked = event.isRecurring || false;
+            document.getElementById('isAllDay').checked = event.isAllDay || false;
+            document.getElementById('hasReminder').checked = event.hasReminder || false;
+            
+            const deleteBtn = document.getElementById('deleteEvent');
+            if (deleteBtn) deleteBtn.style.display = 'inline-block';
+        } else {
+            this.clearEventForm();            
+            if (date) {
+                const eventDate = typeof date === 'string' ? new Date(date) : date;
+                document.getElementById('eventDate').value = this.formatDateForInput(eventDate);
+            }
+            if (defaultTime) {
+                document.getElementById('eventStartTime').value = defaultTime;
+                const [hours, minutes] = defaultTime.split(':').map(Number);
+                const endHour = hours + 1;
+                const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                document.getElementById('eventEndTime').value = endTime;
+            }
+            const deleteBtn = document.getElementById('deleteEvent');
+            if (deleteBtn) deleteBtn.style.display = 'none';
         }
-        const deleteBtn = document.getElementById('deleteEvent');
-        if (deleteBtn) deleteBtn.style.display = 'none';
+        setTimeout(() => {
+            const titleInput = document.getElementById('eventTitle');
+            if (titleInput) {
+                titleInput.focus();
+                titleInput.select();
+            }
+        }, 100);
     }
-    setTimeout(() => {
-        const titleInput = document.getElementById('eventTitle');
-        if (titleInput) titleInput.focus();
-    }, 100);
-}
     hideEventModal() {
         const modal = document.getElementById('eventModal');
         if (modal) {
@@ -534,7 +646,12 @@ class ProductivityCalendar {
         });
     }
     formatDateForInput(date) {
-        return date.toISOString().split('T')[0];
+        if (!date) return '';
+        const d = typeof date === 'string' ? new Date(date) : date;
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
     selectEvent(event) {
         this.selectedEvent = event;

@@ -1,3 +1,4 @@
+// calendar-renderer.js
 import '@css/main.css';
 import '@css/components/calendar.css';
 import '@css/components/sidebar.css';
