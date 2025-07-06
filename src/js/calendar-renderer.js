@@ -30,36 +30,36 @@ function setupCalendar() {
 }
 function createEventModal() {
     const modalHTML = `
-        <div id="eventModal" class="modal-overlay">
-            <div class="modal-content event-modal">
-                <div class="modal-header">
-                    <h3 id="modalTitle">Create Event</h3>
-                    <button id="closeEventModal" class="close-btn" type="button">&times;</button>
+        <div id="eventModal" class="cal-modal-overlay">
+            <div class="cal-modal-content event-modal">
+                <div class="cal-modal-header">
+                    <h3 class="cal-modal-h3" id="modalTitle">Create Event</h3>
+                    <button id="closeEventModal" class="close-cal-btn" type="button">&times;</button>
                 </div>
-                <div class="modal-body">
+                <div class="cal-modal-body">
                     <div id="validationErrors" class="validation-errors" style="display: none;"></div>
                     <form id="eventForm" class="event-form">
-                        <div class="form-group">
+                        <div class="cal-form-group">
                             <label for="eventTitle">Event Title</label>
-                            <input type="text" id="eventTitle" placeholder="Enter event title" class="form-input" required>
+                            <input type="text" id="eventTitle" placeholder="Enter event title" class="cal-form-input" required>
                         </div>                        
-                        <div class="form-row">
-                            <div class="form-group">
+                        <div class="cal-form-row">
+                            <div class="cal-form-group">
                                 <label for="eventDate">Date</label>
-                                <input type="date" id="eventDate" class="form-input" required>
+                                <input type="date" id="eventDate" class="cal-form-input" required>
                             </div>
-                            <div class="form-group">
+                            <div class="cal-form-group">
                                 <label for="eventStartTime">Start Time</label>
-                                <input type="time" id="eventStartTime" class="form-input" value="09:00">
+                                <input type="time" id="eventStartTime" class="cal-form-input" value="09:00">
                             </div>
-                            <div class="form-group">
+                            <div class="cal-form-group">
                                 <label for="eventEndTime">End Time</label>
-                                <input type="time" id="eventEndTime" class="form-input" value="10:00">
+                                <input type="time" id="eventEndTime" class="cal-form-input" value="10:00">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="cal-form-group">
                             <label for="eventCategory">Category</label>
-                            <select id="eventCategory" class="form-select">
+                            <select id="eventCategory" class="cal-form-select">
                                 <option value="work">Work</option>
                                 <option value="personal">Personal</option>
                                 <option value="meetings">Meeting</option>
@@ -67,46 +67,51 @@ function createEventModal() {
                                 <option value="focus">Focus Time</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="cal-form-group">
                             <label for="eventDescription">Description</label>
-                            <textarea id="eventDescription" placeholder="Event description (optional)" class="form-textarea" rows="3"></textarea>
+                            <textarea id="eventDescription" placeholder="Event description (optional)" class="cal-form-textarea" rows="3"></textarea>
                         </div>
-                        <div class="form-options">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="isRecurring">
-                                <span class="toggle-switch"></span>
-                                <span class="toggle-text">
-                                    <i class="bi bi-arrow-repeat"></i>
-                                    Recurring event
-                                </span>
-                            </label>
-                            <label class="toggle-label">
-                                <input type="checkbox" id="isAllDay">
-                                <span class="toggle-switch"></span>
-                                <span class="toggle-text">
-                                    <i class="bi bi-calendar-day"></i>
-                                    All day event
-                                </span>
-                            </label>
-                            <label class="toggle-label">
-                                <input type="checkbox" id="hasReminder">
-                                <span class="toggle-switch"></span>
-                                <span class="toggle-text">
-                                    <i class="bi bi-bell"></i>
-                                    Set reminder
-                                </span>
-                            </label>
+                        <div class="cal-form-options">
+                            <div class="cal-toggle-label">
+                                <span class="cal-toggle-text">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Recurring event
+                            </span>
+                            <div>
+                                <input type="checkbox" id="isRecurring" class="cal-toggle-input">
+                                <div class="cal-toggle-switch"></div>
+                            </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="button" id="saveEvent" class="btn btn-primary">
+                        <div class="cal-toggle-label">
+                            <span class="cal-toggle-text">
+                                <i class="bi bi-calendar-day"></i>
+                                All day event
+                            </span>
+                            <div>
+                                <input type="checkbox" id="isAllDay" class="cal-toggle-input">
+                                <div class="cal-toggle-switch"></div>
+                            </div>
+                        </div>
+                        <div class="cal-toggle-label">
+                            <span class="cal-toggle-text">
+                                <i class="bi bi-bell"></i>
+                                Set reminder
+                            </span>
+                            <div>
+                                <input type="checkbox" id="hasReminder" class="cal-toggle-input">
+                                <div class="cal-toggle-switch"></div>
+                            </div>
+                        </div>
+                        <div class="cal-form-actions">
+                            <button type="button" id="saveEvent" class="cal-btn btn-primary">
                                 <i class="bi bi-check-lg"></i>
                                 Save Event
                             </button>
-                            <button type="button" id="deleteEvent" class="btn btn-danger" style="display: none;">
+                            <button type="button" id="deleteEvent" class="cal-btn btn-danger" style="display: none;">
                                 <i class="bi bi-trash"></i>
                                 Delete Event
                             </button>
-                            <button type="button" id="cancelEvent" class="btn btn-secondary">
+                            <button type="button" id="cancelEvent" class="cal-btn btn-secondary">
                                 <i class="bi bi-x-lg"></i>
                                 Cancel
                             </button>
@@ -127,26 +132,26 @@ function createEventModal() {
 // Updated createQuickAddModal function
 function createQuickAddModal() {
     const quickAddHTML = `
-        <div id="quickAddModal" class="modal-overlay">
-            <div class="modal-content quick-add-modal">
-                <div class="modal-header">
-                    <h3>Quick Add Event</h3>
-                    <button id="closeQuickAddModal" class="close-btn" type="button">&times;</button>
+        <div id="quickAddModal" class="cal-modal-overlay">
+            <div class="cal-modal-content quick-add-modal">
+                <div class="cal-modal-header">
+                    <h3 class="cal-modal-h3">Quick Add Event</h3>
+                    <button id="closeQuickAddModal" class="close-cal-btn" type="button">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <div class="form-group">
+                <div class="cal-modal-body">
+                    <div class="cal-form-group">
                         <label for="quickEventText">Describe your event</label>
-                        <input type="text" id="quickEventText" placeholder="Team meeting at 2pm tomorrow" class="form-input">
+                        <input type="text" id="quickEventText" placeholder="Team meeting at 2pm tomorrow" class="cal-form-input">
                         <small style="color: #6b7280; font-size: 0.75rem; margin-top: 4px; display: block;">
                             e.g., "Meeting with team at 2pm tomorrow" or "Focus time 9am-11am"
                         </small>
                     </div>
-                    <div class="form-actions">
-                        <button type="button" id="parseEvent" class="btn btn-primary">
+                    <div class="cal-form-actions">
+                        <button type="button" id="parseEvent" class="cal-btn btn-primary">
                             <i class="bi bi-plus-circle"></i>
                             Create Event
                         </button>
-                        <button type="button" id="cancelQuickAdd" class="btn btn-secondary">
+                        <button type="button" id="cancelQuickAdd" class="cal-btn btn-secondary">
                             <i class="bi bi-x-lg"></i>
                             Cancel
                         </button>
@@ -369,7 +374,7 @@ function showValidationError(message) {
 function clearValidationError(e) {
     const input = e.target;
     input.classList.remove('error');
-    const errorInputs = document.querySelectorAll('.form-input.error, .form-select.error');
+    const errorInputs = document.querySelectorAll('.cal-form-input.error, .cal-form-select.error');
     if (errorInputs.length === 0) {
         const errorContainer = document.getElementById('validationErrors');
         if (errorContainer) {

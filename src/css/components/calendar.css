@@ -431,653 +431,8 @@
     transform: scale(1.02);
     box-shadow: 0 4px 16px var(--shadow-hover);
 }
-
-/* 
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-}
-
-.form-textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.form-options {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--text-primary);
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-.checkbox-label:hover {
-    background: var(--light-bg);
-}
-.form-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.save-btn {
-    flex: 1;
-    padding: 12px;
-    background: var(--primary-purple);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px var(--shadow-hover);
-}
-.save-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px var(--shadow-hover);
-}
-.delete-btn {
-    padding: 12px 20px;
-    background: var(--darker-blue);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-.delete-btn:hover {
-    background: var(--dark-blue);
-    transform: translateY(-1px);
-} */
-
-/* Modal */
-/* .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-.modal-overlay.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: scale(0.9) translateY(20px);
-    transition: all 0.3s ease;
-}
-.modal-overlay.show .modal-content {
-    transform: scale(1) translateY(0);
-}
-
-.event-modal {
-    width: 500px;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-.close-btn {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 50%;
-    background: var(--background-secondary);
-    color: var(--text-secondary);
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-    background: var(--danger-color);
-    color: var(--white);
-}
-.modal-body {
-    padding: 20px;
-}
-
-.validation-errors {
-    margin-bottom: 15px;
-    padding: 12px;
-    background: rgba(var(--danger-rgb), 0.1);
-    border: 1px solid var(--danger-color);
-    border-radius: 8px;
-}
-
-.error-message {
-    color: var(--danger-color);
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 4px;
-}
-
-.error-message:last-child {
-    margin-bottom: 0;
-}
-
-.event-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-}
-
-.form-group label {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-.form-input, .form-select, .form-textarea {
-  padding: 10px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-  outline: none;
-  border-color: var(--text-primary);
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-}
-.form-input.error, .form-select.error, .form-textarea.error {
-  border-color: var(--danger-color);
-  box-shadow: 0 0 0 3px rgba(var(--danger-rgb), 0.1);
-}
-.form-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.form-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-color);
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--primary-color);
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--white);
-}
-
-.btn-primary:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.btn-danger {
-  background: var(--danger-color);
-  color: white;
-}
-
-.btn-danger:hover {
-  background: var(--danger-hover);
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background: var(--background-secondary);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-  background: var(--background-hover);
-  border-color: var(--primary-color);
-} */
-/* #quickAddModal .modal-content {
-  width: 400px;
-  padding: 20px;
-}
-
-#quickAddModal h3 {
-  margin: 0 0 15px 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-color);
-}
-
-.quick-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--background-secondary);
-  color: var(--text-color);
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.quick-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.parse-btn {
-  background: var(--success-color);
-  color: white;
-}
-
-.parse-btn:hover {
-  background: var(--success-hover);
-}
-
-.cancel-btn {
-  background: var(--background-secondary);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-}
-
-.cancel-btn:hover {
-  background: var(--background-hover);
-} */
-
-/* Calendar Modal Overrides */
-.event-modal {
-  max-width: 550px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-}
-
-.quick-add-modal {
-  max-width: 450px;
-  width: 90%;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.modal-overlay.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-.modal-content {
-  transform: scale(0.9) translateY(-20px);
-  transition: transform 0.3s ease;
-}
-
-.modal-overlay.show .modal-content {
-  transform: scale(1) translateY(0);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 32px 16px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.close-btn {
-background: none;
-border: none;
-font-size: 28px;
-color: var(--text-muted);
-cursor: pointer;
-padding: 8px;
-border-radius: 50%;
-transition: all 0.2s ease;
-display: flex;
-align-items: center;
-justify-content: center;
-width: 40px;
-height: 40px;
-}
-
-.close-btn:hover {
-  background: var(--background-hover);
-  color: var(--text-color);
-  transform: rotate(90deg);
-}
-
-.modal-body {
-  padding: 24px 32px 32px;
-}
-
-.event-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-  margin-bottom: 4px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  background: #ffffff;
-  color: #1f2937;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-input.error,
-.form-select.error,
-.form-textarea.error {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.form-options {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
-
-/* Toggle Switch Styles */
-.toggle-label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: #374151;
-  user-select: none;
-  position: relative;
-}
-
-.toggle-label input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-switch {
-  position: relative;
-  width: 48px;
-  height: 24px;
-  background: #d1d5db;
-  border-radius: 12px;
-  margin-right: 12px;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.toggle-switch::before {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ffffff;
-  top: 2px;
-  left: 2px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.toggle-label input[type="checkbox"]:checked + .toggle-switch {
-  background: #3b82f6;
-}
-
-.toggle-label input[type="checkbox"]:checked + .toggle-switch::before {
-  transform: translateX(24px);
-}
-
-.toggle-label:hover .toggle-switch {
-  background: #9ca3af;
-}
-
-.toggle-label input[type="checkbox"]:checked:hover + .toggle-switch {
-  background: #2563eb;
-}
-
-.toggle-text {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-}
-
-.toggle-text i {
-  font-size: 1rem;
-  color: #6b7280;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
-}
-
-.btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  line-height: 1;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-}
-
-.btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-
-.btn-secondary:hover {
-  background: #e5e7eb;
-  border-color: #9ca3af;
-}
-
-.btn-danger {
-  background: #ef4444;
-  color: #ffffff;
-}
-
-.btn-danger:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
-}
-
-.validation-errors {
-  margin-bottom: 16px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.error-message {
-  background: #fef2f2;
-  color: #dc2626;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  border-left: 4px solid #ef4444;
-}
-
-.error-message i {
-  font-size: 1rem;
-  color: #ef4444;
-}
-
-/* Quick Add Modal Specific Styles */
-.quick-add-modal .form-group {
+/* Modal Styles */
+.quick-add-modal .cal-form-group {
   margin-bottom: 16px;
 }
 
@@ -1085,125 +440,295 @@ height: 40px;
   font-size: 1rem;
   padding: 16px;
 }
-
-
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .event-modal,
-  .quick-add-modal {
-    width: 95%;
-    max-width: none;
-  }
-  
-  .modal-header,
-  .modal-body {
-    padding: 16px 20px;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .btn {
+.cal-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
     justify-content: center;
-  }
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: slideIn all 0.3s ease;
+}
+.cal-modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
 }
 
-/* Dark Mode Support */
-/* @media (prefers-color-scheme: dark) {
-  .event-modal,
-  .quick-add-modal {
-    background: #1f2937;
-    border-color: #374151;
-  }
-  
-  .modal-header {
-    border-bottom-color: #374151;
-  }
-  
-  .modal-header h3 {
-    color: #f9fafb;
-  }
-  
-  .close-btn {
-    color: #9ca3af;
-  }
-  
-  .close-btn:hover {
-    background: #374151;
-    color: #f3f4f6;
-  }
-  
-  .form-group label {
-    color: #d1d5db;
-  }
-  
-  .form-input,
-  .form-select,
-  .form-textarea {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  
-  .form-input:focus,
-  .form-select:focus,
-  .form-textarea:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  .form-options {
-    background: #374151;
-    border-color: #4b5563;
-  }
-  
-  .toggle-label {
-    color: #d1d5db;
-  }
-  
-  .toggle-text i {
-    color: #9ca3af;
-  }
-  
-  .form-actions {
-    border-top-color: #374151;
-  }
-  
-  .btn-secondary {
-    background: #374151;
-    color: #d1d5db;
-    border-color: #4b5563;
-  }
-  
-  .btn-secondary:hover {
-    background: #4b5563;
-    border-color: #6b7280;
-  }
-  
-  .error-message {
-    background: #3f1f1f;
-    color: #f87171;
-  }
-  
-  .analytics-toggle-btn {
-    background: #374151;
-    border-color: #4b5563;
-    color: #d1d5db;
-  }
-  
-  .analytics-toggle-btn:hover {
-    background: #4b5563;
-    border-color: #6b7280;
-  }
-} */
+.cal-modal-content {
+    background: var(--card-background);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px var(--shadow);
+    width: 90%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+    border: 1px solid var(--border-light);
+}
 
+.cal-modal-header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--card-background) 0%, var(--background-secondary) 100%);
+}
+
+.cal-modal-h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.close-cal-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+.close-cal-btn:hover {
+    background: var(--background-hover);
+    color: var(--text-color);
+    transform: rotate(90deg);
+}
+.cal-modal-body {
+    padding: 32px;
+    overflow-y: auto;
+    max-height: calc(90vh - 100px);
+}
+
+.validation-errors {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: var(--danger-color);
+    font-size: 14px;
+}
+.cal-form-group {
+    margin-bottom: 24px;
+}
+.cal-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.cal-form-input, .cal-form-select, .cal-form-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border-light);
+    border-radius: 12px;
+    font-size: 16px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+.cal-form-input:focus, .cal-form-select:focus, .cal-form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+    transform: translateY(-1px);
+}
+.cal-form-input:hover, .cal-form-select:hover, .cal-form-textarea:hover {
+    border-color: var(--primary-color);
+}
+.cal-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+.cal-form-select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236ab6ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+}
+.cal-form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+.cal-form-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 32px 0;
+    padding: 24px;
+    background: var(--background-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+}
+.cal-toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 0;
+    transition: all 0.2s ease;
+}
+.cal-toggle-label:hover {
+    transform: translateX(2px);
+}
+
+    .cal-toggle-text {
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cal-toggle-text i {
+        font-size: 16px;
+        color: var(--primary-color);
+    }
+
+    .cal-toggle-switch {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        background: var(--border-light);
+        border-radius: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+
+    .cal-toggle-switch::before {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .cal-toggle-input {
+        display: none;
+    }
+
+    .cal-toggle-input:checked + .cal-toggle-switch {
+        background: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+    }
+
+    .cal-toggle-input:checked + .cal-toggle-switch::before {
+        transform: translateX(24px);
+        background: white;
+    }
+
+    .cal-toggle-switch:hover {
+        transform: scale(1.05);
+    }
+
+    .cal-form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .cal-btn {
+        padding: 14px 24px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cal-btn i {
+        font-size: 18px;
+    }
+
+    .cal-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .cal-btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.4);
+    }
+
+    .btn-secondary {
+        background: var(--background-secondary);
+        color: var(--text-color);
+        border: 2px solid var(--border-light);
+    }
+
+    .btn-secondary:hover {
+        background: var(--background-hover);
+        border-color: var(--primary-color);
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-hover) 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(var(--danger-rgb), 0.3);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(var(--danger-rgb), 0.4);
+    }
 /* Analytics Panel */
 .analytics-panel {
     position: fixed;
@@ -1429,6 +954,14 @@ height: 40px;
     );
     pointer-events: none;
 }
+
+.event-item.new {
+    animation: fadeIn 0.4s ease;
+}
+
+.calendar-day.today .day-number {
+    animation: pulse 2s infinite;
+}
 /* Animations */
 @keyframes slideInRight {
     from { transform: translateX(100%); }
@@ -1449,12 +982,16 @@ height: 40px;
 }
 
 
-.event-item.new {
-    animation: fadeIn 0.4s ease;
-}
 
-.calendar-day.today .day-number {
-    animation: pulse 2s infinite;
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* Responsive Design */
@@ -1469,7 +1006,7 @@ height: 40px;
         gap: 8px; /* Reduced from 16px */
     }
 
-    .nav-btn {
+    .nav-cal-btn {
         width: 32px;
         height: 32px;
         font-size: 16px;
@@ -1484,7 +1021,7 @@ height: 40px;
         padding: 3px; /* Reduced from 4px */
     }
 
-    .view-btn {
+    .view-cal-btn {
         padding: 6px 12px; /* Reduced from 8px 16px */
         font-size: 13px;
     }
@@ -1493,8 +1030,8 @@ height: 40px;
         gap: 8px; /* Reduced from 12px */
     }
 
-    .add-event-btn,
-    .today-btn {
+    .add-event-cal-btn,
+    .today-cal-btn {
         padding: 8px 14px; /* Reduced from 10px 20px and 10px 16px */
         font-size: 13px;
     }
@@ -1566,12 +1103,10 @@ height: 40px;
         gap: 6px;
     }
 
-    .add-event-btn,
-    .today-btn {
+    .add-event-btn,.today-btn {
         padding: 6px 10px;
         font-size: 12px;
     }
-
     .filter-bar {
         padding: 10px 12px;
         gap: 8px;
@@ -1585,677 +1120,24 @@ height: 40px;
         width: 180px;
     }
 }
-/* <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Event Modal</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-    <style>
-        :root[data-theme="light"] {
-            --primary-purple: #a1e0ff;       
-            --medium-purple: #d6f3ff;        
-            --dark-purple: #6ab6ff;          
-            --dark-blue: #9ddfff;            
-            --darker-blue: #3c8bc4;          
-            --white: #f2faff;                
-            --light-bg: #eef9ff;             
-            --text-primary: #244c5a;         
-            --text-secondary: #6ab6ff;
-            --border-color: var(--primary-purple);
-            --card-bg: #f6fbff;              
-            --shadow: rgba(0, 0, 0, 0.05);
-            --shadow-hover: rgba(106, 182, 255, 0.12);
-            --background-color: var(--light-bg);
-            --background-secondary: #e3f4ff;
-            --background-hover: #d9f1ff;
-            --card-background: var(--card-bg);
-            --border-light: #c7eaff;
-            --text-color: var(--text-primary);
-            --text-muted: #7a9cb0;
-            --success-color: #10b981;
-            --success-hover: #059669;
-            --warning-color: #f59e0b;
-            --warning-rgb: 245, 158, 11;
-            --danger-color: #ef4444;
-            --danger-hover: #dc2626;
-            --danger-rgb: 239, 68, 68;
-            --info-color: #3b82f6;
-            --info-hover: #2563eb;
-            --primary-color: var(--dark-purple);
-            --primary-hover: var(--darker-blue);
-            --primary-rgb: 106, 182, 255;
+    @media (max-width: 640px) {
+        .cal-form-row {
+            grid-template-columns: 1fr;
         }
-
-        :root[data-theme="dark"] {
-            --primary-purple: #2f1b70;        
-            --medium-purple: #5c33a9;         
-            --dark-purple: #0dd1ff;           
-            --dark-blue: #183d67;             
-            --darker-blue: #0f1b2c;           
-            --white: #ffffff;
-            --light-bg: #0b0f14;              
-            --text-primary: #e1ecf5;          
-            --text-secondary: #94a3b8;        
-            --border-color: var(--medium-purple);
-            --card-bg: #151b24;              
-            --shadow: rgba(0, 0, 0, 0.4);
-            --shadow-hover: rgba(13, 209, 255, 0.2);
-            --background-color: var(--light-bg);
-            --background-secondary: #1a2332;
-            --background-hover: #253142;
-            --card-background: var(--card-bg);
-            --border-light: #2a3441;
-            --border-dark: #3a4553;
-            --text-color: var(--text-primary);
-            --text-muted: #64748b;
-            --success-color: #059669;
-            --success-hover: #047857;
-            --warning-color: #d97706;
-            --warning-rgb: 217, 119, 6;
-            --danger-color: #dc2626;
-            --danger-hover: #b91c1c;
-            --danger-rgb: 220, 38, 38;
-            --info-color: #2563eb;
-            --info-hover: #1d4ed8;
-            --primary-color: var(--dark-purple);
-            --primary-hover: #00bfff;
-            --primary-rgb: 13, 209, 255;
-        }
-
-        :root {
-            --primary-purple: #a1e0ff;       
-            --medium-purple: #d6f3ff;        
-            --dark-purple: #6ab6ff;          
-            --dark-blue: #9ddfff;            
-            --darker-blue: #3c8bc4;          
-            --white: #f2faff;                
-            --light-bg: #eef9ff;             
-            --text-primary: #244c5a;         
-            --text-secondary: #6ab6ff;
-            --border-color: var(--primary-purple);
-            --card-bg: #f6fbff;             
-            --shadow: rgba(0, 0, 0, 0.05);
-            --shadow-hover: rgba(106, 182, 255, 0.12);
-            --background-color: var(--light-bg);
-            --background-secondary: #e3f4ff;
-            --background-hover: #d9f1ff;
-            --card-background: var(--card-bg);
-            --border-light: #c7eaff;
-            --text-color: var(--text-primary);
-            --text-muted: #7a9cb0;
-            --success-color: #10b981;
-            --success-hover: #059669;
-            --warning-color: #f59e0b;
-            --warning-rgb: 245, 158, 11;
-            --danger-color: #ef4444;
-            --danger-hover: #dc2626;
-            --danger-rgb: 239, 68, 68;
-            --info-color: #3b82f6;
-            --info-hover: #2563eb;
-            --primary-color: var(--dark-purple);
-            --primary-hover: var(--darker-blue);
-            --primary-rgb: 106, 182, 255;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { 
-                opacity: 0;
-                transform: translateY(-20px) scale(0.95);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
         .modal-content {
-            background: var(--card-background);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px var(--shadow);
-            width: 90%;
-            max-width: 520px;
-            max-height: 90vh;
-            overflow: hidden;
-            animation: slideIn 0.3s ease-out;
-            border: 1px solid var(--border-light);
+            width: 95%;
+            margin: 10px;
         }
-
-        .modal-header {
-            padding: 28px 32px 20px;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, var(--card-background) 0%, var(--background-secondary) 100%);
-        }
-
-        .modal-header h3 {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin: 0;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 28px;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-        }
-
-        .close-btn:hover {
-            background: var(--background-hover);
-            color: var(--text-color);
-            transform: rotate(90deg);
-        }
-
+        
         .modal-body {
-            padding: 32px;
-            overflow-y: auto;
-            max-height: calc(90vh - 100px);
-        }
-
-        .validation-errors {
-            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-            border: 1px solid #fecaca;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 24px;
-            color: var(--danger-color);
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border-light);
-            border-radius: 12px;
-            font-size: 16px;
-            background: var(--white);
-            color: var(--text-color);
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-            transform: translateY(-1px);
-        }
-
-        .form-input:hover, .form-select:hover, .form-textarea:hover {
-            border-color: var(--primary-color);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
-        }
-
-        @media (max-width: 640px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .form-select {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236ab6ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 12px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: 40px;
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-     
-        .form-options {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin: 32px 0;
             padding: 24px;
-            background: var(--background-secondary);
-            border-radius: 16px;
-            border: 1px solid var(--border-light);
         }
-
-        .toggle-label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            user-select: none;
-            padding: 4px 0;
-            transition: all 0.2s ease;
+        
+        .cal-form-actions {
+            flex-direction: column;
         }
-
-        .toggle-label:hover {
-            transform: translateX(2px);
-        }
-
-        .toggle-text {
-            font-weight: 500;
-            color: var(--text-color);
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .toggle-text i {
-            font-size: 16px;
-            color: var(--primary-color);
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 52px;
-            height: 28px;
-            background: var(--border-light);
-            border-radius: 14px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-
-        .toggle-switch::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .toggle-input {
-            display: none;
-        }
-
-        .toggle-input:checked + .toggle-switch {
-            background: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
-        }
-
-        .toggle-input:checked + .toggle-switch::before {
-            transform: translateX(24px);
-            background: white;
-        }
-
-        .toggle-switch:hover {
-            transform: scale(1.05);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-light);
-        }
-
-        .btn {
-            padding: 14px 24px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn i {
-            font-size: 18px;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        
+        .cal-btn {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
         }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-            color: white;
-            box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--background-secondary);
-            color: var(--text-color);
-            border: 2px solid var(--border-light);
-        }
-
-        .btn-secondary:hover {
-            background: var(--background-hover);
-            border-color: var(--primary-color);
-            transform: translateY(-1px);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-hover) 100%);
-            color: white;
-            box-shadow: 0 4px 16px rgba(var(--danger-rgb), 0.3);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(var(--danger-rgb), 0.4);
-        }
-
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--card-background);
-            border: 2px solid var(--border-light);
-            border-radius: 12px;
-            padding: 12px 16px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-color);
-            transition: all 0.3s ease;
-            z-index: 1001;
-        }
-
-        .theme-toggle:hover {
-            background: var(--background-hover);
-            transform: translateY(-2px);
-        }
-
-    
-        @media (max-width: 640px) {
-            .modal-content {
-                width: 95%;
-                margin: 10px;
-            }
-            
-            .modal-body {
-                padding: 24px;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <button class="theme-toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
-    
-    <div id="eventModal" class="modal-overlay">
-        <div class="modal-content event-modal">
-            <div class="modal-header">
-                <h3 id="modalTitle">Create Event</h3>
-                <button id="closeEventModal" class="close-btn" type="button">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="validationErrors" class="validation-errors" style="display: none;"></div>
-                <form id="eventForm" class="event-form">
-                    <div class="form-group">
-                        <label for="eventTitle">Event Title</label>
-                        <input type="text" id="eventTitle" placeholder="Enter event title" class="form-input" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="eventDate">Date</label>
-                            <input type="date" id="eventDate" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="eventStartTime">Start Time</label>
-                            <input type="time" id="eventStartTime" class="form-input" value="09:00">
-                        </div>
-                        <div class="form-group">
-                            <label for="eventEndTime">End Time</label>
-                            <input type="time" id="eventEndTime" class="form-input" value="10:00">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="eventCategory">Category</label>
-                        <select id="eventCategory" class="form-select">
-                            <option value="work">Work</option>
-                            <option value="personal">Personal</option>
-                            <option value="meetings">Meeting</option>
-                            <option value="deadlines">Deadline</option>
-                            <option value="focus">Focus Time</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="eventDescription">Description</label>
-                        <textarea id="eventDescription" placeholder="Event description (optional)" class="form-textarea" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="form-options">
-                        <div class="toggle-label">
-                            <span class="toggle-text">
-                                <i class="bi bi-arrow-repeat"></i>
-                                Recurring event
-                            </span>
-                            <div>
-                                <input type="checkbox" id="isRecurring" class="toggle-input">
-                                <div class="toggle-switch"></div>
-                            </div>
-                        </div>
-                        <div class="toggle-label">
-                            <span class="toggle-text">
-                                <i class="bi bi-calendar-day"></i>
-                                All day event
-                            </span>
-                            <div>
-                                <input type="checkbox" id="isAllDay" class="toggle-input">
-                                <div class="toggle-switch"></div>
-                            </div>
-                        </div>
-                        <div class="toggle-label">
-                            <span class="toggle-text">
-                                <i class="bi bi-bell"></i>
-                                Set reminder
-                            </span>
-                            <div>
-                                <input type="checkbox" id="hasReminder" class="toggle-input">
-                                <div class="toggle-switch"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" id="cancelEvent" class="btn btn-secondary">
-                            <i class="bi bi-x-lg"></i>
-                            Cancel
-                        </button>
-                        <button type="button" id="deleteEvent" class="btn btn-danger" style="display: none;">
-                            <i class="bi bi-trash3"></i>
-                            Delete
-                        </button>
-                        <button type="button" id="saveEvent" class="btn btn-primary">
-                            <i class="bi bi-check-lg"></i>
-                            Save Event
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Theme toggle functionality
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-        }
-
-        // Set default date to today
-        document.getElementById('eventDate').valueAsDate = new Date();
-
-        // Toggle functionality for custom switches
-        document.querySelectorAll('.toggle-label').forEach(label => {
-            label.addEventListener('click', function(e) {
-                if (e.target === this || e.target.classList.contains('toggle-text')) {
-                    const checkbox = this.querySelector('.toggle-input');
-                    checkbox.checked = !checkbox.checked;
-                }
-            });
-        });
-
-        // Form validation and submission
-        document.getElementById('saveEvent').addEventListener('click', function() {
-            const title = document.getElementById('eventTitle').value;
-            const date = document.getElementById('eventDate').value;
-            
-            if (!title || !date) {
-                showValidationError('Please fill in all required fields');
-                return;
-            }
-            
-            // Simulate saving
-            showSuccess('Event saved successfully!');
-        });
-
-        function showValidationError(message) {
-            const errorDiv = document.getElementById('validationErrors');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 3000);
-        }
-
-        function showSuccess(message) {
-            // Create a temporary success message
-            const successDiv = document.createElement('div');
-            successDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: var(--success-color);
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                z-index: 1002;
-                animation: slideIn 0.3s ease-out;
-            `;
-            successDiv.textContent = message;
-            document.body.appendChild(successDiv);
-            
-            setTimeout(() => {
-                successDiv.remove();
-            }, 3000);
-        }
-
-        // Close modal functionality
-        document.getElementById('closeEventModal').addEventListener('click', function() {
-            document.getElementById('eventModal').style.display = 'none';
-        });
-
-        document.getElementById('cancelEvent').addEventListener('click', function() {
-            document.getElementById('eventModal').style.display = 'none';
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('eventModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.style.display = 'none';
-            }
-        });
-    </script>
-</body>
-</html> */
+    }
