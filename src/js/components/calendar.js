@@ -209,7 +209,6 @@ class ProductivityCalendar {
                 this.renderDayView();
                 break;
         }
-        this.updateAnalytics();
     }
     updateHeader() {
         const monthNames = [
@@ -621,147 +620,74 @@ class ProductivityCalendar {
             if (input) input.value = '';
         }
     }
-    // showEventModal(date = null, event = null, defaultTime = null) {
-    //     const modal = document.getElementById('eventModal');
-    //     if (!modal) {
-    //         console.error('Event modal not found');
-    //         return;
-    //     }        
-    //     this.selectedEvent = event;
-    //     modal.classList.add('show');
-    //     this.hideValidationErrors();        
-    //     const modalTitle = document.getElementById('modalTitle');
-    //     if (modalTitle) {
-    //         modalTitle.textContent = event ? 'Edit Event' : 'Create Event';
-    //     }        
-    //     if (event) {
-    //         const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-    //         document.getElementById('eventTitle').value = event.title || '';
-    //         document.getElementById('eventDate').value = this.formatDateForInput(eventDate);
-    //         document.getElementById('eventStartTime').value = event.startTime || '09:00';
-    //         document.getElementById('eventEndTime').value = event.endTime || '10:00';
-    //         document.getElementById('eventCategory').value = event.category || 'work';
-    //         document.getElementById('eventDescription').value = event.description || '';
-    //         document.getElementById('isRecurring').checked = event.isRecurring || false;
-    //         document.getElementById('isAllDay').checked = event.isAllDay || false;
-    //         document.getElementById('hasReminder').checked = event.hasReminder || false;
-            
-    //         const deleteBtn = document.getElementById('deleteEvent');
-    //         if (deleteBtn) deleteBtn.style.display = 'inline-block';
-    //     } else {
-    //         this.clearEventForm();            
-    //         if (date) {
-    //             const eventDate = typeof date === 'string' ? new Date(date) : date;
-    //             document.getElementById('eventDate').value = this.formatDateForInput(eventDate);
-    //         }
-    //         if (defaultTime) {
-    //             document.getElementById('eventStartTime').value = defaultTime;
-    //             const [hours, minutes] = defaultTime.split(':').map(Number);
-    //             const endHour = hours + 1;
-    //             const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    //             document.getElementById('eventEndTime').value = endTime;
-    //         }
-    //         const deleteBtn = document.getElementById('deleteEvent');
-    //         if (deleteBtn) deleteBtn.style.display = 'none';
-    //     }
-    //     setTimeout(() => {
-    //         const titleInput = document.getElementById('eventTitle');
-    //         if (titleInput) {
-    //             titleInput.focus();
-    //             titleInput.select();
-    //         }
-    //     }, 100);
-    // }
-// Replace your existing showEventModal method with this enhanced version:
-showEventModal(date = null, event = null, defaultTime = null) {
-    const modal = document.getElementById('eventModal');
-    if (!modal) {
-        console.error('Event modal not found');
-        return;
-    }        
-    
-    this.selectedEvent = event;
-    modal.classList.add('show');
-    this.hideValidationErrors();        
-    
-    const modalTitle = document.getElementById('modalTitle');
-    if (modalTitle) {
-        modalTitle.textContent = event ? 'Edit Event' : 'Create Event';
-    }        
-    
-    if (event) {
-        // Editing existing event
-        const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-        document.getElementById('eventTitle').value = event.title || '';
-        document.getElementById('eventDate').value = this.formatDateForInput(eventDate);
-        document.getElementById('eventStartTime').value = event.startTime || '09:00';
-        document.getElementById('eventEndTime').value = event.endTime || '10:00';
-        document.getElementById('eventCategory').value = event.category || 'work';
-        document.getElementById('eventDescription').value = event.description || '';
-        
-        // IMPORTANT: Explicitly set checkbox states
-        const isRecurringEl = document.getElementById('isRecurring');
-        const isAllDayEl = document.getElementById('isAllDay');
-        const hasReminderEl = document.getElementById('hasReminder');
-        
-        if (isRecurringEl) {
-            isRecurringEl.checked = Boolean(event.isRecurring);
-        }
-        if (isAllDayEl) {
-            isAllDayEl.checked = Boolean(event.isAllDay);
-            // Trigger change event to update UI
-            isAllDayEl.dispatchEvent(new Event('change'));
-        }
-        if (hasReminderEl) {
-            hasReminderEl.checked = Boolean(event.hasReminder);
-        }
-        
-        const deleteBtn = document.getElementById('deleteEvent');
-        if (deleteBtn) deleteBtn.style.display = 'inline-block';
-    } else {
-        // Creating new event - FORCE CLEAR ALL FIELDS
-        this.clearEventForm();
-        
-        // Set date if provided
-        if (date) {
-            const eventDate = typeof date === 'string' ? new Date(date) : date;
+    showEventModal(date = null, event = null, defaultTime = null) {
+        const modal = document.getElementById('eventModal');
+        if (!modal) {
+            console.error('Event modal not found');
+            return;
+        }        
+        this.selectedEvent = event;
+        modal.classList.add('show');
+        this.hideValidationErrors();        
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) {
+            modalTitle.textContent = event ? 'Edit Event' : 'Create Event';
+        }        
+        if (event) {
+            const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+            document.getElementById('eventTitle').value = event.title || '';
             document.getElementById('eventDate').value = this.formatDateForInput(eventDate);
-        }
-        
-        // Set default time if provided
-        if (defaultTime) {
-            document.getElementById('eventStartTime').value = defaultTime;
-            const [hours, minutes] = defaultTime.split(':').map(Number);
-            const endHour = hours + 1;
-            const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-            document.getElementById('eventEndTime').value = endTime;
-        }
-        
-        // FORCE RESET ALL CHECKBOXES FOR NEW EVENT
-        const checkboxes = ['isRecurring', 'isAllDay', 'hasReminder'];
-        checkboxes.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.checked = false;
-                // Force trigger change event
-                element.dispatchEvent(new Event('change'));
+            document.getElementById('eventStartTime').value = event.startTime || '09:00';
+            document.getElementById('eventEndTime').value = event.endTime || '10:00';
+            document.getElementById('eventCategory').value = event.category || 'work';
+            document.getElementById('eventDescription').value = event.description || '';
+            const isRecurringEl = document.getElementById('isRecurring');
+            const isAllDayEl = document.getElementById('isAllDay');
+            const hasReminderEl = document.getElementById('hasReminder');
+            if (isRecurringEl) {
+                isRecurringEl.checked = Boolean(event.isRecurring);
             }
-        });
-        
-        const deleteBtn = document.getElementById('deleteEvent');
-        if (deleteBtn) deleteBtn.style.display = 'none';
-    }
-    
-    // Focus on title input
-    setTimeout(() => {
-        const titleInput = document.getElementById('eventTitle');
-        if (titleInput) {
-            titleInput.focus();
-            titleInput.select();
+            if (isAllDayEl) {
+                isAllDayEl.checked = Boolean(event.isAllDay);
+                isAllDayEl.dispatchEvent(new Event('change'));
+            }
+            if (hasReminderEl) {
+                hasReminderEl.checked = Boolean(event.hasReminder);
+            }
+            const deleteBtn = document.getElementById('deleteEvent');
+            if (deleteBtn) deleteBtn.style.display = 'inline-block';
+        } else {
+            this.clearEventForm();
+            if (date) {
+                const eventDate = typeof date === 'string' ? new Date(date) : date;
+                document.getElementById('eventDate').value = this.formatDateForInput(eventDate);
+            }
+            if (defaultTime) {
+                document.getElementById('eventStartTime').value = defaultTime;
+                const [hours, minutes] = defaultTime.split(':').map(Number);
+                const endHour = hours + 1;
+                const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                document.getElementById('eventEndTime').value = endTime;
+            }
+            const checkboxes = ['isRecurring', 'isAllDay', 'hasReminder'];
+            checkboxes.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.checked = false;
+                    element.dispatchEvent(new Event('change'));
+                }
+            });
+            const deleteBtn = document.getElementById('deleteEvent');
+            if (deleteBtn) deleteBtn.style.display = 'none';
         }
-    }, 100);
-}
-
+        setTimeout(() => {
+            const titleInput = document.getElementById('eventTitle');
+            if (titleInput) {
+                titleInput.focus();
+                titleInput.select();
+            }
+        }, 100);
+    }
     hideEventModal() {
         const modal = document.getElementById('eventModal');
         if (modal) {
@@ -770,29 +696,7 @@ showEventModal(date = null, event = null, defaultTime = null) {
             this.hideValidationErrors();
         }
     }
-    // clearEventForm() {
-    //     const inputs = [
-    //         { id: 'eventTitle', value: '' },
-    //         { id: 'eventDate', value: '' },
-    //         { id: 'eventStartTime', value: '09:00' },
-    //         { id: 'eventEndTime', value: '10:00' },
-    //         { id: 'eventCategory', value: 'work' },
-    //         { id: 'eventDescription', value: '' }
-    //     ];
-    //     inputs.forEach(input => {
-    //         const element = document.getElementById(input.id);
-    //         if (element) element.value = input.value;
-    //     });
-    //     const checkboxes = ['isRecurring', 'isAllDay', 'hasReminder'];
-    //     checkboxes.forEach(id => {
-    //         const element = document.getElementById(id);
-    //         if (element) element.checked = false;
-    //     });
-    // }
-
-    // Replace your existing clearEventForm method with this:
-clearEventForm() {
-    // Clear text inputs
+    clearEventForm() {
     const inputs = [
         { id: 'eventTitle', value: '' },
         { id: 'eventDate', value: '' },
@@ -801,31 +705,25 @@ clearEventForm() {
         { id: 'eventCategory', value: 'work' },
         { id: 'eventDescription', value: '' }
     ];
-    
     inputs.forEach(input => {
         const element = document.getElementById(input.id);
         if (element) {
             element.value = input.value;
         }
     });
-    
-    // IMPORTANT: Explicitly clear ALL checkboxes
     const checkboxes = ['isRecurring', 'isAllDay', 'hasReminder'];
     checkboxes.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
             element.checked = false;
-            // Force trigger change event to update any dependent UI
             element.dispatchEvent(new Event('change'));
         }
     });
-    
-    // Additional safety: Hide time fields if they were hidden due to all-day
     const timeFields = document.querySelectorAll('.time-field-container');
     timeFields.forEach(field => {
         field.style.display = 'block';
     });
-}
+    }
     formatDateForInput(date) {
         if (!date) return '';
         const d = typeof date === 'string' ? new Date(date) : date;
@@ -1020,21 +918,6 @@ clearEventForm() {
             }
         });
     }
-    toggleAnalytics() {
-    const panel = document.getElementById('analyticsPanel');
-    const toggleBtn = document.getElementById('analyticsToggle');
-    if (panel) {
-        this.analyticsVisible = !this.analyticsVisible;
-        if (this.analyticsVisible) {
-            panel.classList.add('show');
-            if (toggleBtn) toggleBtn.classList.add('active');
-            this.updateAnalytics();
-        } else {
-            panel.classList.remove('show');
-            if (toggleBtn) toggleBtn.classList.remove('active');
-        }
-        }
-    }
     loadEvents() {
         try {
             const savedEvents = localStorage.getItem('calendar-events');
@@ -1055,9 +938,7 @@ clearEventForm() {
             console.error('Error saving events to localStorage:', error);
         }
     }
-    // Add this method to your ProductivityCalendar class
     showDayEvents(date, events) {
-        // Create a modal or popup to show all events for the day
         const modal = document.createElement('div');
         modal.className = 'day-events-modal modal-overlay';
         modal.innerHTML = `
@@ -1088,13 +969,10 @@ clearEventForm() {
                 </div>
             </div>
         `;
-                                    
-        // Add event listeners for clicking on events
         modal.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
                 modal.remove();
             }
-
             const eventItem = e.target.closest('.event-item-detailed');
             if (eventItem) {
                 const eventId = parseInt(eventItem.dataset.eventId);
@@ -1105,102 +983,7 @@ clearEventForm() {
                 }
             }
         });
-
         document.body.appendChild(modal);
-
-        // Add CSS styles if they don't exist
-        if (!document.querySelector('#day-events-modal-styles')) {
-            const style = document.createElement('style');
-            style.id = 'day-events-modal-styles';
-            style.textContent = `
-                .day-events-modal {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 1000;
-                }
-                .day-events-modal .event-item-detailed {
-                    padding: 12px;
-                    margin-bottom: 10px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .day-events-modal .event-item-detailed:hover {
-                    transform: scale(0.2px);
-                    box-shadow: 0 2px 8px var(--shadow);
-                }
-                .day-events-modal .event-title {
-                    font-weight: 600;
-                    margin-bottom: 4px;
-                }
-                .day-events-modal .event-time {
-                    font-size: 12px;
-                    opacity: 0.8;
-                    margin-bottom: 4px;
-                }
-                .day-events-modal .event-category {
-                    font-size: 10px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    opacity: 0.7;
-                    margin-bottom: 4px;
-                    color: var(--text-color);
-                }
-
-                .day-events-modal .event-description {
-                    font-size: 12px;
-                    opacity: 0.7;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-    }
-
-    getProductivityStats() {
-        const now = new Date();
-        const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - now.getDay());        
-        const weekEvents = this.events.filter(event => 
-            event.date >= weekStart && event.date <= now
-        );
-        const stats = {
-            weeklyHours: 0,
-            focusTime: 0,
-            meetingTime: 0,
-            completedEvents: 0
-        };
-        weekEvents.forEach(event => {
-            const duration = this.getEventDuration(event);
-            stats.weeklyHours += duration;
-            
-            if (event.category === 'focus') {
-                stats.focusTime += duration;
-            } else if (event.category === 'meetings') {
-                stats.meetingTime += duration;
-            }
-            
-            if (event.completed) {
-                stats.completedEvents++;
-            }
-        });        
-        stats.completionRate = weekEvents.length > 0 ? 
-            Math.round((stats.completedEvents / weekEvents.length) * 100) : 0;
-        return stats;
-    }
-    updateAnalytics() {
-        const stats = this.getProductivityStats();
-        document.getElementById('weeklyHours').textContent = `${Math.round(stats.weeklyHours)}h`;
-        document.getElementById('focusTime').textContent = `${Math.round(stats.focusTime)}h`;
-        document.getElementById('meetingTime').textContent = `${Math.round(stats.meetingTime)}h`;
-        document.getElementById('completionRate').textContent = `${stats.completionRate}%`;
     }
 }
 if (typeof window !== 'undefined') {

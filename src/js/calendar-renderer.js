@@ -23,14 +23,12 @@ function setupCalendar() {
     setTimeout(() => {
         createEventModal();
         createQuickAddModal();
-        setupAnalyticsToggle();
         setupModalHandlers();
         setupCalendarKeyboardShortcuts();
         addEventValidation();
         window.productivityCalendar = new ProductivityCalendar();
     }, 100);
 }
-
 function createEventModal() {
     const modalHTML = `
         <div id="eventModal" class="cal-modal-overlay">
@@ -210,27 +208,6 @@ function handleAllDayToggle() {
         endTimeInput.style.display = 'block';
         const formRow = document.querySelector('.cal-form-row');
         formRow.style.gridTemplateColumns = '1fr 1fr 1fr';
-    }
-}
-function setupAnalyticsToggle() {
-    const calendarHeader = document.querySelector('.calendar-header .action-controls');
-    if (calendarHeader && !document.getElementById('analyticsToggle')) {
-        const toggleButton = document.createElement('button');
-        toggleButton.id = 'analyticsToggle';
-        toggleButton.className = 'analytics-toggle-btn';
-        toggleButton.innerHTML = '<i class="bi bi-graph-up"></i> Stats';
-        toggleButton.title = 'Toggle Analytics Panel';
-        calendarHeader.appendChild(toggleButton);
-    }
-    const analyticsToggle = document.getElementById('analyticsToggle');
-    if (analyticsToggle) {
-        analyticsToggle.addEventListener('click', () => {
-            const panel = document.getElementById('analyticsPanel');
-            if (panel) {
-                panel.classList.toggle('show');
-                analyticsToggle.classList.toggle('active');
-            }
-        });
     }
 }
 function setupModalHandlers() {
