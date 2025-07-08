@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Stitch It Down</title>
 </head>
-
 <body>
     <div class="app-container">
         <header class="app-header">
@@ -73,10 +72,10 @@
                 </div>
             </div>
         </nav>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- Add overlay for mobile -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-        <div class="main-content">
+
+<div class="main-content">
             <div class="upper">
                 <div class="upper-left">
                     <div class="date-time">
@@ -90,7 +89,7 @@
                     </div>
                 </div>
                 <div class="upper-right">
-                    <div class="progress">
+                    <!-- <div class="progress">
                         <div class="progress-title">
                             <span>Today's Progress</span>
                             <span class="completed-tasks">3/7 tasks</span>
@@ -130,19 +129,44 @@
                             </div>
                         </div>
                         
+                    </div> -->
+                    <div class="feature-buttons">
+                        <button class="feature-button" data-page="timer">
+                        
+                            <i class="feature-button-icon bi bi-stopwatch"></i>
+                        <span class="feature-button-text">Pomodoro</span>
+                    </button>
+                    <button class="feature-button" data-page="tasks">
+                        
+                        <i class="feature-button-icon bi bi-check-square"></i>
+                        <span class="feature-button-text">Tasks</span>
+                    </button>
+                    <button class="feature-button" data-page="notes">
+                        
+                        <i class="feature-button-icon bi bi bi-journal-text"></i>
+                        <span class="feature-button-text">Notes</span>
+                    </button>
+                    <button class="feature-button" data-page="calendar">
+                        
+                        <i class="feature-button-icon bi bi-calendar3"></i>
+                        <span class="feature-button-text">Calendar</span>
+                    </button>
+                    <button class="feature-button" data-page="stats">
+                        
+                        <i class="feature-button-icon bi bi-bar-chart"></i>
+                        <span class="feature-button-text">Stats</span>
+                    </button>
+                    <button class="feature-button" data-page="settings">
+                        
+                        <i class="feature-button-icon bi bi-gear"></i>
+                        <span class="feature-button-text">Settings</span>
+                    </button>
+
                     </div>
                 </div>
             </div>
             <div class="daily-quote-section">
                 <div class="daily-quote" id="dailyQuote">
-                </div>
-            </div>
-            <div class="lower">
-                <div class="add-note">
-                    <input class="addNote" id="noteInput" placeholder="Add a quick note">
-                    <button type="submit" class="AddNote" id="addNoteBtn">+</button>
-                </div>
-                <div class="notes-container" id="notesContainer">
                 </div>
             </div>
         </div>

@@ -323,7 +323,7 @@ body {
     text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }
 
-.progress {
+/* .progress {
     width: 100%;
     background-color: var(--card-bg);
     border-radius: 20px;
@@ -337,7 +337,7 @@ body {
     justify-content: flex-start;
     gap: 12px;
     margin: 0 auto;
-    /* border: 2px red solid; */
+
 }
 .progress-title {
     font-size: 19px; 
@@ -373,7 +373,7 @@ body {
     transition: width 0.5s ease;
     position: relative;
 }
-/* Task categories */
+
 .task-categories {
     display: flex;
     flex-wrap: wrap;
@@ -402,8 +402,38 @@ body {
 .category-icon {
     margin-right: 5px;
     font-size: 13px; 
-}
+} */
 
+.feature-buttons{
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: 20px;
+    padding: 20px 25px; 
+    border: 2px solid var(--border-color);
+    box-shadow: 0 8px 16px var(--shadow);
+    transition: all 0.3s ease;
+    max-height: 240px; 
+    height: 240px;
+    gap: 12px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+    
+}
+.feature-button{
+    height: 75px;
+    width: 75px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 2px solid var(--dark-blue);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+.feature-button:hover{
+    transform: scale(1.02);
+    color: var(--dark-purple);
+}
 .daily-quote-section {
     max-width: 800px;
     margin: 0 auto 30px auto;
@@ -450,551 +480,6 @@ body {
     opacity: 0.3;
     font-family: serif;
 }
-
-/* Stats display */
-.stats {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px; 
-}
-.stat-item {
-    text-align: center;
-    flex: 1;
-}
-
-.stat-value {
-    font-size: 20px;  
-    font-weight: bold;
-    color: var(--dark-purple);
-}
-
-.stat-label {
-    font-size: 11px;  
-    color: var(--text-secondary);
-    margin-top: 2px;
-}
-
-
-.lower {
-    max-width: 800px;
-    margin: 0 auto;
-}
-.add-note {
-    display: flex;
-    gap: 12px;
-    background-color: var(--card-bg);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px var(--shadow);
-    margin-bottom: 24px;
-    transition: background-color 0.3s ease;
-}
-
-.addNote {
-    flex: 1;
-    padding: 14px 18px;
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    font-size: 16px;
-    outline: none;
-    transition: all 0.3s ease;
-    background-color: var(--card-bg);
-    color: var(--text-primary);
-}
-
-.addNote::placeholder {
-    color: var(--text-secondary);
-    opacity: 0.7;
-}
-
-.addNote:focus {
-    border-color: var(--dark-purple);
-    box-shadow: 0 0 0 3px rgba(103, 53, 232, 0.1);
-}
-
-[data-theme="dark"] .addNote:focus {
-    box-shadow: 0 0 0 3px rgba(136, 84, 255, 0.2);
-}
-
-.AddNote {
-    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px var(--shadow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.AddNote:hover {
-    transform: rotate(90deg) scale(1.1);
-    box-shadow: 0 6px 16px var(--shadow-hover);
-}
-
-.AddNote:active {
-    transform: rotate(90deg) scale(0.95);
-}
-
-.notes-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.note-item {
-    background-color: var(--card-bg);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px var(--shadow);
-    transition: all 0.3s ease;
-    border-left: 4px solid var(--medium-purple);
-    position: relative;
-}
-
-.note-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px var(--shadow);
-}
-
-.note-content {
-    color: var(--text-primary);
-    line-height: 1.6;
-    margin-bottom: 10px;
-}
-
-.note-timestamp {
-    font-size: 12px;
-    color: var(--text-secondary);
-    display: block;
-    margin-top: 10px;
-}
-.note-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.edit-note {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    border-radius: 4px;
-    padding: 2px 6px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.edit-note:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.link-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 2px 8px;
-    margin: 0 4px;
-    cursor: pointer;
-    font-size: 12px;
-    text-decoration: none;
-}
-
-.link-button:hover {
-    background: #0056b3;
-}
-.delete-note {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: var(--medium-purple);
-    cursor: pointer;
-    font-size: 18px;
-    padding: 5px;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.delete-note:hover {
-    background-color: var(--primary-purple);
-    color: var(--white);
-    transform: scale(1.1);
-}
-/* .modal-content {
-  background-color: var(--card-bg);
-  border-radius: 12px;
-  padding: 24px 30px;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 8px 24px rgba(103, 53, 232, 0.3);
-  color: var(--text-primary);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  position: relative;
-  animation: fadeInModal 0.3s ease forwards;
-} */
-
-/* Optional: smooth fade-in animation */
-@keyframes fadeInModal {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-/* Modal Styles */
-/* .note-type-modal,
-.calendar-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-    animation: modalFadeIn 0.3s ease-out;
-} */
-
-/* .modal-content {
-    background: var(--card-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 16px;
-    padding: 2rem;
-    min-width: 320px;
-    max-width: 90vw;
-    box-shadow: 0 20px 40px var(--shadow), 0 0 0 1px rgba(255, 255, 255, 0.1);
-    animation: modalSlideIn 0.3s ease-out;
-    position: relative;
-} */
-
-/* .modal-content h3 {
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 1.5rem 0;
-    text-align: center;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 0.75rem;
-} */
-
-.category {
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    opacity: 0.7;
-}
-
-.category:hover {
-    opacity: 1;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.category.active {
-    opacity: 1;
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.empty-category-message {
-    text-align: center;
-    padding: 40px 20px;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-.empty-icon {
-    font-size: 48px;
-    opacity: 0.5;
-}
-
-/* Modal Button Styles */
-/* .modal-content button {
-    display: block;
-    width: 100%;
-    padding: 0.875rem 1.25rem;
-    margin: 0.75rem 0;
-    background: linear-gradient(135deg, var(--primary-purple), var(--medium-purple));
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
-}
-
-[data-theme="dark"] .modal-content button {
-    background: linear-gradient(135deg, var(--dark-blue), var(--primary-purple));
-    color: var(--text-primary);
-} */
-
-.modal-content button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px var(--shadow-hover);
-    border-color: var(--dark-purple);
-}
-
-.modal-content button:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 8px var(--shadow);
-}
-
-/* Special styling for type buttons with emojis */
-.modal-content button:contains("📝"),
-.modal-content button:contains("📌"),
-.modal-content button:contains("⭐") {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 1.1rem;
-}
-
-/* Cancel button styling */
-.modal-content button:last-child {
-    background: transparent;
-    color: var(--text-secondary);
-    border-color: var(--text-secondary);
-    margin-top: 1rem;
-}
-
-.modal-content button:last-child:hover {
-    background: var(--text-secondary);
-    color: var(--card-bg);
-    transform: translateY(-1px);
-}
-
-/* Calendar Modal Specific Styles */
-.calendar-modal .modal-content {
-    min-width: 400px;
-}
-
-.calendar-modal input[type="date"],
-.calendar-modal input[type="text"] {
-    width: 100%;
-    padding: 0.875rem;
-    margin: 0.75rem 0;
-    background: var(--light-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    color: var(--text-primary);
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.calendar-modal input[type="date"]:focus,
-.calendar-modal input[type="text"]:focus {
-    outline: none;
-    border-color: var(--dark-purple);
-    box-shadow: 0 0 0 3px rgba(106, 182, 255, 0.1);
-    background: var(--card-bg);
-}
-
-[data-theme="dark"] .calendar-modal input[type="date"],
-[data-theme="dark"] .calendar-modal input[type="text"] {
-    background: var(--darker-blue);
-    color: var(--text-primary);
-}
-
-/* Frequency buttons with better spacing */
-/* 
-.modal-content button[onclick*="setTaskFrequency"] {
-    background: linear-gradient(135deg, var(--medium-purple), var(--dark-purple));
-    position: relative;
-}
-
-.modal-content button[onclick*="setTaskFrequency"]:before {
-    content: "🔄";
-    margin-right: 0.5rem;
-}
-.modal-content button[onclick*="daily"]:before { content: "📅"; }
-.modal-content button[onclick*="weekly"]:before { content: "📆"; }
-.modal-content button[onclick*="biweekly"]:before { content: "🗓️"; }
-.modal-content button[onclick*="monthly"]:before { content: "📋"; } */
-
-/* Modal Animations */
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Enhanced Note Items to match modal style */
-.note-item {
-    background: var(--card-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1rem;
-    margin: 0.75rem 0;
-    box-shadow: 0 4px 12px var(--shadow);
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.note-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px var(--shadow-hover);
-    border-color: var(--dark-purple);
-}
-
-.note-item.task {
-    border-left: 4px solid var(--dark-purple);
-}
-
-.note-item.important {
-    border-left: 4px solid #ffd700;
-    background: linear-gradient(135deg, var(--card-bg), rgba(255, 215, 0, 0.05));
-}
-
-.note-item .note-content {
-    color: var(--text-primary);
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-}
-
-.note-item .note-timestamp {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-}
-
-.note-item .delete-note {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: rgba(255, 0, 0, 0.1);
-    color: #ff4444;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    line-height: 1;
-    transition: all 0.2s ease;
-}
-
-.note-item .delete-note:hover {
-    background: #ff4444;
-    color: white;
-    transform: scale(1.1);
-}
-
-/* Task checkbox styling */
-.note-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin-right: 0.75rem;
-    accent-color: var(--dark-purple);
-    cursor: pointer;
-}
-
-/* Make date-circle clickable indicator */
-.date-circle {
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.date-circle:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px var(--shadow-hover);
-}
-
-.date-circle:hover:after {
-    content: "📅 Click to add future task";
-    position: absolute;
-    bottom: -2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px var(--shadow);
-}
-.frequency-section,.deadline-section, .alert-section {
-    margin: 10px 0;
-}
-
-.frequency-section label, .deadline-section label, .alert-section label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.frequency-section select,.deadline-section input, .alert-section select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.deadline-info {
-    font-size: 0.9em;
-    color: #666;
-    margin-top: 5px;
-}
-
-.deadline-info.overdue {
-    color: #ff4444;
-    font-weight: bold;
-}
-#editTextArea {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 8px;
-    color: #333;
-    resize: vertical;
-}
-.note-item.task.overdue {
-    border-left: 4px solid #ff4444;
-}
-
 /* Responsive design for smaller screens */
 @media (max-width: 480px) {
     .modal-content {
@@ -1026,7 +511,7 @@ body {
         opacity: 0.5;
     }
 }
-/* @media (max-width: 768px) {
+@media (max-width: 768px) {
     .upper {
         flex-direction: column;
     }
@@ -1035,45 +520,6 @@ body {
         margin-left: 0;
         margin-top: 20px;
     }
-} */
-/* Smartphones, iPhone, portrait 480x320 phones */
-@media (min-width: 320px) {
-  .upper {
-    flex-direction: column;
-  }
-
-  .upper-left,
-  .upper-right {
-    width: 100%;
-  }
-
-  .date-time,
-  .progress {
-    height: auto;
-    margin-bottom: 20px;
-  }
-}
-
-/* Portrait e-readers, smaller tablets @ 600 or @ 640 wide */
-@media (min-width: 481px) {
-  .upper {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .upper-left {
-    flex: 0 0 100%;
-  }
-
-  .upper-right {
-    flex: 0 0 100%;
-    justify-content: center;
-  }
-
-  .date-time,
-  .progress {
-    max-width: 100%;
-  }
 }
 
 /* Portrait tablets, iPads, landscape e-readers */
