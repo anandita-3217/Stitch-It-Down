@@ -7,8 +7,12 @@ import '@css/main.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
 import {setImage,setDailyQuote,setRandomGif,loadAllImages,initTheme,setTheme,toggleTheme,updateDate,updateClock} from '@components/utils.js';
+import { GamificationSystem, GamificationUI } from '@js/gamification';
+import '@css//gamification.css';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
 function initializeApp() {
     console.log('Initializing Stitch Productivity Tool...');
     loadAllImages();
@@ -57,7 +61,23 @@ function setupEventListeners() {
     }
 }
 
-// Utility functions for external use
+// Initialize gamification system
+const gamification = new GamificationSystem();
+const gamificationUI = new GamificationUI(gamification);
+
+// Add gamification widget to main page
+document.addEventListener('DOMContentLoaded', () => {
+  const mainContainer = document.getElementById('main-container');
+  const gamificationWidget = document.createElement('div');
+  gamificationWidget.innerHTML = gamificationUI.createStatsWidget();
+  mainContainer.appendChild(gamificationWidget);
+  
+  // Update widget every 30 seconds
+  setInterval(() => {
+    gamificationWidget.innerHTML = gamificationUI.createStatsWidget();
+  }, 30000);
+});
+
 
 
 
