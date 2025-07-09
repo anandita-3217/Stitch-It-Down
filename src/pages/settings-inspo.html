@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stitch-It-Down Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .settings-container {
+            display: flex;
+            height: 100vh;
+            background: white;
+            margin: 20px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .settings-sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 20px 0;
+        }
+
+        .settings-header {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .settings-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .settings-nav {
+            list-style: none;
+        }
+
+        .settings-nav li {
+            margin-bottom: 5px;
+        }
+
+        .settings-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #6c757d;
+            border-radius: 0 25px 25px 0;
+            margin-right: 10px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .settings-nav a:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .settings-nav a.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .settings-nav .icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .settings-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .settings-section {
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .section-subtitle {
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .setting-group {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .setting-group h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            flex: 1;
+        }
+
+        .setting-label h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #495057;
+        }
+
+        .setting-label p {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::before {
+            transform: translateX(20px);
+        }
+
+        .select-control {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .input-control {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 100px;
+        }
+
+        .button-control {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .button-control:hover {
+            background: #5a67d8;
+        }
+
+        .button-control.secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .button-control.secondary:hover {
+            background: #dee2e6;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .keyboard-shortcut {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <div class="settings-sidebar">
+            <div class="settings-header">
+                <h1>Settings</h1>
+            </div>
+            <nav>
+                <ul class="settings-nav">
+                    <li><a href="#" class="nav-item active" data-section="general">
+                        <span class="icon">⚙️</span>General
+                    </a></li>
+                    <li><a href="#" class="nav-item" data-section="timer">
+                        <span class="icon">⏰</span>Timer
+                    </a></li>
+                    <li><a href="#" class="nav-item" data-section="tasks">
+                        <span class="icon">✅</span>Tasks
+                    </a></li>
+                    <li><a href="#" class="nav-item" data-section="notes">
+                        <span class="icon">📝</span>Notes
+                    </a></li>
+                    <li><a href="#" class="nav-item" data-section="calendar">
+                        <span class="icon">📅</span>Calendar
+                    </a></li>
+                    <li><a href="#" class="nav-item" data-section="integration">
+                        <span class="icon">🔗</span>Integration
+                    </a></li>
+                    <li><a href="#" class="nav-item" data-section="accessibility">
+                        <span class="icon">♿</span>Accessibility
+                    </a></li>
+                    <li><a href="#" class="nav-item" data-section="advanced">
+                        <span class="icon">🔧</span>Advanced
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="settings-content">
+            <!-- General Settings -->
+            <div class="settings-section active" id="general">
+                <h2 class="section-title">General Settings</h2>
+                <p class="section-subtitle">Configure basic application preferences</p>
+
+                <div class="setting-group">
+                    <h3>Startup Behavior</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Launch on system startup</h4>
+                            <p>Automatically start Stitch-It-Down when your computer starts</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default window to open</h4>
+                            <p>Which window should open when the app starts</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>Dashboard</option>
+                                <option>Timer</option>
+                                <option>Tasks</option>
+                                <option>Notes</option>
+                                <option>Calendar</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Window Management</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Always on top</h4>
+                            <p>Keep app windows above other applications</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Minimize to system tray</h4>
+                            <p>Hide the app in system tray instead of taskbar</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Data Management</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Auto-save interval</h4>
+                            <p>How often to automatically save your work</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>30 seconds</option>
+                                <option selected>1 minute</option>
+                                <option>5 minutes</option>
+                                <option>Manual only</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Backup location</h4>
+                            <p>Where to store automatic backups</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary">Choose Folder</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Settings -->
+            <div class="settings-section" id="timer">
+                <h2 class="section-title">Timer Settings</h2>
+                <p class="section-subtitle">Configure Pomodoro and focus session preferences</p>
+
+                <div class="setting-group">
+                    <h3>Pomodoro Configuration</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Work session duration</h4>
+                            <p>Length of focused work sessions</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" class="input-control" value="25" min="1" max="120">
+                            <span>minutes</span>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Short break duration</h4>
+                            <p>Length of short breaks between work sessions</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" class="input-control" value="5" min="1" max="30">
+                            <span>minutes</span>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Long break duration</h4>
+                            <p>Length of long breaks after 4 work sessions</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" class="input-control" value="15" min="1" max="60">
+                            <span>minutes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Notifications</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Sound notifications</h4>
+                            <p>Play sound when timer starts/stops</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Notification sound</h4>
+                            <p>Choose timer notification sound</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>Bell</option>
+                                <option>Chime</option>
+                                <option>Ding</option>
+                                <option>Custom...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Focus Features</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Do Not Disturb mode</h4>
+                            <p>Block notifications during work sessions</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Website blocking</h4>
+                            <p>Block distracting websites during focus time</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary">Configure</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Settings -->
+            <div class="settings-section" id="tasks">
+                <h2 class="section-title">Task Management</h2>
+                <p class="section-subtitle">Customize task organization and productivity tracking</p>
+
+                <div class="setting-group">
+                    <h3>Task Organization</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default priority level</h4>
+                            <p>Priority assigned to new tasks</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                                <option>Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default sort order</h4>
+                            <p>How tasks are sorted in the list</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option selected>Due date</option>
+                                <option>Priority</option>
+                                <option>Creation date</option>
+                                <option>Alphabetical</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Reminders</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Due date reminders</h4>
+                            <p>When to show reminders for upcoming tasks</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>1 day before</option>
+                                <option selected>3 days before</option>
+                                <option>1 week before</option>
+                                <option>Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Daily task goals</h4>
+                            <p>Target number of tasks to complete daily</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" class="input-control" value="5" min="1" max="50">
+                            <span>tasks</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Productivity Tracking</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Time estimation</h4>
+                            <p>Allow time estimates for tasks</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Completion tracking</h4>
+                            <p>Track task completion statistics</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Settings -->
+            <div class="settings-section" id="notes">
+                <h2 class="section-title">Notes Settings</h2>
+                <p class="section-subtitle">Configure note-taking preferences and organization</p>
+
+                <div class="setting-group">
+                    <h3>Editor Preferences</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default font</h4>
+                            <p>Font family for note editing</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>System Default</option>
+                                <option selected>Inter</option>
+                                <option>Roboto</option>
+                                <option>Courier New</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Font size</h4>
+                            <p>Default font size for notes</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" class="input-control" value="14" min="8" max="24">
+                            <span>px</span>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Markdown support</h4>
+                            <p>Enable markdown formatting in notes</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Auto-features</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Spell check</h4>
+                            <p>Check spelling while typing</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Auto-save notes</h4>
+                            <p>Automatically save notes while typing</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Settings -->
+            <div class="settings-section" id="calendar">
+                <h2 class="section-title">Calendar Settings</h2>
+                <p class="section-subtitle">Customize calendar display and event management</p>
+
+                <div class="setting-group">
+                    <h3>Display Options</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default view</h4>
+                            <p>Calendar view shown on startup</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>Week</option>
+                                <option selected>Month</option>
+                                <option>Agenda</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Week starts on</h4>
+                            <p>First day of the week</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>Sunday</option>
+                                <option selected>Monday</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Time format</h4>
+                            <p>Display time in 12-hour or 24-hour format</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option selected>12-hour</option>
+                                <option>24-hour</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Event Management</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default event duration</h4>
+                            <p>Standard length for new events</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>30 minutes</option>
+                                <option selected>1 hour</option>
+                                <option>2 hours</option>
+                                <option>Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default reminder</h4>
+                            <p>Default reminder time for events</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>5 minutes</option>
+                                <option selected>15 minutes</option>
+                                <option>30 minutes</option>
+                                <option>1 hour</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Settings -->
+            <div class="settings-section" id="integration">
+                <h2 class="section-title">Integration Settings</h2>
+                <p class="section-subtitle">Connect features and sync with external services</p>
+
+                <div class="setting-group">
+                    <h3>Cross-Feature Integration</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Link tasks to calendar</h4>
+                            <p>Automatically create calendar events from tasks with due dates</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Timer integration</h4>
+                            <p>Start timer directly from tasks</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Note linking</h4>
+                            <p>Link notes to specific tasks or events</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>External Services</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Google Calendar sync</h4>
+                            <p>Sync with Google Calendar</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary">Connect</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Cloud backup</h4>
+                            <p>Backup data to cloud storage</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary">Configure</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessibility Settings -->
+            <div class="settings-section" id="accessibility">
+                <h2 class="section-title">Accessibility Settings</h2>
+                <p class="section-subtitle">Configure accessibility features for better usability</p>
+
+                <div class="setting-group">
+                    <h3>Visual Accessibility</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>High contrast mode</h4>
+                            <p>Enhanced visibility for users with vision impairments</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Global font scaling</h4>
+                            <p>Adjust text size throughout the app</p>
+                        </div>
+                        <div class="setting-control">
+                            <select class="select-control">
+                                <option>Small</option>
+                                <option selected>Medium</option>
+                                <option>Large</option>
+                                <option>Extra Large</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Keyboard Navigation</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Enable keyboard shortcuts</h4>
+                            <p>Use keyboard shortcuts for common actions</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Quick add task</h4>
+                            <p>Keyboard shortcut to quickly add a task</p>
+                        </div>
+                        <div class="setting-control">
+                            <span class="keyboard-shortcut">Ctrl + N</span>
+                            <button class="button-control secondary">Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="settings-section" id="advanced">
+                <h2 class="section-title">Advanced Settings</h2>
+                <p class="section-subtitle">Technical preferences and data management</p>
+
+                <div class="setting-group">
+                    <h3>Performance</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Hardware acceleration</h4>
+                            <p>Use GPU acceleration for better performance</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Memory management</h4>
+                            <p>Automatic cleanup to optimize memory usage</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Data & Privacy</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Data encryption</h4>
+                            <p>Encrypt local data storage</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Anonymous analytics</h4>
+                            <p>Help improve the app by sharing anonymous usage data</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Crash reporting</h4>
+                            <p>Automatically send crash reports to help fix issues</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Export & Import</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Export data</h4>
+                            <p>Export all your data for backup or migration</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control">Export</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Import data</h4>
+                            <p>Import data from other productivity tools</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary">Import</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Reset all settings</h4>
+                            <p>Restore all settings to default values</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary" style="color: #dc3545; border-color: #dc3545;">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>About</h3>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Version</h4>
+                            <p>Stitch-It-Down v1.2.3</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary">Check for Updates</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>License</h4>
+                            <p>View software license and terms</p>
+                        </div>
+                        <div class="setting-control">
+                            <button class="button-control secondary">View License</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all nav items and sections
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.settings-section').forEach(section => section.classList.remove('active'));
+                
+                // Add active class to clicked nav item
+                item.classList.add('active');
+                
+                // Show corresponding section
+                const sectionId = item.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
+
+        // Toggle switch functionality
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+            });
+        });
+
+        // Color picker functionality
+        document.querySelectorAll('.color-picker').forEach(picker => {
+            picker.addEventListener('input', (e) => {
+                // Handle color change
+                console.log('Color changed to:', e.target.value);
+            });
+        });
+
+        // Button click handlers
+        document.querySelectorAll('.button-control').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const buttonText = e.target.textContent;
+                
+                // Handle different button actions
+                switch(buttonText) {
+                    case 'Choose Folder':
+                        // Simulate folder selection
+                        alert('Folder selection dialog would open here');
+                        break;
+                    case 'Configure':
+                        // Simulate configuration dialog
+                        alert('Configuration dialog would open here');
+                        break;
+                    case 'Connect':
+                        // Simulate service connection
+                        alert('Service connection dialog would open here');
+                        break;
+                    case 'Export':
+                        // Simulate data export
+                        alert('Data export would start here');
+                        break;
+                    case 'Import':
+                        // Simulate data import
+                        alert('Data import dialog would open here');
+                        break;
+                    case 'Reset':
+                        // Simulate settings reset
+                        if (confirm('Are you sure you want to reset all settings to default?')) {
+                            alert('Settings have been reset to default values');
+                        }
+                        break;
+                    case 'Check for Updates':
+                        // Simulate update check
+                        alert('Checking for updates...');
+                        break;
+                    case 'View License':
+                        // Simulate license view
+                        alert('License dialog would open here');
+                        break;
+                    case 'Edit':
+                        // Simulate keyboard shortcut editing
+                        alert('Keyboard shortcut editor would open here');
+                        break;
+                    default:
+                        console.log('Button clicked:', buttonText);
+                }
+            });
+        });
+
+        // Input change handlers
+        document.querySelectorAll('.input-control').forEach(input => {
+            input.addEventListener('change', (e) => {
+                console.log('Input changed:', e.target.value);
+            });
+        });
+
+        // Select change handlers
+        document.querySelectorAll('.select-control').forEach(select => {
+            select.addEventListener('change', (e) => {
+                console.log('Selection changed:', e.target.value);
+            });
+        });
+
+        // Simulate some dynamic content updates
+        setTimeout(() => {
+            // Add some sample stats to demonstrate
+            const statsSection = document.getElementById('general');
+            if (statsSection) {
+                const statsGrid = document.createElement('div');
+                statsGrid.className = 'stats-grid';
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">127</div>
+                        <div class="stat-label">Tasks Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">45h</div>
+                        <div class="stat-label">Focus Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">89%</div>
+                        <div class="stat-label">Goal Achievement</div>
+                    </div>
+                `;
+                
+                const newGroup = document.createElement('div');
+                newGroup.className = 'setting-group';
+                newGroup.innerHTML = '<h3>Your Productivity Stats</h3>';
+                newGroup.appendChild(statsGrid);
+                
+                statsSection.appendChild(newGroup);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
