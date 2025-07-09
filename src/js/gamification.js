@@ -431,24 +431,24 @@ class GamificationUI {
         <div class="level-display">
           <span class="level-number">${level}</span>
           <div class="xp-bar">
-            <div class="xp-fill" style="width: 0%"></div>
+            <div class="xp-fill" style="width: ${xpProgress.percentage}%"></div>
             <span class="xp-text">${xpProgress.current}/${xpProgress.required} XP</span>
           </div>
         </div>
         
         <div class="streak-display">
           <div class="streak-item">
-            <span class="streak-icon">🔥</span>
+            <span class="streak-icon"><i class="bi bi-fire"></i></span>
             <span class="streak-count" data-streak="daily">${streaks.daily.count}</span>
             <span class="streak-label">Day</span>
           </div>
           <div class="streak-item">
-            <span class="streak-icon">✅</span>
+            <span class="streak-icon"><i class="bi bi-check-square"></i></span>
             <span class="streak-count" data-streak="tasks">${streaks.tasks.count}</span>
             <span class="streak-label">Tasks</span>
           </div>
           <div class="streak-item">
-            <span class="streak-icon">📝</span>
+            <span class="streak-icon"><i class="bi bi bi-journal-text"></i></span>
             <span class="streak-count" data-streak="notes">${streaks.notes.count}</span>
             <span class="streak-label">Notes</span>
           </div>

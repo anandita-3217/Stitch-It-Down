@@ -1,4 +1,4 @@
- /* Settings Toggle - moved to bottom */
+
 .settings-toggle {
     position: fixed;
     bottom: 2rem;
@@ -26,7 +26,6 @@
     box-shadow: 0 6px 16px var(--shadow-hover);
 }
 
-/* Settings Panel */
 .settings-panel {
     position: fixed;
     top: 0;
@@ -100,7 +99,7 @@
     accent-color: var(--dark-purple);
 }
 
-/* Timer Container */
+
 .timer-container {
     display: flex;
     flex-direction: column;
@@ -118,7 +117,6 @@
 
 .timer-container.work {
     background: linear-gradient(135deg, var(--primary-purple) 0%, var(--medium-purple) 100%);
-    /* background-color: var(--card-bg); */
     border: 2px solid var(--border-color);
     border-radius: 15px;
     color: var(--white);
@@ -139,7 +137,6 @@
     50% { transform: scale(1.02); }
 }
 
-/* Progress Ring */
 .progress-ring {
     position: relative;
     margin: 2rem 0;
@@ -157,7 +154,7 @@
 
 .progress-ring-progress {
     transition: stroke-dashoffset 0.3s ease;
-    stroke-dasharray: 816; /* 2 * π * 130 */
+    stroke-dasharray: 816;
     stroke-dashoffset: 816;
     stroke: var(--dark-purple);
 }
@@ -170,7 +167,6 @@
     stroke: var(--dark-purple);
 }
 
-/* Timer Display */
 .timer-display {
     position: absolute;
     top: 50%;
@@ -204,7 +200,6 @@
     color: inherit;
 }
 
-/* Stitch Character */
 .stitch-container {
     position: relative;
     margin: 2rem 0;
@@ -257,7 +252,6 @@
     border-bottom: 8px solid var(--card-bg);
 }
 
-/* Session Controls */
 .session-controls {
     display: flex;
     gap: 1rem;
@@ -309,7 +303,6 @@
     opacity: 0.9;
 }
 
-/* Timer Controls */
 .timer-controls {
     display: flex;
     gap: 1rem;
@@ -380,7 +373,6 @@
     font-size: 1.2rem;
 }
 
-/* Stats Display */
 .stats-mini {
     display: flex;
     gap: 2rem;
@@ -412,23 +404,8 @@
     color: var(--dark-purple);
 }
 
-/* Motivation Text */
-.daily-quote {
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin: 2rem 0;
-    opacity: 0.9;
-    background: var(--card-bg);
-    color: var(--text-primary);
-    padding: 1rem 2rem;
-    border-radius: 25px;
-    border: 2px solid var(--border-color);
-    box-shadow: 0 4px 12px var(--shadow);
-    max-width: 300px;
-}
 
-/* Error Boundary */
+
 #errorBoundary {
     position: fixed;
     top: 50%;
@@ -466,7 +443,6 @@
     color: var(--white);
 }
 
-/* Shortcuts Panel */
 .shortcuts-info {
     position: fixed;
     bottom: 2rem;
@@ -551,7 +527,7 @@
     0%, 100% { box-shadow: 0 4px 15px var(--shadow-hover); }
     50% { box-shadow: 0 4px 25px var(--shadow-hover); }
 }
-/* Responsive Design */
+
 @media (max-width: 768px) {
     .timer-container {
         padding: 1rem;
@@ -595,7 +571,7 @@
         display: none;
     }
 
-    /* Adjust settings toggle position for mobile */
+
     .settings-toggle {
         bottom: 1rem;
         right: 1rem;
@@ -625,10 +601,10 @@
         padding: 0.6rem 1rem;
     }
 
-    /* Further adjust settings toggle for small screens */
+
     .settings-toggle {
         width: 45px;
         height: 45px;
         font-size: 1.1rem;
     }
-}
+} 
