@@ -118,11 +118,15 @@
 
 .timer-container.work {
     background: linear-gradient(135deg, var(--primary-purple) 0%, var(--medium-purple) 100%);
+    /* background-color: var(--card-bg); */
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
     color: var(--white);
 }
 
 .timer-container.break {
     background: linear-gradient(135deg, var(--dark-blue) 0%, var(--darker-blue) 100%);
+    border: 2px solid var(--border-color);
     color: var(--white);
 }
 
@@ -413,7 +417,7 @@
 }
 
 /* Motivation Text */
-.motivation-text {
+.daily-quote {
     text-align: center;
     font-size: 1.1rem;
     font-weight: 500;

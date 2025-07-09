@@ -323,7 +323,7 @@ body {
     text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }
 
-.feature-buttons{
+/* .feature-buttons{
     width: 100%;
     background-color: var(--card-bg);
     border-radius: 20px;
@@ -345,14 +345,68 @@ body {
     width: 75px;
     background-color: var(--card-bg);
     border-radius: 12px;
-    border: 2px solid var(--dark-blue);
+    border: 2px solid var(--border-color);
     color: var(--text-primary);
     cursor: pointer;
 }
 .feature-button:hover{
     transform: scale(1.02);
-    color: var(--dark-purple);
     color: var(--info-hover);
+} */
+
+.feature-buttons {
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: 20px;
+    padding: 20px 25px;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 8px 16px var(--shadow);
+    transition: all 0.3s ease;
+    max-height: 240px;
+    height: 240px;
+    gap: 12px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+}
+
+.feature-button {
+    height: 75px;
+    width: 75px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px;
+    transition: all 0.2s ease;
+}
+
+.feature-button:hover {
+    transform: scale(1.02);
+    color: var(--info-hover);
+    border-color: var(--info-hover);
+}
+
+.feature-button-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.feature-button-text {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .daily-quote-section {
     max-width: 800px;

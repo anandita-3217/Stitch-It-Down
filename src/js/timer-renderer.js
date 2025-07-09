@@ -122,6 +122,7 @@ function cleanupTimer() {
 // Main initialization function
 function initialize() {
     loadAllImages(); // Load all images including random gif
+    setDailyQuote();
     initTheme();
     initializeTimer();
 }
