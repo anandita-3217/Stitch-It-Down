@@ -13,6 +13,69 @@
 .empty-icon::after {
     content: "🏝️";
 }
+.add-note {
+    display: flex;
+    gap: 12px;
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--shadow);
+    margin-bottom: 24px;
+    transition: background-color 0.3s ease;
+}
+
+.addNote {
+    flex: 1;
+    padding: 14px 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.addNote::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.addNote:focus {
+    border-color: var(--dark-purple);
+    box-shadow: 0 0 0 3px rgba(103, 53, 232, 0.1);
+}
+
+[data-theme="dark"] .addNote:focus {
+    box-shadow: 0 0 0 3px rgba(136, 84, 255, 0.2);
+}
+
+.AddNote {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.AddNote:hover {
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 6px 16px var(--shadow-hover);
+}
+
+.AddNote:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
 
 .search-container {
   margin-bottom: 1.5rem;

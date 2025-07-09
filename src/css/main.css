@@ -352,6 +352,7 @@ body {
 .feature-button:hover{
     transform: scale(1.02);
     color: var(--dark-purple);
+    color: var(--info-hover);
 }
 .daily-quote-section {
     max-width: 800px;

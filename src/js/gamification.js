@@ -431,7 +431,7 @@ class GamificationUI {
         <div class="level-display">
           <span class="level-number">${level}</span>
           <div class="xp-bar">
-            <div class="xp-fill" style="width: ${xpProgress.percentage}%"></div>
+            <div class="xp-fill" style="width: 43%"></div>
             <span class="xp-text">${xpProgress.current}/${xpProgress.required} XP</span>
           </div>
         </div>
