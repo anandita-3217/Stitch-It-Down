@@ -104,6 +104,38 @@
     --primary-hover: var(--darker-blue);
     --primary-rgb: 106, 182, 255;
 }
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--info-hover);
+    transform: scale(1.02);
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--card-bg);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) var(--card-bg);
+}
+
 
 * {
     margin: 0;
@@ -322,37 +354,6 @@ body {
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }
-
-/* .feature-buttons{
-    width: 100%;
-    background-color: var(--card-bg);
-    border-radius: 20px;
-    padding: 20px 25px; 
-    border: 2px solid var(--border-color);
-    box-shadow: 0 8px 16px var(--shadow);
-    transition: all 0.3s ease;
-    max-height: 240px; 
-    height: 240px;
-    gap: 12px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    justify-items: center;
-    
-}
-.feature-button{
-    height: 75px;
-    width: 75px;
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    color: var(--text-primary);
-    cursor: pointer;
-}
-.feature-button:hover{
-    transform: scale(1.02);
-    color: var(--info-hover);
-} */
 
 .feature-buttons {
     width: 100%;
