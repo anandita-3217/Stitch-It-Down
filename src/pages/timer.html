@@ -106,13 +106,6 @@
             </div>
         </div>
         
-        <!-- Stitch Character -->
-        <div class="stitch-container">
-            <img id="stitchTimer"  alt="Stitch" class="stitch-character">
-            <div class="speech-bubble">
-                <div id="stitchSpeech">Let's get productive!</div>
-            </div>
-        </div>
         
         <!-- Session Selection -->
         <div class="session-controls">
@@ -148,6 +141,13 @@
             </button>
         </div>
         
+        <!-- Stitch Character -->
+        <div class="stitch-container">
+            <img id="stitchTimer"  alt="Stitch" class="stitch-character">
+            <div class="speech-bubble">
+                <div id="stitchSpeech">Let's get productive!</div>
+            </div>
+        </div>
         <!-- Settings Panel -->
         <div class="settings-panel" id="settingsPanel">
             <div class="settings-header">
@@ -161,10 +161,22 @@
                     <input type="range" id="workDuration" min="1" max="60" value="25">
                     <span id="workValue">25</span>
                 </div>
-                
+                <!-- Short Break Duration -->
+            <div class="setting-group">
+                <label for="shortBreakDuration">Short Break Duration</label>
+                <input type="range" id="shortBreakDuration" min="1" max="30" value="5">
+                <span id="shortBreakValue">5</span> min
+            </div>
+
+            <!-- Long Break Duration -->
+            <div class="setting-group">
+                <label for="longBreakDuration">Long Break Duration</label>
+                <input type="range" id="longBreakDuration" min="5" max="60" value="15">
+                <span id="longBreakValue">15</span> min
+            </div>
                 <div class="setting-group">
                     <label>
-                        <input type="checkbox" id="autoStart"> Auto-start breaks and sessions
+                       <input type="checkbox" id="autoStart"> Auto-start breaks and sessions
                     </label>
                 </div>
                 

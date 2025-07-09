@@ -56,7 +56,7 @@ class PomodoroTimer {
             this.bindElements();
             this.bindEvents();
             this.loadSettings();
-            this.setDefaultSession(); // Add this line to set default session
+            this.setDefaultSession();
             this.updateDisplay();
             this.updateStats();
             console.log('PomodoroTimer initialized successfully');
@@ -119,7 +119,6 @@ class PomodoroTimer {
         });
     }
     
-    // Add this new method to set the default session
     setDefaultSession() {
         // Ensure we start with a work session as default
         this.currentSession = 'work';
@@ -169,7 +168,7 @@ class PomodoroTimer {
             this.closeSettings.addEventListener('click', () => this.toggleSettings());
         }
         
-        // Settings inputs
+        // Work duration settings
         const workDurationInput = document.getElementById('workDuration');
         if (workDurationInput) {
             workDurationInput.addEventListener('input', (e) => {
@@ -178,7 +177,54 @@ class PomodoroTimer {
                 if (workValue) {
                     workValue.textContent = e.target.value;
                 }
+                this.updateSessionButtonDuration('work', e.target.value);
                 if (this.currentSession === 'work') this.resetTimer();
+            });
+        }
+        
+        // Short break duration settings
+        const shortBreakDurationInput = document.getElementById('shortBreakDuration');
+        if (shortBreakDurationInput) {
+            shortBreakDurationInput.addEventListener('input', (e) => {
+                this.settings.shortBreak = parseInt(e.target.value);
+                const shortBreakValue = document.getElementById('shortBreakValue');
+                if (shortBreakValue) {
+                    shortBreakValue.textContent = e.target.value;
+                }
+                this.updateSessionButtonDuration('short', e.target.value);
+                if (this.currentSession === 'short') this.resetTimer();
+            });
+        }
+        
+        // Long break duration settings
+        const longBreakDurationInput = document.getElementById('longBreakDuration');
+        if (longBreakDurationInput) {
+            longBreakDurationInput.addEventListener('input', (e) => {
+                this.settings.longBreak = parseInt(e.target.value);
+                const longBreakValue = document.getElementById('longBreakValue');
+                if (longBreakValue) {
+                    longBreakValue.textContent = e.target.value;
+                }
+                this.updateSessionButtonDuration('long', e.target.value);
+                if (this.currentSession === 'long') this.resetTimer();
+            });
+        }
+        
+        // Auto-start setting
+        const autoStartInput = document.getElementById('autoStart');
+        if (autoStartInput) {
+            autoStartInput.addEventListener('change', (e) => {
+                this.settings.autoStart = e.target.checked;
+                this.saveSettings();
+            });
+        }
+        
+        // Sound notifications setting
+        const soundNotificationsInput = document.getElementById('soundNotifications');
+        if (soundNotificationsInput) {
+            soundNotificationsInput.addEventListener('change', (e) => {
+                this.settings.soundNotifications = e.target.checked;
+                this.saveSettings();
             });
         }
         
@@ -189,6 +235,32 @@ class PomodoroTimer {
                 this.toggleTimer();
             }
         });
+    }
+    
+    // New method to update session button duration
+    updateSessionButtonDuration(sessionType, duration) {
+        if (this.sessionBtns && this.sessionBtns.length > 0) {
+            const sessionBtn = Array.from(this.sessionBtns).find(btn => 
+                btn.dataset.type === sessionType
+            );
+            if (sessionBtn) {
+                sessionBtn.dataset.duration = duration;
+                // Update the button text if it shows duration
+                const durationText = sessionBtn.querySelector('.duration-text');
+                if (durationText) {
+                    durationText.textContent = `${duration}m`;
+                }
+            }
+        }
+    }
+    
+    // New method to save settings
+    saveSettings() {
+        try {
+            localStorage.setItem('pomodoroSettings', JSON.stringify(this.settings));
+        } catch (error) {
+            console.warn('Could not save settings to localStorage:', error);
+        }
     }
     
     toggleTimer() {
@@ -273,51 +345,52 @@ class PomodoroTimer {
             this.sessionCount++;
             
             if (this.sessionCount % 4 === 0) {
-                this.switchSession({ target: { dataset: { type: 'long', duration: '15' } } });
+                this.switchSession({ target: { dataset: { type: 'long', duration: this.settings.longBreak.toString() } } });
             } else {
-                this.switchSession({ target: { dataset: { type: 'short', duration: '5' } } });
+                this.switchSession({ target: { dataset: { type: 'short', duration: this.settings.shortBreak.toString() } } });
             }
         } else {
-            this.switchSession({ target: { dataset: { type: 'work', duration: '25' } } });
+            this.switchSession({ target: { dataset: { type: 'work', duration: this.settings.work.toString() } } });
         }
         
         if (this.settings.autoStart) {
             setTimeout(() => this.startTimer(), 1000);
         }
     }
+    
     switchSession(e) {
-    const clickedButton = e.target.closest('.session-btn'); // Use closest to handle clicks on child elements
-    
-    // If the clicked button is already active, don't allow deactivation
-    if (clickedButton && clickedButton.classList.contains('active')) {
-        return; // Exit early, keeping the current active state
-    }
-    
-    const type = clickedButton.dataset.type;
-    const duration = parseInt(clickedButton.dataset.duration);
-    
-    this.currentSession = type;
-    this.currentTime = duration * 60;
-    this.totalTime = this.currentTime;
-    
-    // Update active button - add null check
-    if (this.sessionBtns && this.sessionBtns.length > 0) {
-        this.sessionBtns.forEach(btn => btn.classList.remove('active'));
-        if (clickedButton && clickedButton.classList) {
-            clickedButton.classList.add('active');
+        const clickedButton = e.target.closest('.session-btn');
+        
+        // If the clicked button is already active, don't allow deactivation
+        if (clickedButton && clickedButton.classList.contains('active')) {
+            return;
+        }
+        
+        const type = clickedButton.dataset.type;
+        const duration = parseInt(clickedButton.dataset.duration);
+        
+        this.currentSession = type;
+        this.currentTime = duration * 60;
+        this.totalTime = this.currentTime;
+        
+        // Update active button
+        if (this.sessionBtns && this.sessionBtns.length > 0) {
+            this.sessionBtns.forEach(btn => btn.classList.remove('active'));
+            if (clickedButton && clickedButton.classList) {
+                clickedButton.classList.add('active');
+            }
+        }
+        
+        // Update UI theme
+        this.updateTheme();
+        this.updateDisplay();
+        this.updateProgress();
+        this.updateStitchState('ready');
+        
+        if (this.isRunning) {
+            this.pauseTimer();
         }
     }
-    
-    // Update UI theme
-    this.updateTheme();
-    this.updateDisplay();
-    this.updateProgress();
-    this.updateStitchState('ready');
-    
-    if (this.isRunning) {
-        this.pauseTimer();
-    }
-}
     
     updateDisplay() {
         const minutes = Math.floor(this.currentTime / 60);
@@ -339,7 +412,6 @@ class PomodoroTimer {
         }
         
         if (this.sessionCountEl) {
-            // Ensure sessionCount is always a valid number
             const displayCount = this.sessionCount && this.sessionCount > 0 ? this.sessionCount : 1;
             this.sessionCountEl.textContent = displayCount;
         }
@@ -461,9 +533,47 @@ class PomodoroTimer {
         try {
             const saved = JSON.parse(localStorage.getItem('pomodoroSettings') || '{}');
             this.settings = { ...this.settings, ...saved };
+            
+            // Update UI elements with loaded settings
+            this.updateSettingsUI();
+            
+            // Update session button durations
+            this.updateSessionButtonDuration('work', this.settings.work);
+            this.updateSessionButtonDuration('short', this.settings.shortBreak);
+            this.updateSessionButtonDuration('long', this.settings.longBreak);
+            
         } catch (error) {
             console.warn('Could not load settings from localStorage:', error);
         }
+    }
+    
+    // New method to update settings UI
+    updateSettingsUI() {
+        // Update work duration
+        const workDurationInput = document.getElementById('workDuration');
+        const workValue = document.getElementById('workValue');
+        if (workDurationInput) workDurationInput.value = this.settings.work;
+        if (workValue) workValue.textContent = this.settings.work;
+        
+        // Update short break duration
+        const shortBreakDurationInput = document.getElementById('shortBreakDuration');
+        const shortBreakValue = document.getElementById('shortBreakValue');
+        if (shortBreakDurationInput) shortBreakDurationInput.value = this.settings.shortBreak;
+        if (shortBreakValue) shortBreakValue.textContent = this.settings.shortBreak;
+        
+        // Update long break duration
+        const longBreakDurationInput = document.getElementById('longBreakDuration');
+        const longBreakValue = document.getElementById('longBreakValue');
+        if (longBreakDurationInput) longBreakDurationInput.value = this.settings.longBreak;
+        if (longBreakValue) longBreakValue.textContent = this.settings.longBreak;
+        
+        // Update auto-start setting
+        const autoStartInput = document.getElementById('autoStart');
+        if (autoStartInput) autoStartInput.checked = this.settings.autoStart;
+        
+        // Update sound notifications setting
+        const soundNotificationsInput = document.getElementById('soundNotifications');
+        if (soundNotificationsInput) soundNotificationsInput.checked = this.settings.soundNotifications;
     }
     
     playNotificationSound() {
