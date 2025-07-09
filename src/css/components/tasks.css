@@ -440,7 +440,7 @@
 }
 
 .task-item.priority-low {
-    border-left: 4px solid var(--text-secondary);
+    border-left: 4px solid #6ab6ff;
 }
 
 [data-theme="light"] .task-item.priority-low {
