@@ -107,7 +107,10 @@
     justify-content: center;
     min-height: 100vh;
     padding: 2rem;
-    background: linear-gradient(135deg, var(--light-bg) 0%, var(--card-bg) 100%);
+    /* background: linear-gradient(135deg, var(--light-bg) 0%, var(--card-bg) 100%); */
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
     color: var(--text-primary);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     position: relative;
@@ -115,12 +118,10 @@
     transition: background 0.3s ease;
 }
 
-.timer-container.work {
-    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--medium-purple) 100%);
-    border: 2px solid var(--border-color);
-    border-radius: 15px;
-    color: var(--white);
+.timer-container.work .progress-ring-progress {
+    stroke: linear-gradient(135deg, var(--primary-purple) 0%, var(--medium-purple) 100%);
 }
+
 
 .timer-container.break {
     background: linear-gradient(135deg, var(--dark-blue) 0%, var(--darker-blue) 100%);
