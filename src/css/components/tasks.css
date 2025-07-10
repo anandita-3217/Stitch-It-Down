@@ -296,7 +296,7 @@
 }
 
 .task-item:hover {
-    transform: translateY(-5px);
+    transform: scale(1.01);
     box-shadow: 0 12px 35px var(--shadow-hover);
 }
 
@@ -673,6 +673,7 @@
 .modal-actions button[data-action="save"]:hover {
     background: var(--dark-blue);
     border-color: var(--dark-blue);
+    box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.4);
 }
 
 .modal-actions button[data-action="cancel"] {

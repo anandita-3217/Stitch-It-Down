@@ -106,15 +106,12 @@ function createEventModal() {
                         </div>
                         <div class="cal-form-actions">
                             <button type="button" id="saveEvent" class="cal-btn btn-primary">
-                                <i class="bi bi-check-lg"></i>
                                 Save Event
                             </button>
-                            <button type="button" id="deleteEvent" class="cal-btn btn-danger" style="display: none;">
-                                <i class="bi bi-trash"></i>
+                            <button type="button" id="deleteEvent" class="cal-btn btn-secondary" style="display: none;">
                                 Delete Event
                             </button>
                             <button type="button" id="cancelEvent" class="cal-btn btn-secondary">
-                                <i class="bi bi-x-lg"></i>
                                 Cancel
                             </button>
                         </div>
@@ -149,11 +146,9 @@ function createQuickAddModal() {
                     </div>
                     <div class="cal-form-actions">
                         <button type="button" id="parseEvent" class="cal-btn btn-primary">
-                            <i class="bi bi-plus-circle"></i>
-                            Create Event
+                            Create Quick Event
                         </button>
                         <button type="button" id="cancelQuickAdd" class="cal-btn btn-secondary">
-                            <i class="bi bi-x-lg"></i>
                             Cancel
                         </button>
                     </div>
