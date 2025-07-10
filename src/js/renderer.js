@@ -1,5 +1,172 @@
+// // renderer.js
+// // CSS imports
+// import '@css/main.css';
+// import '@css/components/sidebar.css';
+// import '@components/sidebar.js';
+// import {setImage,setDailyQuote,setRandomGif,loadAllImages,initTheme,setTheme,toggleTheme,updateDate,updateClock} from '@components/utils.js';
+// import { GamificationSystem, GamificationUI } from '@js/gamification';
+// import '@css//gamification.css';
+// import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// function initializeApp() {
+//     console.log('Initializing Stitch Productivity Tool...');
+//     loadAllImages();
+//     initTheme();
+//     setDailyQuote();
+//     updateDate();
+//     // Set up event listeners
+//     setupEventListeners();
+//     console.log('App initialized successfully!');
+// }
+
+// function setSidebarGif() {
+//     // Sets a random gif everytime the app starts
+//     const gifId = 'stitch-mood-gif'; // Your <img> ID
+//     const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
+//     setImage(gifId, 'gifs', randomKey);
+// }
+
+// function setupEventListeners() {
+//     console.log('Setting up event listeners...');
+    
+//     // Set up navigation for feature buttons
+//     setupNavigationListeners();
+    
+//     // Add any additional event listeners here
+    
+//     // Example: Add refresh quote button if it exists
+//     const refreshQuoteBtn = document.getElementById('refresh-quote');
+//     if (refreshQuoteBtn) {
+//         refreshQuoteBtn.addEventListener('click', () => {
+//             // Force refresh the quote
+//             dailyQuoteState.date = null;
+//             setDailyQuote();
+//         });
+//     }
+    
+//     // Example: Add random gif refresh buttons
+//     const refreshTimerGif = document.getElementById('refresh-timer-gif');
+//     if (refreshTimerGif) {
+//         refreshTimerGif.addEventListener('click', setRandomGif);
+//     }
+    
+//     const refreshSidebarGif = document.getElementById('refresh-sidebar-gif');
+//     if (refreshSidebarGif) {
+//         refreshSidebarGif.addEventListener('click', setSidebarGif);
+//     }
+// }
+
+// function setupNavigationListeners() {
+//     console.log('Setting up navigation listeners...');
+    
+//     // Handle feature button clicks
+//     const featureButtons = document.querySelectorAll('.feature-button[data-page]');
+//     featureButtons.forEach(button => {
+//         button.addEventListener('click', async (event) => {
+//             event.preventDefault();
+//             const pageName = button.getAttribute('data-page');
+//             console.log(`Navigating to page: ${pageName}`);
+            
+//             // Add visual feedback
+//             button.classList.add('loading');
+            
+//             try {
+//                 // Use the electronAPI to navigate
+//                 await window.electronAPI.navigateTo(pageName);
+//                 console.log(`Successfully navigated to ${pageName}`);
+//             } catch (error) {
+//                 console.error(`Failed to navigate to ${pageName}:`, error);
+//                 // You could show an error message to the user here
+//             } finally {
+//                 // Remove loading state
+//                 button.classList.remove('loading');
+//             }
+//         });
+//     });
+    
+//     // Handle sidebar menu clicks
+//     const menuItems = document.querySelectorAll('.menu-item[data-page]');
+//     menuItems.forEach(item => {
+//         item.addEventListener('click', async (event) => {
+//             event.preventDefault();
+//             const pageName = item.getAttribute('data-page');
+            
+//             // Skip if clicking on dashboard (current page)
+//             if (pageName === 'index') {
+//                 return;
+//             }
+            
+//             console.log(`Navigating to page from sidebar: ${pageName}`);
+            
+//             // Update active state
+//             document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+//             item.classList.add('active');
+            
+//             try {
+//                 await window.electronAPI.navigateTo(pageName);
+//                 console.log(`Successfully navigated to ${pageName}`);
+//             } catch (error) {
+//                 console.error(`Failed to navigate to ${pageName}:`, error);
+//                 // Revert active state on error
+//                 document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+//                 document.querySelector('.menu-item[data-page="index"]').classList.add('active');
+//             }
+//         });
+//     });
+// }
+
+// // Initialize gamification system
+// const gamification = new GamificationSystem();
+// const gamificationUI = new GamificationUI(gamification);
+
+// // Add gamification widget to main page
+// document.addEventListener('DOMContentLoaded', () => {
+//     const mainContainer = document.getElementById('main-container');
+//     const gamificationWidget = document.createElement('div');
+//     gamificationWidget.innerHTML = gamificationUI.createStatsWidget();
+//     mainContainer.appendChild(gamificationWidget);
+    
+//     // Update widget every 30 seconds
+//     setInterval(() => {
+//         gamificationWidget.innerHTML = gamificationUI.createStatsWidget();
+//     }, 30000);
+// });
+
+// // Export functions for potential use in other modules
+// if (typeof module !== 'undefined' && module.exports) {
+//     module.exports = {
+//         initializeApp,
+//         setTheme,
+//         toggleTheme,
+//         setImage,
+//         setRandomGif,
+//         setSidebarGif
+//     };
+// }
+
+// // Initialize when DOM is ready
+// document.addEventListener('DOMContentLoaded', initializeApp);
+
+// // Handle window events
+// window.addEventListener('beforeunload', () => {
+//     console.log('Landing page unloading...');
+//     // Clean up any intervals or event listeners if needed
+// });
+
+// // Electron-specific: Handle renderer process errors
+// window.addEventListener('error', (error) => {
+//     console.error('Renderer process error:', error);
+// });
+
+// // Optional: Expose some functions to global scope for debugging
+// window.stitchApp = {
+//     setTheme,
+//     toggleTheme,
+//     setRandomGif,
+//     setSidebarGif,
+//     navigateTo: (pageName) => window.electronAPI.navigateTo(pageName)
+// };
 // renderer.js
-// CSS imports
 import '@css/main.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
@@ -8,131 +175,223 @@ import { GamificationSystem, GamificationUI } from '@js/gamification';
 import '@css//gamification.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+// Global state to prevent multiple clicks
+let isNavigating = false;
+let navigationTimeout = null;
+
 function initializeApp() {
     console.log('Initializing Stitch Productivity Tool...');
     loadAllImages();
     initTheme();
     setDailyQuote();
     updateDate();
-    // Set up event listeners
     setupEventListeners();
     console.log('App initialized successfully!');
 }
 
 function setSidebarGif() {
-    // Sets a random gif everytime the app starts
-    const gifId = 'stitch-mood-gif'; // Your <img> ID
+    const gifId = 'stitch-mood-gif';
     const randomKey = gifKeys[Math.floor(Math.random() * gifKeys.length)];
     setImage(gifId, 'gifs', randomKey);
 }
 
 function setupEventListeners() {
     console.log('Setting up event listeners...');
-    
-    // Set up navigation for feature buttons
     setupNavigationListeners();
-    
-    // Add any additional event listeners here
-    
-    // Example: Add refresh quote button if it exists
+    setupUtilityListeners();
+}
+
+function setupUtilityListeners() {
     const refreshQuoteBtn = document.getElementById('refresh-quote');
     if (refreshQuoteBtn) {
-        refreshQuoteBtn.addEventListener('click', () => {
-            // Force refresh the quote
+        refreshQuoteBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
             dailyQuoteState.date = null;
             setDailyQuote();
         });
     }
-    
-    // Example: Add random gif refresh buttons
+
     const refreshTimerGif = document.getElementById('refresh-timer-gif');
     if (refreshTimerGif) {
-        refreshTimerGif.addEventListener('click', setRandomGif);
-    }
-    
+        refreshTimerGif.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setRandomGif();
+        });
+    }    
+
     const refreshSidebarGif = document.getElementById('refresh-sidebar-gif');
     if (refreshSidebarGif) {
-        refreshSidebarGif.addEventListener('click', setSidebarGif);
+        refreshSidebarGif.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setSidebarGif();
+        });
     }
 }
 
 function setupNavigationListeners() {
     console.log('Setting up navigation listeners...');
     
-    // Handle feature button clicks
+    // Handle feature buttons with single click
     const featureButtons = document.querySelectorAll('.feature-button[data-page]');
     featureButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
+        // Add single click listener (remove existing listener prevention - it's unnecessary)
+        button.addEventListener('click', handleFeatureButtonClick);
+        
+        // Prevent double-click from interfering
+        button.addEventListener('dblclick', (event) => {
             event.preventDefault();
-            const pageName = button.getAttribute('data-page');
-            console.log(`Navigating to page: ${pageName}`);
-            
-            // Add visual feedback
-            button.classList.add('loading');
-            
-            try {
-                // Use the electronAPI to navigate
-                await window.electronAPI.navigateTo(pageName);
-                console.log(`Successfully navigated to ${pageName}`);
-            } catch (error) {
-                console.error(`Failed to navigate to ${pageName}:`, error);
-                // You could show an error message to the user here
-            } finally {
-                // Remove loading state
-                button.classList.remove('loading');
-            }
+            event.stopPropagation();
         });
     });
-    
-    // Handle sidebar menu clicks
+
+    // Handle sidebar menu items
     const menuItems = document.querySelectorAll('.menu-item[data-page]');
     menuItems.forEach(item => {
-        item.addEventListener('click', async (event) => {
+        // Add single click listener
+        item.addEventListener('click', handleMenuItemClick);
+        
+        // Prevent double-click from interfering
+        item.addEventListener('dblclick', (event) => {
             event.preventDefault();
-            const pageName = item.getAttribute('data-page');
-            
-            // Skip if clicking on dashboard (current page)
-            if (pageName === 'index') {
-                return;
-            }
-            
-            console.log(`Navigating to page from sidebar: ${pageName}`);
-            
-            // Update active state
-            document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
-            item.classList.add('active');
-            
-            try {
-                await window.electronAPI.navigateTo(pageName);
-                console.log(`Successfully navigated to ${pageName}`);
-            } catch (error) {
-                console.error(`Failed to navigate to ${pageName}:`, error);
-                // Revert active state on error
-                document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
-                document.querySelector('.menu-item[data-page="index"]').classList.add('active');
-            }
+            event.stopPropagation();
         });
     });
+}
+
+async function handleFeatureButtonClick(event) {
+    // Prevent default behavior and stop propagation
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Prevent multiple rapid clicks with shorter timeout
+    if (isNavigating) {
+        return;
+    }
+    
+    const button = event.currentTarget;
+    const pageName = button.getAttribute('data-page');
+    
+    if (!pageName) {
+        console.error('No page name found on button');
+        return;
+    }
+    
+    console.log(`Feature button clicked: ${pageName}`);
+    
+    // Set navigation state
+    isNavigating = true;
+    
+    // Add loading state
+    button.classList.add('loading');
+    
+    try {
+        const result = await window.electronAPI.navigateTo(pageName);
+        
+        if (result && result.success) {
+            console.log(`Successfully navigated to ${pageName}`);
+        } else {
+            console.error(`Failed to navigate to ${pageName}:`, result?.message || 'Unknown error');
+        }
+    } catch (error) {
+        console.error(`Navigation error for ${pageName}:`, error);
+    } finally {
+        // Reset button state immediately
+        button.classList.remove('loading');
+        
+        // Reset navigation state after shorter delay
+        if (navigationTimeout) {
+            clearTimeout(navigationTimeout);
+        }
+        navigationTimeout = setTimeout(() => {
+            isNavigating = false;
+        }, 200);
+    }
+}
+
+async function handleMenuItemClick(event) {
+    // Prevent default behavior and stop propagation
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Prevent multiple rapid clicks
+    if (isNavigating) {
+        return;
+    }
+    
+    const item = event.currentTarget;
+    const pageName = item.getAttribute('data-page');
+    
+    if (!pageName || pageName === 'index') {
+        return;
+    }
+    
+    console.log(`Menu item clicked: ${pageName}`);
+    
+    // Set navigation state
+    isNavigating = true;
+    
+    // Update menu item active state
+    document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+    item.classList.add('active');
+    
+    try {
+        const result = await window.electronAPI.navigateTo(pageName);
+        
+        if (result && result.success) {
+            console.log(`Successfully navigated to ${pageName}`);
+        } else {
+            console.error(`Failed to navigate to ${pageName}:`, result?.message || 'Unknown error');
+            // Reset active state on error
+            document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+            const indexItem = document.querySelector('.menu-item[data-page="index"]');
+            if (indexItem) {
+                indexItem.classList.add('active');
+            }
+        }
+    } catch (error) {
+        console.error(`Navigation error for ${pageName}:`, error);
+        // Reset active state on error
+        document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+        const indexItem = document.querySelector('.menu-item[data-page="index"]');
+        if (indexItem) {
+            indexItem.classList.add('active');
+        }
+    } finally {
+        // Reset navigation state after shorter delay
+        if (navigationTimeout) {
+            clearTimeout(navigationTimeout);
+        }
+        navigationTimeout = setTimeout(() => {
+            isNavigating = false;
+        }, 200);
+    }
 }
 
 // Initialize gamification system
 const gamification = new GamificationSystem();
 const gamificationUI = new GamificationUI(gamification);
 
-// Add gamification widget to main page
+// Setup gamification widget
 document.addEventListener('DOMContentLoaded', () => {
     const mainContainer = document.getElementById('main-container');
-    const gamificationWidget = document.createElement('div');
-    gamificationWidget.innerHTML = gamificationUI.createStatsWidget();
-    mainContainer.appendChild(gamificationWidget);
-    
-    // Update widget every 30 seconds
-    setInterval(() => {
+    if (mainContainer) {
+        const gamificationWidget = document.createElement('div');
         gamificationWidget.innerHTML = gamificationUI.createStatsWidget();
-    }, 30000);
+        mainContainer.appendChild(gamificationWidget);
+        
+        // Update gamification stats periodically
+        setInterval(() => {
+            if (gamificationWidget && !document.hidden) {
+                gamificationWidget.innerHTML = gamificationUI.createStatsWidget();
+            }
+        }, 30000);
+    }
 });
 
-// Export functions for potential use in other modules
+// Module exports for testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         initializeApp,
@@ -140,29 +399,38 @@ if (typeof module !== 'undefined' && module.exports) {
         toggleTheme,
         setImage,
         setRandomGif,
-        setSidebarGif
+        setSidebarGif,
+        handleFeatureButtonClick,
+        handleMenuItemClick
     };
 }
 
-// Initialize when DOM is ready
+// Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeApp);
 
-// Handle window events
+// Handle page unload
 window.addEventListener('beforeunload', () => {
     console.log('Landing page unloading...');
-    // Clean up any intervals or event listeners if needed
+    isNavigating = false;
 });
 
-// Electron-specific: Handle renderer process errors
+// Handle renderer errors
 window.addEventListener('error', (error) => {
     console.error('Renderer process error:', error);
+    isNavigating = false;
 });
 
-// Optional: Expose some functions to global scope for debugging
+// Expose app functions globally
 window.stitchApp = {
     setTheme,
     toggleTheme,
     setRandomGif,
     setSidebarGif,
-    navigateTo: (pageName) => window.electronAPI.navigateTo(pageName)
+    navigateTo: async (pageName) => {
+        if (!isNavigating) {
+            return await window.electronAPI.navigateTo(pageName);
+        }
+        return { success: false, message: 'Navigation already in progress' };
+    },
+    isNavigating: () => isNavigating
 };
