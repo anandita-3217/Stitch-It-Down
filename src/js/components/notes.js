@@ -1090,6 +1090,82 @@ class NotesManager {
     }
 
     // FIXED: Proper expand/collapse functionality
+    // createNoteElement(note) {
+    //     const div = document.createElement('div');
+    //     div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
+        
+    //     const isLongNote = note.text.length > 200;
+    //     const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
+        
+    //     div.innerHTML = `
+    //         <div class="note-content">
+    //             <div class="note-header">
+    //                 ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
+    //                 <span class="note-category">${note.category}</span>
+    //                 <span class="note-word-count">${note.wordCount} words</span>
+    //             </div>
+    //             <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
+    //                 ${detectAndCreateLinks(isLongNote ? truncatedText : note.text)}
+    //                 ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
+    //             </div>
+    //             ${note.tags.length > 0 ? `
+    //                 <div class="note-tags">
+    //                     ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+    //                 </div>
+    //             ` : ''}
+    //         </div>
+    //         <div class="note-meta">
+    //             <div class="note-timestamp">
+    //                 Created: ${formatTimestamp(note.timestamp)}
+    //                 ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+    //             </div>
+    //         </div>
+    //         <div class="note-actions">
+    //             <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
+    //                 <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
+    //             </button>
+    //             <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
+    //                 <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
+    //             </button>
+    //             <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
+    //                 <i class="bi bi-pencil"></i>
+    //             </button>
+    //             <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
+    //                 <i class="bi bi-trash"></i>
+    //             </button>
+    //         </div>
+    //     `;
+
+    //     // FIXED: Proper expand/collapse functionality using arrow function to avoid 'arguments.callee'
+    //     const expandBtn = div.querySelector('.expand-note-btn');
+    //     const noteTextDiv = div.querySelector('.note-text');
+        
+    //     if (expandBtn && noteTextDiv) {
+    //         // Create a reusable toggle function
+    //         const toggleExpand = (e) => {
+    //             e.preventDefault();
+    //             const isExpanded = noteTextDiv.classList.contains('expanded');
+                
+    //             if (isExpanded) {
+    //                 noteTextDiv.innerHTML = detectAndCreateLinks(truncatedText) + '<button class="expand-note-btn" type="button">Show more</button>';
+    //                 noteTextDiv.classList.remove('expanded');
+    //             } else {
+    //                 noteTextDiv.innerHTML = detectAndCreateLinks(note.text) + '<button class="expand-note-btn" type="button">Show less</button>';
+    //                 noteTextDiv.classList.add('expanded');
+    //             }
+                
+    //             // Re-attach event listener to the new button
+    //             const newExpandBtn = noteTextDiv.querySelector('.expand-note-btn');
+    //             if (newExpandBtn) {
+    //                 newExpandBtn.addEventListener('click', toggleExpand);
+    //             }
+    //         };
+            
+    //         expandBtn.addEventListener('click', toggleExpand);
+    //     }
+        
+    //     return div;
+    // }
     createNoteElement(note) {
         const div = document.createElement('div');
         div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
@@ -1097,6 +1173,20 @@ class NotesManager {
         const isLongNote = note.text.length > 200;
         const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
         
+        // Helper function to safely escape HTML and then create links
+        const safeTextWithLinks = (text) => {
+            // First escape HTML entities
+            const escaped = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+            // Then apply link detection on the escaped text
+            return detectAndCreateLinks(escaped);
+        };
+
         div.innerHTML = `
             <div class="note-content">
                 <div class="note-header">
@@ -1104,8 +1194,8 @@ class NotesManager {
                     <span class="note-category">${note.category}</span>
                     <span class="note-word-count">${note.wordCount} words</span>
                 </div>
-                <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
-                    ${detectAndCreateLinks(isLongNote ? truncatedText : note.text)}
+                <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
+                    ${safeTextWithLinks(isLongNote ? truncatedText : note.text)}
                     ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
                 </div>
                 ${note.tags.length > 0 ? `
@@ -1135,37 +1225,41 @@ class NotesManager {
                 </button>
             </div>
         `;
-
-        // FIXED: Proper expand/collapse functionality using arrow function to avoid 'arguments.callee'
-        const expandBtn = div.querySelector('.expand-note-btn');
+                
+        // Fixed expand/collapse functionality
         const noteTextDiv = div.querySelector('.note-text');
-        
-        if (expandBtn && noteTextDiv) {
-            // Create a reusable toggle function
-            const toggleExpand = (e) => {
-                e.preventDefault();
-                const isExpanded = noteTextDiv.classList.contains('expanded');
+        let isExpanded = false;
                 
-                if (isExpanded) {
-                    noteTextDiv.innerHTML = detectAndCreateLinks(truncatedText) + '<button class="expand-note-btn" type="button">Show more</button>';
-                    noteTextDiv.classList.remove('expanded');
-                } else {
-                    noteTextDiv.innerHTML = detectAndCreateLinks(note.text) + '<button class="expand-note-btn" type="button">Show less</button>';
-                    noteTextDiv.classList.add('expanded');
+        // Use event delegation to handle both initial and dynamically created buttons
+        const toggleExpand = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (isExpanded) {
+                // Collapse
+                noteTextDiv.innerHTML = safeTextWithLinks(truncatedText) + '<button class="expand-note-btn" type="button">Show more</button>';
+                noteTextDiv.classList.remove('expanded');
+                isExpanded = false;
+            } else {
+                // Expand
+                noteTextDiv.innerHTML = safeTextWithLinks(note.text) + '<button class="expand-note-btn" type="button">Show less</button>';
+                noteTextDiv.classList.add('expanded');
+                isExpanded = true;
+            }
+        };
+
+        // Use event delegation on the noteTextDiv instead of individual button listeners
+        if (isLongNote) {
+            noteTextDiv.addEventListener('click', (e) => {
+                if (e.target.classList.contains('expand-note-btn')) {
+                    toggleExpand(e);
                 }
-                
-                // Re-attach event listener to the new button
-                const newExpandBtn = noteTextDiv.querySelector('.expand-note-btn');
-                if (newExpandBtn) {
-                    newExpandBtn.addEventListener('click', toggleExpand);
-                }
-            };
-            
-            expandBtn.addEventListener('click', toggleExpand);
+            });
         }
-        
+
         return div;
     }
+
 
     togglePinNote(noteId) {
         console.log('togglePinNote called with ID:', noteId);
