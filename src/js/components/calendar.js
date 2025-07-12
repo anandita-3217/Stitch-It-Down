@@ -304,7 +304,6 @@ class ProductivityCalendar {
     }    
     console.log('Month view rendered successfully');
 }
-
     renderWeekView() {
         const container = document.getElementById('calendarContainer');
         if (!container) return;

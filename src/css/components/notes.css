@@ -389,7 +389,7 @@
 
 .note-item.pinned {
   border-color: var(--primary-purple);
-  background: linear-gradient(135deg, var(--medium-purple) 0%, var(--card-bg) 100%);
+  background: var(--card-bg);
 }
 
 .note-item.pinned::before {
@@ -399,7 +399,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: var(--primary-purple);
+  background: var(--card-bg);
   border-radius: 12px 12px 0 0;
 }
 
@@ -413,26 +413,31 @@
 .note-item.color-yellow {
   border-left: 6px solid #ffc107;
   /* background: linear-gradient(90deg, var(--primary-purple), var(--dark-purple)); */
+  background-color: var(--card-bg);
 }
 
 .note-item.color-blue {
   border-left: 6px solid #007bff;
   /* background: linear-gradient(90deg, var(--primary-purple), var(--dark-purple)); */
+  background-color: var(--card-bg);
 }
 
 .note-item.color-green {
   border-left: 6px solid #28a745;
   /* background: linear-gradient(90deg, var(--primary-purple), var(--dark-purple)); */
+  background-color: var(--card-bg);
 }
 
 .note-item.color-pink {
   border-left: 6px solid #e83e8c;
   /* background: linear-gradient(90deg, var(--primary-purple), var(--dark-purple)); */
+  background-color: var(--card-bg);
 }
 
 .note-item.color-purple {
   border-left: 6px solid #6f42c1;
   /* background: linear-gradient(90deg, var(--primary-purple), var(--dark-purple)); */
+  background-color: var(--card-bg);
 }
 .note-item {
   border-left: 6px solid var(--border-color);
