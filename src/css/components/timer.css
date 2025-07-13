@@ -118,16 +118,17 @@
     transition: background 0.3s ease;
 }
 
-.timer-container.work .progress-ring-progress {
+/* .timer-container.work .progress-ring-progress {
     stroke: linear-gradient(135deg, var(--primary-purple) 0%, var(--medium-purple) 100%);
-}
+    background: var(--card-bg); 
+}*/
 
 
-.timer-container.break {
+/* .timer-container.break {
     background: linear-gradient(135deg, var(--dark-blue) 0%, var(--darker-blue) 100%);
     border: 2px solid var(--border-color);
     color: var(--white);
-}
+} */
 
 .timer-container.running {
     animation: pulse 4s ease-in-out infinite;
@@ -161,12 +162,18 @@
 }
 
 .timer-container.work .progress-ring-progress {
+    background: var(--card-bg);
     stroke: var(--white);
 }
 
 .timer-container.break .progress-ring-progress {
-    stroke: var(--dark-purple);
+    background: var(--card-bg);
+    stroke: var(--danger-color);
 }
+/* .timer-container.break .progress-ring-progress {
+    background: var(--card-bg);
+    stroke: var(--success-color);
+} */
 
 .timer-display {
     position: absolute;
