@@ -972,6 +972,38 @@
     opacity: 0.7;
 }
 
+/* Search highlighting */
+.search-highlight {
+    box-shadow: 0 0 0 2px #ffd700 !important;
+    background-color: rgba(255, 215, 0, 0.1) !important;
+}
+
+/* Search results count */
+.search-results-count {
+    margin-top: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.search-results-count.has-results {
+    background-color: #e8f5e8;
+    color: #2d5a2d;
+    border: 1px solid #c3e6c3;
+}
+
+.search-results-count.no-results {
+    background-color: #ffeaea;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+/* Ensure search container has proper spacing */
+.search-container {
+    margin-bottom: 16px;
+}
+
 /* Animations */
 @keyframes slideInRight {
     from { transform: translateX(100%); }

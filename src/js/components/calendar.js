@@ -1,4 +1,4 @@
-// calendar.js
+    // calendar.js
 class ProductivityCalendar {
     constructor() {
         this.currentDate = new Date();
@@ -7,6 +7,8 @@ class ProductivityCalendar {
         this.selectedEvent = null;
         this.draggedEvent = null;
         this.analyticsVisible = false;
+        this.searchQuery = '';
+        this.isSearchActive = false;
         this.init();
         this.loadEvents();
         this.setupEventListeners();
@@ -196,20 +198,49 @@ class ProductivityCalendar {
     this.currentDate = newDate;
     this.render();
     }
+    // render() {
+    //     this.updateHeader();
+    //     switch(this.currentView) {
+    //         case 'month':
+    //             this.renderMonthView();
+    //             break;
+    //         case 'week':
+    //             this.renderWeekView();
+    //             break;
+    //         case 'day':
+    //             this.renderDayView();
+    //             break;
+    //     }
+    // }
+
     render() {
-        this.updateHeader();
-        switch(this.currentView) {
-            case 'month':
-                this.renderMonthView();
-                break;
-            case 'week':
-                this.renderWeekView();
-                break;
-            case 'day':
-                this.renderDayView();
-                break;
-        }
+    this.updateHeader();
+    
+    // Store search state
+    const wasSearchActive = this.isSearchActive;
+    const currentSearchQuery = this.searchQuery;
+    
+    switch(this.currentView) {
+        case 'month':
+            this.renderMonthView();
+            break;
+        case 'week':
+            this.renderWeekView();
+            break;
+        case 'day':
+            this.renderDayView();
+            break;
     }
+    
+    // Reapply search if it was active
+    if (wasSearchActive && currentSearchQuery) {
+        const searchInput = document.getElementById('eventSearch');
+        if (searchInput) {
+            searchInput.value = currentSearchQuery;
+        }
+        this.searchEvents(currentSearchQuery);
+    }
+}
     updateHeader() {
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
@@ -574,13 +605,34 @@ class ProductivityCalendar {
     });    
     return eventElement;
 }
-    getEventsForDate(date) {
-        if (!date) return [];
-        return this.events.filter(event => {
-            const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-            return this.isSameDate(eventDate, date);
-        });
+    // getEventsForDate(date) {
+    //     if (!date) return [];
+    //     return this.events.filter(event => {
+    //         const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+    //         return this.isSameDate(eventDate, date);
+    //     });
+    // }
+
+    // Modify your existing getEventsForDate method to respect search filtering
+getEventsForDate(date) {
+    if (!date) return [];
+    
+    let eventsForDate = this.events.filter(event => {
+        const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+        return this.isSameDate(eventDate, date);
+    });
+    
+    // Apply search filter if active
+    if (this.isSearchActive) {
+        eventsForDate = eventsForDate.filter(event => 
+            event.title.toLowerCase().includes(this.searchQuery) ||
+            (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+            (event.category && event.category.toLowerCase().includes(this.searchQuery))
+        );
     }
+    
+    return eventsForDate;
+}
     isSameDate(date1, date2) {
         if (!date1 || !date2) return false;
         const d1 = typeof date1 === 'string' ? new Date(date1) : date1;
@@ -882,27 +934,207 @@ class ProductivityCalendar {
                 return today;
         }
     }
-    searchEvents(query) {
-        const filtered = this.events.filter(event => 
-            event.title.toLowerCase().includes(query.toLowerCase()) ||
-            (event.description && event.description.toLowerCase().includes(query.toLowerCase()))
+    // searchEvents(query) {
+    //     const filtered = this.events.filter(event => 
+    //         event.title.toLowerCase().includes(query.toLowerCase()) ||
+    //         (event.description && event.description.toLowerCase().includes(query.toLowerCase()))
+    //     );
+    //     this.highlightSearchResults(filtered);
+    // }
+    // Replace your existing searchEvents method with this improved version
+searchEvents(query) {
+    this.searchQuery = query.toLowerCase().trim();
+    this.isSearchActive = this.searchQuery.length > 0;
+    
+    if (!this.isSearchActive) {
+        // Clear search - show all events
+        this.clearSearchHighlight();
+        this.render();
+        return;
+    }
+    
+    // Filter events based on search query
+    const filteredEvents = this.events.filter(event => 
+        event.title.toLowerCase().includes(this.searchQuery) ||
+        (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+        (event.category && event.category.toLowerCase().includes(this.searchQuery))
+    );
+    
+    // Update the display based on current view
+    this.applySearchFilter(filteredEvents);
+    
+    // Show search results count
+    this.showSearchResultsCount(filteredEvents.length);
+}
+// Add this new method to apply search filtering
+applySearchFilter(filteredEvents) {
+    // Create a Set of filtered event IDs for quick lookup
+    const filteredEventIds = new Set(filteredEvents.map(event => event.id));
+    
+    // Apply filtering based on current view
+    switch(this.currentView) {
+        case 'month':
+            this.applyMonthSearchFilter(filteredEventIds);
+            break;
+        case 'week':
+            this.applyWeekSearchFilter(filteredEventIds);
+            break;
+        case 'day':
+            this.applyDaySearchFilter(filteredEventIds);
+            break;
+    }
+}
+
+// Add these new methods for view-specific search filtering
+applyMonthSearchFilter(filteredEventIds) {
+    const eventElements = document.querySelectorAll('.event-item');
+    
+    eventElements.forEach(eventEl => {
+        const eventTitle = eventEl.textContent.replace(/^\+\d+\s+more$/, ''); // Handle "more" elements
+        const matchingEvent = this.events.find(event => 
+            event.title === eventTitle || eventTitle.includes(event.title)
         );
-        this.highlightSearchResults(filtered);
+        
+        if (matchingEvent && filteredEventIds.has(matchingEvent.id)) {
+            eventEl.style.display = 'block';
+            eventEl.classList.add('search-highlight');
+        } else if (!eventEl.classList.contains('more-events')) {
+            eventEl.style.display = 'none';
+            eventEl.classList.remove('search-highlight');
+        }
+    });
+}
+
+applyWeekSearchFilter(filteredEventIds) {
+    const eventElements = document.querySelectorAll('.timed-event');
+    
+    eventElements.forEach(eventEl => {
+        const eventId = parseInt(eventEl.dataset.eventId);
+        
+        if (filteredEventIds.has(eventId)) {
+            eventEl.style.display = 'flex';
+            eventEl.classList.add('search-highlight');
+        } else {
+            eventEl.style.display = 'none';
+            eventEl.classList.remove('search-highlight');
+        }
+    });
+}
+
+applyDaySearchFilter(filteredEventIds) {
+    const eventElements = document.querySelectorAll('.timed-event');
+    
+    eventElements.forEach(eventEl => {
+        const eventId = parseInt(eventEl.dataset.eventId);
+        
+        if (filteredEventIds.has(eventId)) {
+            eventEl.style.display = 'flex';
+            eventEl.classList.add('search-highlight');
+        } else {
+            eventEl.style.display = 'none';
+            eventEl.classList.remove('search-highlight');
+        }
+    });
+}
+
+// Add this method to clear search highlighting
+clearSearchHighlight() {
+    const eventElements = document.querySelectorAll('.event-item, .timed-event');
+    eventElements.forEach(el => {
+        el.style.display = '';
+        el.classList.remove('search-highlight');
+    });
+    this.hideSearchResultsCount();
+}
+
+// Add this method to show search results count
+showSearchResultsCount(count) {
+    let resultsDisplay = document.getElementById('searchResults');
+    
+    if (!resultsDisplay) {
+        // Create results display element
+        resultsDisplay = document.createElement('div');
+        resultsDisplay.id = 'searchResults';
+        resultsDisplay.className = 'search-results-count';
+        
+        const searchContainer = document.getElementById('eventSearch')?.parentElement;
+        if (searchContainer) {
+            searchContainer.appendChild(resultsDisplay);
+        }
     }
+    
+    if (count === 0) {
+        resultsDisplay.textContent = 'No events found';
+        resultsDisplay.className = 'search-results-count no-results';
+    } else {
+        resultsDisplay.textContent = `${count} event${count !== 1 ? 's' : ''} found`;
+        resultsDisplay.className = 'search-results-count has-results';
+    }
+    
+    resultsDisplay.style.display = 'block';
+}
+
+// Add this method to hide search results count
+hideSearchResultsCount() {
+    const resultsDisplay = document.getElementById('searchResults');
+    if (resultsDisplay) {
+        resultsDisplay.style.display = 'none';
+    }
+}
+
+
+    // highlightSearchResults(filteredEvents) {
+    //     document.querySelectorAll('.event-item').forEach(el => {
+    //         el.classList.remove('search-highlight');
+    //     });
+    //     if (filteredEvents.length === 0) return;
+    //     filteredEvents.forEach(event => {
+    //         const eventElements = document.querySelectorAll('.event-item');
+    //         eventElements.forEach(el => {
+    //             if (el.textContent === event.title) {
+    //                 el.classList.add('search-highlight');
+    //             }
+    //         });
+    //     });
+    // }
+
     highlightSearchResults(filteredEvents) {
-        document.querySelectorAll('.event-item').forEach(el => {
-            el.classList.remove('search-highlight');
-        });
-        if (filteredEvents.length === 0) return;
-        filteredEvents.forEach(event => {
-            const eventElements = document.querySelectorAll('.event-item');
-            eventElements.forEach(el => {
-                if (el.textContent === event.title) {
-                    el.classList.add('search-highlight');
-                }
-            });
-        });
+    // Clear previous highlights
+    document.querySelectorAll('.event-item, .timed-event').forEach(el => {
+        el.classList.remove('search-highlight');
+    });
+    
+    if (filteredEvents.length === 0) return;
+    
+    // Create a map of event titles to IDs for better matching
+    const eventMap = new Map();
+    filteredEvents.forEach(event => {
+        eventMap.set(event.title, event.id);
+    });
+    
+    // Highlight matching events
+    document.querySelectorAll('.event-item, .timed-event').forEach(el => {
+        const eventId = el.dataset.eventId;
+        const eventTitle = el.textContent.split('\n')[0].trim(); // Get first line as title
+        
+        if (eventId && filteredEvents.some(event => event.id === parseInt(eventId))) {
+            el.classList.add('search-highlight');
+        } else if (eventMap.has(eventTitle)) {
+            el.classList.add('search-highlight');
+        }
+    });
+}
+
+// Add this method to reset search when changing views
+resetSearch() {
+    const searchInput = document.getElementById('eventSearch');
+    if (searchInput) {
+        searchInput.value = '';
     }
+    this.searchQuery = '';
+    this.isSearchActive = false;
+    this.hideSearchResultsCount();
+}
     filterByCategory(category) {
         document.querySelectorAll('.category-filter').forEach(btn => {
             btn.classList.remove('active');});
