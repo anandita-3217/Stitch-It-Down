@@ -972,37 +972,42 @@
     opacity: 0.7;
 }
 
-/* Search highlighting */
-.search-highlight {
-    box-shadow: 0 0 0 2px #ffd700 !important;
-    background-color: rgba(255, 215, 0, 0.1) !important;
+
+.search-primary-highlight {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
+    border: 2px solid #3b82f6 !important;
+    z-index: 1000 !important;
 }
 
-/* Search results count */
+.search-highlight {
+    opacity: 1 !important;
+}
+
 .search-results-count {
-    margin-top: 8px;
+    margin-top: 5px;
+    font-size: 12px;
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+    background: #f3f4f6;
+    color: #6b7280;
 }
 
 .search-results-count.has-results {
-    background-color: #e8f5e8;
-    color: #2d5a2d;
-    border: 1px solid #c3e6c3;
+    background: #dbeafe;
+    color: #1d4ed8;
 }
 
 .search-results-count.no-results {
-    background-color: #ffeaea;
-    color: #d32f2f;
-    border: 1px solid #ffcdd2;
+    background: #fee2e2;
+    color: #dc2626;
 }
 
-/* Ensure search container has proper spacing */
-.search-container {
-    margin-bottom: 16px;
+@keyframes searchPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
+
+
 
 /* Animations */
 @keyframes slideInRight {

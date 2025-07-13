@@ -75,6 +75,7 @@ class ProductivityCalendar {
                         e.preventDefault();
                         this.changeView('month');
                         break;
+                    
                 }
             }
             if (e.key === 'Escape') {
@@ -213,10 +214,37 @@ class ProductivityCalendar {
     //     }
     // }
 
-    render() {
-    this.updateHeader();
+//     render() {
+//     this.updateHeader();
     
-    // Store search state
+//     // Store search state
+//     const wasSearchActive = this.isSearchActive;
+//     const currentSearchQuery = this.searchQuery;
+    
+//     switch(this.currentView) {
+//         case 'month':
+//             this.renderMonthView();
+//             break;
+//         case 'week':
+//             this.renderWeekView();
+//             break;
+//         case 'day':
+//             this.renderDayView();
+//             break;
+//     }
+    
+//     // Reapply search if it was active
+//     if (wasSearchActive && currentSearchQuery) {
+//         const searchInput = document.getElementById('eventSearch');
+//         if (searchInput) {
+//             searchInput.value = currentSearchQuery;
+//         }
+//         this.searchEvents(currentSearchQuery);
+//     }
+// }
+
+render() {
+    this.updateHeader();
     const wasSearchActive = this.isSearchActive;
     const currentSearchQuery = this.searchQuery;
     
@@ -232,13 +260,24 @@ class ProductivityCalendar {
             break;
     }
     
-    // Reapply search if it was active
+    // MODIFY THIS SECTION - enhance search persistence
     if (wasSearchActive && currentSearchQuery) {
         const searchInput = document.getElementById('eventSearch');
         if (searchInput) {
             searchInput.value = currentSearchQuery;
         }
-        this.searchEvents(currentSearchQuery);
+        
+        // Re-apply search filter after render
+        setTimeout(() => {
+            const filteredEvents = this.events.filter(event => 
+                event.title.toLowerCase().includes(currentSearchQuery) ||
+                (event.description && event.description.toLowerCase().includes(currentSearchQuery)) ||
+                (event.category && event.category.toLowerCase().includes(currentSearchQuery))
+            );
+            
+            this.applySearchFilter(filteredEvents);
+            this.showSearchResultsCount(filteredEvents.length);
+        }, 50);
     }
 }
     updateHeader() {
@@ -934,44 +973,120 @@ getEventsForDate(date) {
                 return today;
         }
     }
-    // searchEvents(query) {
-    //     const filtered = this.events.filter(event => 
-    //         event.title.toLowerCase().includes(query.toLowerCase()) ||
-    //         (event.description && event.description.toLowerCase().includes(query.toLowerCase()))
-    //     );
-    //     this.highlightSearchResults(filtered);
-    // }
-    // Replace your existing searchEvents method with this improved version
+
 searchEvents(query) {
     this.searchQuery = query.toLowerCase().trim();
     this.isSearchActive = this.searchQuery.length > 0;
     
     if (!this.isSearchActive) {
-        // Clear search - show all events
         this.clearSearchHighlight();
         this.render();
         return;
     }
+    const filteredEvents = this.events.filter(event => 
+        event.title.toLowerCase().includes(this.searchQuery) ||
+        (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+        (event.category && event.category.toLowerCase().includes(this.searchQuery))
+    );
+    if (filteredEvents.length > 0) {
+        this.navigateToFirstSearchResult(filteredEvents);
+    } else {
+        this.applySearchFilter(filteredEvents);
+        this.showSearchResultsCount(0);
+    }
+}
+navigateToFirstSearchResult(filteredEvents) {
+    // Sort events by date to get the earliest one
+    const sortedEvents = [...filteredEvents].sort((a, b) => {
+        const dateA = typeof a.date === 'string' ? new Date(a.date) : a.date;
+        const dateB = typeof b.date === 'string' ? new Date(b.date) : b.date;
+        return dateA.getTime() - dateB.getTime();
+    });
     
-    // Filter events based on search query
+    const firstEvent = sortedEvents[0];
+    const eventDate = typeof firstEvent.date === 'string' ? new Date(firstEvent.date) : firstEvent.date;
+    
+    // Store the target event for highlighting after render
+    this.targetSearchEvent = firstEvent;
+    
+    // Navigate to the month/week/day containing the first event
+    this.navigateToDate(eventDate);
+    
+    // Show search results count
+    this.showSearchResultsCount(filteredEvents.length);
+}
+navigateToDate(targetDate) {
+    const previousDate = new Date(this.currentDate);
+    this.currentDate = new Date(targetDate);
+    
+    // For month view, we want to show the month containing the target date
+    if (this.currentView === 'month') {
+        // Set to first day of month for proper month view rendering
+        this.currentDate.setDate(1);
+    }
+    
+    // Re-render with the new date
+    this.render();
+    
+    // After render, apply search filter and highlight the target event
+    setTimeout(() => {
+        this.applySearchFilterAfterNavigation();
+    }, 100);
+}
+applySearchFilterAfterNavigation() {
     const filteredEvents = this.events.filter(event => 
         event.title.toLowerCase().includes(this.searchQuery) ||
         (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
         (event.category && event.category.toLowerCase().includes(this.searchQuery))
     );
     
-    // Update the display based on current view
+    // Apply the filter to the current view
     this.applySearchFilter(filteredEvents);
     
-    // Show search results count
-    this.showSearchResultsCount(filteredEvents.length);
+    // Highlight and focus on the target event
+    if (this.targetSearchEvent) {
+        this.highlightTargetEvent(this.targetSearchEvent);
+        this.targetSearchEvent = null; // Clear after use
+    }
 }
-// Add this new method to apply search filtering
-applySearchFilter(filteredEvents) {
-    // Create a Set of filtered event IDs for quick lookup
-    const filteredEventIds = new Set(filteredEvents.map(event => event.id));
+highlightTargetEvent(targetEvent) {
+    // Add a special highlight class for the primary search result
+    const eventElements = document.querySelectorAll('.event-item, .timed-event');
     
-    // Apply filtering based on current view
+    eventElements.forEach(el => {
+        const eventId = el.dataset.eventId;
+        const eventTitle = el.textContent.split('\n')[0].trim();
+        
+        // Check if this is our target event
+        if ((eventId && parseInt(eventId) === targetEvent.id) || 
+            (eventTitle === targetEvent.title)) {
+            
+            // Add special primary highlight
+            el.classList.add('search-primary-highlight');
+            
+            // Scroll to the event (especially useful in day/week view)
+            el.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
+            // Add a brief pulse animation
+            el.style.animation = 'searchPulse 2s ease-in-out';
+            
+            // Remove animation after completion
+            setTimeout(() => {
+                el.style.animation = '';
+            }, 2000);
+        }
+    });
+}
+clearSearchAndReturnToToday() {
+    this.resetSearch();
+    this.clearSearchHighlight();
+    this.goToToday();
+}
+applySearchFilter(filteredEvents) {
+    const filteredEventIds = new Set(filteredEvents.map(event => event.id));
     switch(this.currentView) {
         case 'month':
             this.applyMonthSearchFilter(filteredEventIds);
@@ -984,8 +1099,6 @@ applySearchFilter(filteredEvents) {
             break;
     }
 }
-
-// Add these new methods for view-specific search filtering
 applyMonthSearchFilter(filteredEventIds) {
     const eventElements = document.querySelectorAll('.event-item');
     
@@ -1007,7 +1120,6 @@ applyMonthSearchFilter(filteredEventIds) {
 
 applyWeekSearchFilter(filteredEventIds) {
     const eventElements = document.querySelectorAll('.timed-event');
-    
     eventElements.forEach(eventEl => {
         const eventId = parseInt(eventEl.dataset.eventId);
         
@@ -1048,15 +1160,37 @@ clearSearchHighlight() {
 }
 
 // Add this method to show search results count
+// showSearchResultsCount(count) {
+//     let resultsDisplay = document.getElementById('searchResults');
+    
+//     if (!resultsDisplay) {
+//         // Create results display element
+//         resultsDisplay = document.createElement('div');
+//         resultsDisplay.id = 'searchResults';
+//         resultsDisplay.className = 'search-results-count';
+        
+//         const searchContainer = document.getElementById('eventSearch')?.parentElement;
+//         if (searchContainer) {
+//             searchContainer.appendChild(resultsDisplay);
+//         }
+//     }
+    
+//     if (count === 0) {
+//         resultsDisplay.textContent = 'No events found';
+//         resultsDisplay.className = 'search-results-count no-results';
+//     } else {
+//         resultsDisplay.textContent = `${count} event${count !== 1 ? 's' : ''} found`;
+//         resultsDisplay.className = 'search-results-count has-results';
+//     }
+    
+//     resultsDisplay.style.display = 'block';
+// }
 showSearchResultsCount(count) {
     let resultsDisplay = document.getElementById('searchResults');
-    
     if (!resultsDisplay) {
-        // Create results display element
         resultsDisplay = document.createElement('div');
         resultsDisplay.id = 'searchResults';
         resultsDisplay.className = 'search-results-count';
-        
         const searchContainer = document.getElementById('eventSearch')?.parentElement;
         if (searchContainer) {
             searchContainer.appendChild(resultsDisplay);
@@ -1067,8 +1201,14 @@ showSearchResultsCount(count) {
         resultsDisplay.textContent = 'No events found';
         resultsDisplay.className = 'search-results-count no-results';
     } else {
-        resultsDisplay.textContent = `${count} event${count !== 1 ? 's' : ''} found`;
+        const eventText = count === 1 ? 'event' : 'events';
+        resultsDisplay.textContent = `${count} ${eventText} found`;
         resultsDisplay.className = 'search-results-count has-results';
+        
+        // Add navigation hint for multiple results
+        if (count > 1) {
+            resultsDisplay.textContent += ' (navigated to earliest)';
+        }
     }
     
     resultsDisplay.style.display = 'block';
@@ -1082,6 +1222,40 @@ hideSearchResultsCount() {
     }
 }
 
+navigateToNextSearchResult(direction = 1) {
+    if (!this.isSearchActive) return;
+    
+    const filteredEvents = this.events.filter(event => 
+        event.title.toLowerCase().includes(this.searchQuery) ||
+        (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+        (event.category && event.category.toLowerCase().includes(this.searchQuery))
+    );
+    
+    if (filteredEvents.length === 0) return;
+    
+    // Sort by date
+    const sortedEvents = [...filteredEvents].sort((a, b) => {
+        const dateA = typeof a.date === 'string' ? new Date(a.date) : a.date;
+        const dateB = typeof b.date === 'string' ? new Date(b.date) : b.date;
+        return dateA.getTime() - dateB.getTime();
+    });
+    
+    // Find current index or start from beginning
+    let currentIndex = this.currentSearchIndex || 0;
+    currentIndex = (currentIndex + direction) % sortedEvents.length;
+    if (currentIndex < 0) currentIndex = sortedEvents.length - 1;
+    
+    this.currentSearchIndex = currentIndex;
+    const targetEvent = sortedEvents[currentIndex];
+    
+    // Navigate to this event
+    this.targetSearchEvent = targetEvent;
+    const eventDate = typeof targetEvent.date === 'string' ? new Date(targetEvent.date) : targetEvent.date;
+    this.navigateToDate(eventDate);
+    
+    // Update search results display
+    this.showSearchResultsCount(filteredEvents.length);
+}
 
     // highlightSearchResults(filteredEvents) {
     //     document.querySelectorAll('.event-item').forEach(el => {

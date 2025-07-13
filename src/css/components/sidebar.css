@@ -16,28 +16,6 @@
 .sidebar.open {
     left: 0;
 }
-
-/* .sidebar-toggle {
-    position: fixed;
-    top: 32px;
-    left: 24px;
-    width: 40px;
-    height: 40px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-    z-index: 1060;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 8px var(--shadow);
-} */
-
 .sidebar-toggle {
     width: 40px;
     height: 40px;
@@ -60,13 +38,6 @@
     transform: scale(1.05);
     border-color: var(--dark-purple);
 }
-/* .sidebar-toggle:hover {
-    background: var(--white);
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px var(--shadow-hover);
-    border-color: var(--dark-purple);
-} */
-
 .hamburger {
     width: 20px;
     height: 2px;
