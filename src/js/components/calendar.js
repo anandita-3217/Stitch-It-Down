@@ -75,7 +75,27 @@ class ProductivityCalendar {
                         e.preventDefault();
                         this.changeView('month');
                         break;
-                    
+                    case 'Enter':
+                    if (document.activeElement?.id === 'eventSearch') {
+                        e.preventDefault();
+                        const searchValue = document.getElementById('eventSearch').value;
+                        if (searchValue.trim()) {
+                            this.searchEvents(searchValue);
+                        }
+                    }
+                    break;
+                    case 'ArrowDown':
+                        if (document.activeElement?.id === 'eventSearch' && this.isSearchActive) {
+                            e.preventDefault();
+                            this.navigateToNextSearchResult(1);
+                        }
+                        break;
+                    case 'ArrowUp':
+                        if (document.activeElement?.id === 'eventSearch' && this.isSearchActive) {
+                            e.preventDefault();
+                            this.navigateToNextSearchResult(-1);
+                        }
+                        break;
                 }
             }
             if (e.key === 'Escape') {
