@@ -182,8 +182,105 @@ body {
     height: 24px;
     width: 24px;
     margin-right: 1rem;
-
+    
 }
+/*  Potential theme toggle for smaller screens */
+/* .theme-toggle { 
+  width: 2rem;
+  height: 2rem;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+}
+
+.theme-checkbox {
+  display: none;
+}
+
+.icon {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.moon {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #edfdf3;
+  border-radius: 50%;
+  background: #072a3b;
+  position: absolute;
+  overflow: hidden;
+  transition:
+    background 0.6s ease,
+    transform 0.6s ease,
+    box-shadow 0.6s ease;
+  transform: rotate(-30deg);
+  box-shadow: 0 0 6px 1px rgba(203, 213, 225, 0.3);
+}
+
+.moon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 30%;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #edfdf3;
+  border-radius: 50%;
+  background: #0c1824;
+  transition: left 0.6s ease;
+}
+
+.star {
+  position: absolute;
+  top: 15%;
+  left: 55%;
+  width: 12px;
+  height: 12px;
+  background: #edfdf3;
+  clip-path: polygon(
+    50% 0%,
+    60% 40%,
+    100% 50%,
+    60% 60%,
+    50% 100%,
+    40% 60%,
+    0% 50%,
+    40% 40%
+  );
+  transition: opacity 0.3s ease;
+}
+
+.sun-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 0 transparent;
+  transition: box-shadow 0.6s ease;
+}
+
+.theme-checkbox:checked + .icon .moon {
+  border: none;
+  background: #facc15;
+}
+
+.theme-checkbox:checked + .icon .moon::before {
+  left: 100%;
+}
+
+.theme-checkbox:checked + .icon .star {
+  opacity: 0;
+}
+
+.theme-checkbox:checked + .icon .sun-glow {
+  box-shadow:
+    0 0 5px 2px #facc15,
+    0 0 15px 5px #fde68a,
+    0 0 20px 10px #fef3c7;
+}
+*/
 .switch {
     font-size: 17px;
     position: relative;

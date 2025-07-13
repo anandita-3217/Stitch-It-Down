@@ -155,6 +155,59 @@ function loadAllImages() {
     setRandomGif();
     setSidebarGif();
 }
+//  Potential theme toggle for smaller screens
+// function initTheme() {
+//     let savedTheme = 'light'; // default
+//     try {
+//         savedTheme = localStorage.getItem('stitchTheme') || 'light';
+//     } catch (error) {
+//         console.warn('localStorage not available, using default theme');
+//     }
+    
+//     setTheme(savedTheme);
+    
+//     // Set up the theme toggle event listener
+//     const themeToggle = document.querySelector('.theme-checkbox');
+//     if (themeToggle) {
+//         themeToggle.addEventListener('change', toggleTheme);
+//         themeToggle.checked = savedTheme === 'dark';
+//     } else {
+//         console.error('Theme toggle element not found');
+//     }
+// }
+
+// function setTheme(theme) {
+//     // Validate theme value
+//     if (theme !== 'light' && theme !== 'dark') {
+//         theme = 'light';
+//     }
+    
+//     document.documentElement.setAttribute('data-theme', theme);
+//     document.body.setAttribute('data-theme', theme); // Also set on body for better CSS targeting
+    
+//     // Save to localStorage if available
+//     try {
+//         localStorage.setItem('stitchTheme', theme);
+//     } catch (error) {
+//         console.warn('Could not save theme to localStorage');
+//     }
+    
+//     // Update toggle state
+//     const themeToggle = document.querySelector('.theme-checkbox');
+//     if (themeToggle) {
+//         themeToggle.checked = theme === 'dark';
+//     }
+    
+//     console.log(`Theme set to: ${theme}`); // Debug log
+// }
+
+// function toggleTheme() {
+//     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+//     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+//     console.log(`Toggling theme from ${currentTheme} to ${newTheme}`); // Debug log
+//     setTheme(newTheme);
+// }
+
 
 function initTheme() {
     let savedTheme = 'light'; // default
@@ -208,6 +261,8 @@ function toggleTheme() {
     setTheme(newTheme);
 }
 // Date and Time
+
+
 function updateDate() {
     const now = new Date();
     
