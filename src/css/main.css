@@ -31,12 +31,6 @@
     --primary-color: var(--dark-purple);
     --primary-hover: var(--darker-blue);
     --primary-rgb: 106, 182, 255;
-    --work-color: #4CAF50;
-    --work-bg: #e8f5e8;
-    --short-break-color: #FF9800;
-    --short-break-bg: #fff3e0;
-    --long-break-color: #2196F3;
-    --long-break-bg: #e3f2fd;
 
 }
 :root[data-theme="dark"] {
@@ -73,12 +67,6 @@
     --primary-color: var(--dark-purple);
     --primary-hover: #00bfff;
     --primary-rgb: 13, 209, 255;
-    --work-color: #66BB6A;
-    --work-bg: rgba(76, 175, 80, 0.1);
-    --short-break-color: #FFB74D;
-    --short-break-bg: rgba(255, 152, 0, 0.1);
-    --long-break-color: #64B5F6;
-    --long-break-bg: rgba(33, 150, 243, 0.1);
 }
 
 /* Default to light theme if no preference is set */
@@ -115,12 +103,6 @@
     --primary-color: var(--dark-purple);
     --primary-hover: var(--darker-blue);
     --primary-rgb: 106, 182, 255;
-    --work-color: #4CAF50;
-    --work-bg: #e8f5e8;
-    --short-break-color: #FF9800;
-    --short-break-bg: #fff3e0;
-    --long-break-color: #2196F3;
-    --long-break-bg: #e3f2fd;
 }
 ::-webkit-scrollbar {
     width: 8px;

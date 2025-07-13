@@ -163,17 +163,17 @@
 
 .timer-container.work .progress-ring-progress {
     background: var(--card-bg);
-    stroke: var(--white);
+    stroke: var(--info-color);
 }
 
-.timer-container.break .progress-ring-progress {
+.timer-container.short .progress-ring-progress {
     background: var(--card-bg);
     stroke: var(--danger-color);
 }
-/* .timer-container.break .progress-ring-progress {
+.timer-container.long .progress-ring-progress {
     background: var(--card-bg);
     stroke: var(--success-color);
-} */
+}
 
 .timer-display {
     position: absolute;

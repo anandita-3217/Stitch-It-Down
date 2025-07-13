@@ -16,30 +16,68 @@ class PomodoroTimer {
             soundNotifications: true
         };
         
+        // this.stitchQuotes = {
+        //     work: [
+        //         "Let's get productive!",
+        //         "Focus time, ohana!",
+        //         "You can do this!",
+        //         "Stay strong!",
+        //         "Keep going!"
+        //     ],
+        //     break: [
+        //         "Time to relax!",
+        //         "Take a breather!",
+        //         "You deserve this break!",
+        //         "Recharge time!",
+        //         "Rest up, buddy!"
+        //     ],
+        //     complete: [
+        //         "Great job!",
+        //         "You did amazing!",
+        //         "Proud of you!",
+        //         "Mission accomplished!",
+        //         "You're the best!"
+        //     ]
+        // };
         this.stitchQuotes = {
-            work: [
-                "Let's get productive!",
-                "Focus time, ohana!",
-                "You can do this!",
-                "Stay strong!",
-                "Keep going!"
-            ],
-            break: [
-                "Time to relax!",
-                "Take a breather!",
-                "You deserve this break!",
-                "Recharge time!",
-                "Rest up, buddy!"
-            ],
-            complete: [
-                "Great job!",
-                "You did amazing!",
-                "Proud of you!",
-                "Mission accomplished!",
-                "You're the best!"
-            ]
-        };
-        
+    work: [
+        "Let's get productive!",
+        "Focus time, ohana!",
+        "You can do this!",
+        "Stay strong!",
+        "Keep going!"
+    ],
+    break: [
+        "Time to relax!",
+        "Take a breather!",
+        "You deserve this break!",
+        "Recharge time!",
+        "Rest up, buddy!"
+    ],
+    shortBreak: [
+        "Quick break time!",
+        "Stretch those muscles!",
+        "Stay hydrated!",
+        "Just a quick rest!",
+        "5 minutes of peace!"
+    ],
+    longBreak: [
+        "Time for a real break!",
+        "Go get some fresh air!",
+        "You've earned this!",
+        "Take your time!",
+        "Recharge completely!",
+        "Maybe grab a snack?",
+        "Walk around a bit!"
+    ],
+    complete: [
+        "Great job!",
+        "You did amazing!",
+        "Proud of you!",
+        "Mission accomplished!",
+        "You're the best!"
+    ]
+};
         this.initializeWhenReady();
     }
     
@@ -358,39 +396,157 @@ class PomodoroTimer {
         }
     }
     
+    // switchSession(e) {
+    //     const clickedButton = e.target.closest('.session-btn');
+        
+    //     // If the clicked button is already active, don't allow deactivation
+    //     if (clickedButton && clickedButton.classList.contains('active')) {
+    //         return;
+    //     }
+        
+    //     const type = clickedButton.dataset.type;
+    //     const duration = parseInt(clickedButton.dataset.duration);
+        
+    //     this.currentSession = type;
+    //     this.currentTime = duration * 60;
+    //     this.totalTime = this.currentTime;
+        
+    //     // Update active button
+    //     if (this.sessionBtns && this.sessionBtns.length > 0) {
+    //         this.sessionBtns.forEach(btn => btn.classList.remove('active'));
+    //         if (clickedButton && clickedButton.classList) {
+    //             clickedButton.classList.add('active');
+    //         }
+    //     }
+        
+    //     // Update UI theme
+    //     this.updateTheme();
+    //     this.updateDisplay();
+    //     this.updateProgress();
+    //     this.updateStitchState('ready');
+        
+    //     if (this.isRunning) {
+    //         this.pauseTimer();
+    //     }
+    // }
     switchSession(e) {
-        const clickedButton = e.target.closest('.session-btn');
+    let clickedButton;
+    let type;
+    let duration;
+    
+    // Handle real DOM events (user clicks)
+    if (e && e.target && typeof e.target.closest === 'function') {
+        clickedButton = e.target.closest('.session-btn');
         
         // If the clicked button is already active, don't allow deactivation
         if (clickedButton && clickedButton.classList.contains('active')) {
             return;
         }
         
-        const type = clickedButton.dataset.type;
-        const duration = parseInt(clickedButton.dataset.duration);
+        type = clickedButton.dataset.type;
+        duration = parseInt(clickedButton.dataset.duration);
+    } 
+    // Handle programmatic calls (from switchToNextSession)
+    else if (e && e.target && e.target.dataset) {
+        type = e.target.dataset.type;
+        duration = parseInt(e.target.dataset.duration);
         
-        this.currentSession = type;
-        this.currentTime = duration * 60;
-        this.totalTime = this.currentTime;
-        
-        // Update active button
+        // Find the corresponding button in the DOM
         if (this.sessionBtns && this.sessionBtns.length > 0) {
-            this.sessionBtns.forEach(btn => btn.classList.remove('active'));
-            if (clickedButton && clickedButton.classList) {
-                clickedButton.classList.add('active');
-            }
-        }
-        
-        // Update UI theme
-        this.updateTheme();
-        this.updateDisplay();
-        this.updateProgress();
-        this.updateStitchState('ready');
-        
-        if (this.isRunning) {
-            this.pauseTimer();
+            clickedButton = Array.from(this.sessionBtns).find(btn => 
+                btn.dataset.type === type
+            );
         }
     }
+    // Handle direct calls with type and duration
+    else if (typeof e === 'string') {
+        type = e;
+        duration = this.settings[this.getSessionKey(type)] * 60;
+        
+        // Find the corresponding button in the DOM
+        if (this.sessionBtns && this.sessionBtns.length > 0) {
+            clickedButton = Array.from(this.sessionBtns).find(btn => 
+                btn.dataset.type === type
+            );
+        }
+    }
+    
+    // Validate inputs
+    if (!type || !duration) {
+        console.error('Invalid session type or duration');
+        return;
+    }
+    
+    this.currentSession = type;
+    this.currentTime = duration * 60;
+    this.totalTime = this.currentTime;
+    
+    // Update active button
+    if (this.sessionBtns && this.sessionBtns.length > 0) {
+        this.sessionBtns.forEach(btn => btn.classList.remove('active'));
+        if (clickedButton && clickedButton.classList) {
+            clickedButton.classList.add('active');
+        }
+    }
+    
+    // Update UI theme
+    this.updateTheme();
+    this.updateDisplay();
+    this.updateProgress();
+    this.updateStitchState('ready');
+    
+    if (this.isRunning) {
+        this.pauseTimer();
+    }
+}
+getSessionKey(sessionType = null) {
+    const type = sessionType || this.currentSession;
+    const keyMap = {
+        work: 'work',
+        short: 'shortBreak',
+        long: 'longBreak'
+    };
+    return keyMap[type] || 'work';
+}
+switchSessionProgrammatically(sessionType) {
+    const sessionSettings = {
+        work: this.settings.work,
+        short: this.settings.shortBreak,
+        long: this.settings.longBreak
+    };
+    
+    const duration = sessionSettings[sessionType];
+    if (!duration) {
+        console.error('Invalid session type:', sessionType);
+        return;
+    }
+    
+    this.currentSession = sessionType;
+    this.currentTime = duration * 60;
+    this.totalTime = this.currentTime;
+    
+    // Update active button
+    if (this.sessionBtns && this.sessionBtns.length > 0) {
+        this.sessionBtns.forEach(btn => btn.classList.remove('active'));
+        
+        const targetButton = Array.from(this.sessionBtns).find(btn => 
+            btn.dataset.type === sessionType
+        );
+        if (targetButton) {
+            targetButton.classList.add('active');
+        }
+    }
+    
+    // Update UI theme
+    this.updateTheme();
+    this.updateDisplay();
+    this.updateProgress();
+    this.updateStitchState('ready');
+    
+    if (this.isRunning) {
+        this.pauseTimer();
+    }
+}
     
     updateDisplay() {
         const minutes = Math.floor(this.currentTime / 60);
@@ -427,54 +583,164 @@ class PomodoroTimer {
     
     updateTheme() {
         if (this.timerContainer) {
-            this.timerContainer.classList.remove('work', 'break');
+            this.timerContainer.classList.remove('work', 'break','short','long');
             if (this.currentSession === 'work') {
                 this.timerContainer.classList.add('work');
-            } else {
-                this.timerContainer.classList.add('break');
+            } else if(this.currentSession === 'short') {
+                this.timerContainer.classList.add('short');
+            } else if(this.currentSession === 'long') {
+                this.timerContainer.classList.add('long');
             }
         }
     }
     
+    // updateStitchState(state) {
+    //     // Use the image registry if available
+    //     if (this.images && this.images.gifs) {
+    //         const gifMap = {
+    //             ready: 'hyping',
+    //             working: 'dancing',
+    //             paused: 'eating',
+    //             complete: 'love',
+    //             break: 'sleeping'
+    //         };
+            
+    //         let gifKey = gifMap[state];
+    //         if (this.currentSession !== 'work' && state === 'working') {
+    //             gifKey = 'sleeping';
+    //         }
+            
+    //         if (this.stitchImg && gifKey && this.images.gifs[gifKey]) {
+    //             this.stitchImg.src = this.images.gifs[gifKey];
+    //             console.log(`Updated Stitch GIF to: ${gifKey}`, this.images.gifs[gifKey]);
+    //         }
+    //     } else {
+    //         console.warn('Image registry not available, Stitch GIF will not update');
+    //     }
+        
+    //     // Update speech bubble
+    //     let quotes;
+    //     if (state === 'complete') {
+    //         quotes = this.stitchQuotes.complete;
+    //     } else if (this.currentSession === 'work') {
+    //         quotes = this.stitchQuotes.work;
+    //     } else {
+    //         quotes = this.stitchQuotes.break;
+    //     }
+        
+    //     if (this.stitchSpeech && quotes) {
+    //         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    //         this.stitchSpeech.textContent = randomQuote;
+    //     }
+    // }
+    getStitchQuotes(state) {
+    // Define quote mappings based on session type and state
+    const quoteMappings = {
+        work: {
+            ready: this.stitchQuotes.work,
+            working: this.stitchQuotes.work,
+            paused: [
+                "Take a breath!",
+                "Ready when you are!",
+                "No rush, friend!",
+                "Pause is okay!",
+                "Get back when ready!"
+            ],
+            complete: this.stitchQuotes.complete
+        },
+        short: {
+            ready: this.stitchQuotes.shortBreak || this.stitchQuotes.break,
+            working: this.stitchQuotes.shortBreak || this.stitchQuotes.break,
+            paused: [
+                "Break time paused!",
+                "Whenever you're ready!",
+                "No pressure!",
+                "Take your time!",
+                "Relax mode on hold!"
+            ],
+            complete: [
+                "Short break done!",
+                "Back to work, buddy!",
+                "Ready to focus again!",
+                "Refreshed and ready!",
+                "Let's get back to it!"
+            ]
+        },
+        long: {
+            ready: this.stitchQuotes.longBreak || this.stitchQuotes.break,
+            working: this.stitchQuotes.longBreak || this.stitchQuotes.break,
+            paused: [
+                "Long break paused!",
+                "Take all the time you need!",
+                "Deep rest on hold!",
+                "No worries at all!",
+                "Recharge when ready!"
+            ],
+            complete: [
+                "Long break complete!",
+                "Fully recharged!",
+                "Ready for the next round!",
+                "You're refreshed!",
+                "Back to productivity!"
+            ]
+        }
+    };
+    
+    // Get the appropriate mapping for current session
+    const sessionMappings = quoteMappings[this.currentSession] || quoteMappings.work;
+    
+    // Return the quotes for the current state
+    return sessionMappings[state] || this.stitchQuotes.work;
+}
     updateStitchState(state) {
-        // Use the image registry if available
-        if (this.images && this.images.gifs) {
-            const gifMap = {
-                ready: 'hyping',
-                working: 'dancing',
-                paused: 'eating',
-                complete: 'love',
-                break: 'sleeping'
-            };
-            
-            let gifKey = gifMap[state];
-            if (this.currentSession !== 'work' && state === 'working') {
-                gifKey = 'sleeping';
-            }
-            
-            if (this.stitchImg && gifKey && this.images.gifs[gifKey]) {
-                this.stitchImg.src = this.images.gifs[gifKey];
-                console.log(`Updated Stitch GIF to: ${gifKey}`, this.images.gifs[gifKey]);
-            }
-        } else {
-            console.warn('Image registry not available, Stitch GIF will not update');
-        }
+    // Use the image registry if available
+    if (this.images && this.images.gifs) {
+        const gifKey = this.getStitchGifKey(state);
         
-        // Update speech bubble
-        let quotes;
-        if (state === 'complete') {
-            quotes = this.stitchQuotes.complete;
-        } else if (this.currentSession === 'work') {
-            quotes = this.stitchQuotes.work;
-        } else {
-            quotes = this.stitchQuotes.break;
+        if (this.stitchImg && gifKey && this.images.gifs[gifKey]) {
+            this.stitchImg.src = this.images.gifs[gifKey];
+            console.log(`Updated Stitch GIF to: ${gifKey}`, this.images.gifs[gifKey]);
         }
-        
-        if (this.stitchSpeech && quotes) {
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            this.stitchSpeech.textContent = randomQuote;
-        }
+    } else {
+        console.warn('Image registry not available, Stitch GIF will not update');
     }
+    
+    // Update speech bubble with session-specific quotes
+    const quotes = this.getStitchQuotes(state);
+    if (this.stitchSpeech && quotes) {
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        this.stitchSpeech.textContent = randomQuote;
+    }
+}
+getStitchGifKey(state) {
+    // Define GIF mappings based on session type and state
+    const gifMappings = {
+        work: {
+            ready: 'hyping',      // Ready to work
+            working: 'dancing',   // Working/focused
+            paused: 'eating',     // Paused during work
+            complete: 'love'      // Work session completed
+        },
+        short: {
+            ready: 'hyping',      // Ready for short break
+            working: 'eating',  // During short break (relaxing)
+            paused: 'tantrum',     // Paused during short break
+            complete: 'love'      // Short break completed
+        },
+        long: {
+            ready: 'hyping',      // Ready for long break  
+            working: 'sleeping',  // During long break (deep rest)
+            paused: 'tantrum',     // Paused during long break
+            complete: 'love'      // Long break completed
+        }
+    };
+    
+    // Get the appropriate mapping for current session
+    const sessionMappings = gifMappings[this.currentSession] || gifMappings.work;
+    
+    // Return the GIF key for the current state
+    return sessionMappings[state] || 'hyping';
+}
     
     updateStats() {
         try {
@@ -598,13 +864,25 @@ class PomodoroTimer {
         }
     }
     
+    // destroy() {
+    //     if (this.interval) {
+    //         clearInterval(this.interval);
+    //         this.interval = null;
+    //     }
+    //     this.isRunning = false;
+    // }
     destroy() {
-        if (this.interval) {
-            clearInterval(this.interval);
-            this.interval = null;
-        }
-        this.isRunning = false;
+    if (this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
     }
+    this.isRunning = false;
+    
+    // Clean up theme classes
+    if (this.timerContainer) {
+        this.timerContainer.classList.remove('work', 'break', 'shortbreak', 'longbreak', 'running');
+    }
+}
 }
 
 export default PomodoroTimer;
