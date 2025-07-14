@@ -973,41 +973,89 @@
 }
 
 
-.search-primary-highlight {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
-    border: 2px solid #3b82f6 !important;
-    z-index: 1000 !important;
+
+.search-container {
+    position: relative;
 }
 
-.search-highlight {
-    opacity: 1 !important;
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
-.search-results-count {
-    margin-top: 5px;
+.search-results-list {
+    padding: 8px 0;
+}
+
+.search-result-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-secondary);
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover,
+.search-result-item.highlighted {
+    background-color: var(--hover-background);
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.search-result-details {
     font-size: 12px;
-    padding: 4px 8px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 12px;
+}
+
+.search-result-date {
+    color: var(--medium-purple);
+}
+
+.search-result-category {
+    text-transform: uppercase;
+    font-size: 10px;
+    padding: 2px 6px;
     border-radius: 4px;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--category-background);
 }
 
-.search-results-count.has-results {
-    background: #dbeafe;
-    color: #1d4ed8;
+.search-footer {
+    padding: 8px 16px;
+    background: var(--background-secondary);
+    border-top: 1px solid var(--border-secondary);
+    font-size: 11px;
+    color: var(--text-secondary);
 }
 
-.search-results-count.no-results {
-    background: #fee2e2;
-    color: #dc2626;
+.search-no-results {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
 }
 
-/* @keyframes searchPulse {
+@keyframes searchPulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
-} */
-
-
+}
 
 /* Animations */
 /* @keyframes slideInRight {

@@ -9,6 +9,9 @@ class ProductivityCalendar {
         this.analyticsVisible = false;
         this.searchQuery = '';
         this.isSearchActive = false;
+        this.searchResults = [];
+        this.selectedSearchIndex = -1;
+        this.searchDropdownVisible = false;
         this.init();
         this.loadEvents();
         this.setupEventListeners();
@@ -50,8 +53,23 @@ class ProductivityCalendar {
         document.getElementById('parseEvent')?.addEventListener('click', () => this.parseQuickEvent());
         document.getElementById('cancelQuickAdd')?.addEventListener('click', () => this.hideQuickAdd());
         document.getElementById('cancelEvent')?.addEventListener('click', () => this.hideEventModal());
-        document.getElementById('eventSearch')?.addEventListener('input', (e) => this.searchEvents(e.target.value));
-        document.querySelectorAll('.category-filter').forEach(btn => {btn.addEventListener('click', (e) => this.filterByCategory(e.target.dataset.category));});
+        // document.getElementById('eventSearch')?.addEventListener('input', (e) => this.searchEvents(e.target.value));
+    document.getElementById('eventSearch')?.addEventListener('input', (e) => {
+        this.searchEvents(e.target.value);
+    });
+    document.getElementById('eventSearch')?.addEventListener('focus', () => {
+        if (this.searchQuery.trim() && this.searchResults.length > 0) {
+            this.showSearchDropdown();
+        }
+    });
+    document.getElementById('eventSearch')?.addEventListener('blur', (e) => {
+        // Delay hiding to allow clicks on dropdown items
+        setTimeout(() => {
+            if (!document.querySelector('.search-dropdown:hover')) {
+                this.hideSearchDropdown();
+            }
+        }, 150);
+    });        document.querySelectorAll('.category-filter').forEach(btn => {btn.addEventListener('click', (e) => this.filterByCategory(e.target.dataset.category));});
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 switch(e.key) {
@@ -78,22 +96,34 @@ class ProductivityCalendar {
                     case 'Enter':
                     if (document.activeElement?.id === 'eventSearch') {
                         e.preventDefault();
-                        const searchValue = document.getElementById('eventSearch').value;
-                        if (searchValue.trim()) {
-                            this.searchEvents(searchValue);
+                        if (this.searchDropdownVisible && this.selectedSearchIndex >= 0) {
+                            this.selectSearchResult(this.selectedSearchIndex);
+                        } else {
+                            const searchValue = document.getElementById('eventSearch').value;
+                            if (searchValue.trim()) {
+                                this.searchEvents(searchValue);
+                            }
                         }
                     }
                     break;
                     case 'ArrowDown':
-                        if (document.activeElement?.id === 'eventSearch' && this.isSearchActive) {
+                        if (document.activeElement?.id === 'eventSearch') {
                             e.preventDefault();
-                            this.navigateToNextSearchResult(1);
+                            if (this.searchDropdownVisible) {
+                                this.navigateSearchDropdown(1);
+                            } else if (this.isSearchActive) {
+                                this.navigateToNextSearchResult(1);
+                            }
                         }
                         break;
                     case 'ArrowUp':
-                        if (document.activeElement?.id === 'eventSearch' && this.isSearchActive) {
+                        if (document.activeElement?.id === 'eventSearch') {
                             e.preventDefault();
-                            this.navigateToNextSearchResult(-1);
+                            if (this.searchDropdownVisible) {
+                                this.navigateSearchDropdown(-1);
+                            } else if (this.isSearchActive) {
+                                this.navigateToNextSearchResult(-1);
+                            }
                         }
                         break;
                 }
@@ -101,6 +131,13 @@ class ProductivityCalendar {
             if (e.key === 'Escape') {
                 this.hideEventModal();
                 this.hideQuickAdd();
+                if (document.activeElement?.id === 'eventSearch') {
+                    this.hideSearchDropdown();
+                    this.clearSearch();
+                } else {
+                    this.hideEventModal();
+                    this.hideQuickAdd();
+                }
             }
         });
         document.addEventListener('click', (e) => {
@@ -219,87 +256,37 @@ class ProductivityCalendar {
     this.currentDate = newDate;
     this.render();
     }
-    // render() {
-    //     this.updateHeader();
-    //     switch(this.currentView) {
-    //         case 'month':
-    //             this.renderMonthView();
-    //             break;
-    //         case 'week':
-    //             this.renderWeekView();
-    //             break;
-    //         case 'day':
-    //             this.renderDayView();
-    //             break;
-    //     }
-    // }
-
-//     render() {
-//     this.updateHeader();
-    
-//     // Store search state
-//     const wasSearchActive = this.isSearchActive;
-//     const currentSearchQuery = this.searchQuery;
-    
-//     switch(this.currentView) {
-//         case 'month':
-//             this.renderMonthView();
-//             break;
-//         case 'week':
-//             this.renderWeekView();
-//             break;
-//         case 'day':
-//             this.renderDayView();
-//             break;
-//     }
-    
-//     // Reapply search if it was active
-//     if (wasSearchActive && currentSearchQuery) {
-//         const searchInput = document.getElementById('eventSearch');
-//         if (searchInput) {
-//             searchInput.value = currentSearchQuery;
-//         }
-//         this.searchEvents(currentSearchQuery);
-//     }
-// }
-
-render() {
-    this.updateHeader();
-    const wasSearchActive = this.isSearchActive;
-    const currentSearchQuery = this.searchQuery;
-    
-    switch(this.currentView) {
-        case 'month':
-            this.renderMonthView();
-            break;
-        case 'week':
-            this.renderWeekView();
-            break;
-        case 'day':
-            this.renderDayView();
-            break;
-    }
-    
-    // MODIFY THIS SECTION - enhance search persistence
-    if (wasSearchActive && currentSearchQuery) {
-        const searchInput = document.getElementById('eventSearch');
-        if (searchInput) {
-            searchInput.value = currentSearchQuery;
+    render() {
+        this.updateHeader();
+        const wasSearchActive = this.isSearchActive;
+        const currentSearchQuery = this.searchQuery;
+        switch(this.currentView) {
+            case 'month':
+                this.renderMonthView();
+                break;
+            case 'week':
+                this.renderWeekView();
+                break;
+            case 'day':
+                this.renderDayView();
+                break;
         }
-        
-        // Re-apply search filter after render
-        setTimeout(() => {
-            const filteredEvents = this.events.filter(event => 
-                event.title.toLowerCase().includes(currentSearchQuery) ||
-                (event.description && event.description.toLowerCase().includes(currentSearchQuery)) ||
-                (event.category && event.category.toLowerCase().includes(currentSearchQuery))
-            );
-            
-            this.applySearchFilter(filteredEvents);
-            this.showSearchResultsCount(filteredEvents.length);
-        }, 50);
+        if (wasSearchActive && currentSearchQuery) {
+            const searchInput = document.getElementById('eventSearch');
+            if (searchInput) {
+                searchInput.value = currentSearchQuery;
+            }
+            setTimeout(() => {
+                const filteredEvents = this.events.filter(event => 
+                    event.title.toLowerCase().includes(currentSearchQuery) ||
+                    (event.description && event.description.toLowerCase().includes(currentSearchQuery)) ||
+                    (event.category && event.category.toLowerCase().includes(currentSearchQuery))
+                );
+                this.applySearchFilter(filteredEvents);
+                this.showSearchResultsCount(filteredEvents.length);
+            }, 50);
+        }
     }
-}
     updateHeader() {
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
@@ -664,34 +651,20 @@ render() {
     });    
     return eventElement;
 }
-    // getEventsForDate(date) {
-    //     if (!date) return [];
-    //     return this.events.filter(event => {
-    //         const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-    //         return this.isSameDate(eventDate, date);
-    //     });
-    // }
-
-    // Modify your existing getEventsForDate method to respect search filtering
-getEventsForDate(date) {
-    if (!date) return [];
-    
-    let eventsForDate = this.events.filter(event => {
-        const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
-        return this.isSameDate(eventDate, date);
-    });
-    
-    // Apply search filter if active
-    if (this.isSearchActive) {
-        eventsForDate = eventsForDate.filter(event => 
-            event.title.toLowerCase().includes(this.searchQuery) ||
-            (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
-            (event.category && event.category.toLowerCase().includes(this.searchQuery))
-        );
+    getEventsForDate(date) {
+        if (!date) return [];
+        let eventsForDate = this.events.filter(event => {
+            const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+            return this.isSameDate(eventDate, date);    });
+        if (this.isSearchActive) {
+            eventsForDate = eventsForDate.filter(event => 
+                event.title.toLowerCase().includes(this.searchQuery) ||
+                (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+                (event.category && event.category.toLowerCase().includes(this.searchQuery))
+            );
+        }
+        return eventsForDate;
     }
-    
-    return eventsForDate;
-}
     isSameDate(date1, date2) {
         if (!date1 || !date2) return false;
         const d1 = typeof date1 === 'string' ? new Date(date1) : date1;
@@ -993,356 +966,381 @@ getEventsForDate(date) {
                 return today;
         }
     }
-
-searchEvents(query) {
-    this.searchQuery = query.toLowerCase().trim();
-    this.isSearchActive = this.searchQuery.length > 0;
-    
-    if (!this.isSearchActive) {
+    searchEvents(query) {
+        this.searchQuery = query.toLowerCase().trim();
+        this.isSearchActive = this.searchQuery.length > 0;
+        if (!this.isSearchActive) {
+            this.clearSearchHighlight();
+            this.hideSearchDropdown();
+            this.searchResults = [];
+            this.render();
+            return;
+        }
+        const filteredEvents = this.events.filter(event => 
+            event.title.toLowerCase().includes(this.searchQuery) ||
+            (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+            (event.category && event.category.toLowerCase().includes(this.searchQuery))
+        );
+        const sortedEvents = [...filteredEvents].sort((a, b) => {
+            const dateA = typeof a.date === 'string' ? new Date(a.date) : a.date;
+            const dateB = typeof b.date === 'string' ? new Date(b.date) : b.date;
+            return dateA.getTime() - dateB.getTime();
+        });
+        this.searchResults = sortedEvents.slice(0, 5);
+        this.selectedSearchIndex = -1;
+        if (this.searchResults.length > 0) {
+            this.showSearchDropdown();
+            this.navigateToSearchResult(this.searchResults[0]);
+        } else {
+            this.showSearchDropdown(); 
+            this.clearSearchHighlight();
+        }
+    }
+    showSearchDropdown() {
+        const dropdown = document.getElementById('searchDropdown');
+        if (!dropdown) return;
+        const resultsList = dropdown.querySelector('.search-results-list');
+        if (!resultsList) return;
+        if (this.searchResults.length === 0) {
+            resultsList.innerHTML = '<div class="search-no-results">No events found</div>';
+        } else {
+            resultsList.innerHTML = this.searchResults.map((event, index) => {
+                const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+                const dateStr = eventDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                const timeStr = event.isAllDay ? 'All Day' : 
+                    `${event.startTime || ''} - ${event.endTime || ''}`;
+                return `
+                    <div class="search-result-item" data-index="${index}">
+                        <div class="search-result-title">${event.title}</div>
+                        <div class="search-result-details">
+                            <span class="search-result-date">${dateStr}</span>
+                            <span class="search-result-time">${timeStr}</span>
+                            <span class="search-result-category ${event.category || 'work'}">${(event.category || 'work').toUpperCase()}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            resultsList.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.dataset.index);
+                    this.selectSearchResult(index);
+                });
+            });
+        }
+        dropdown.style.display = 'block';
+        this.searchDropdownVisible = true;
+    }
+    hideSearchDropdown() {
+        const dropdown = document.getElementById('searchDropdown');
+        if (dropdown) {
+            dropdown.style.display = 'none';
+            this.searchDropdownVisible = false;
+            this.selectedSearchIndex = -1;
+        }
+    }
+    navigateSearchDropdown(direction) {
+        if (this.searchResults.length === 0) return;
+        const items = document.querySelectorAll('.search-result-item');
+        if (items.length === 0) return;
+        items.forEach(item => item.classList.remove('highlighted'));
+        this.selectedSearchIndex += direction;
+        if (this.selectedSearchIndex < 0) {
+            this.selectedSearchIndex = this.searchResults.length - 1;
+        } else if (this.selectedSearchIndex >= this.searchResults.length) {
+            this.selectedSearchIndex = 0;
+        }
+        items[this.selectedSearchIndex].classList.add('highlighted');
+        items[this.selectedSearchIndex].scrollIntoView({ block: 'nearest' });
+    }
+    selectSearchResult(index) {
+        if (index < 0 || index >= this.searchResults.length) return;
+        const selectedEvent = this.searchResults[index];
+        this.hideSearchDropdown();
+        this.navigateToSearchResult(selectedEvent);
+    }
+    navigateToSearchResult(event) {
+        const eventDate = typeof event.date === 'string' ? new Date(event.date) : event.date;
+        this.targetSearchEvent = event;
+        this.navigateToDate(eventDate);
+    }
+    clearSearch() {
+        const searchInput = document.getElementById('eventSearch');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        this.searchQuery = '';
+        this.isSearchActive = false;
+        this.searchResults = [];
+        this.hideSearchDropdown();
         this.clearSearchHighlight();
         this.render();
-        return;
     }
-    const filteredEvents = this.events.filter(event => 
-        event.title.toLowerCase().includes(this.searchQuery) ||
-        (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
-        (event.category && event.category.toLowerCase().includes(this.searchQuery))
-    );
-    if (filteredEvents.length > 0) {
-        this.navigateToFirstSearchResult(filteredEvents);
-    } else {
-        this.applySearchFilter(filteredEvents);
-        this.showSearchResultsCount(0);
-    }
-}
-navigateToFirstSearchResult(filteredEvents) {
-    // Sort events by date to get the earliest one
-    const sortedEvents = [...filteredEvents].sort((a, b) => {
-        const dateA = typeof a.date === 'string' ? new Date(a.date) : a.date;
-        const dateB = typeof b.date === 'string' ? new Date(b.date) : b.date;
-        return dateA.getTime() - dateB.getTime();
-    });
-    
-    const firstEvent = sortedEvents[0];
-    const eventDate = typeof firstEvent.date === 'string' ? new Date(firstEvent.date) : firstEvent.date;
-    
-    // Store the target event for highlighting after render
-    this.targetSearchEvent = firstEvent;
-    
-    // Navigate to the month/week/day containing the first event
-    this.navigateToDate(eventDate);
-    
-    // Show search results count
-    this.showSearchResultsCount(filteredEvents.length);
-}
-navigateToDate(targetDate) {
-    const previousDate = new Date(this.currentDate);
-    this.currentDate = new Date(targetDate);
-    
-    // For month view, we want to show the month containing the target date
-    if (this.currentView === 'month') {
-        // Set to first day of month for proper month view rendering
-        this.currentDate.setDate(1);
-    }
-    
-    // Re-render with the new date
-    this.render();
-    
-    // After render, apply search filter and highlight the target event
-    setTimeout(() => {
-        this.applySearchFilterAfterNavigation();
-    }, 100);
-}
-applySearchFilterAfterNavigation() {
-    const filteredEvents = this.events.filter(event => 
-        event.title.toLowerCase().includes(this.searchQuery) ||
-        (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
-        (event.category && event.category.toLowerCase().includes(this.searchQuery))
-    );
-    
-    // Apply the filter to the current view
-    this.applySearchFilter(filteredEvents);
-    
-    // Highlight and focus on the target event
-    if (this.targetSearchEvent) {
-        this.highlightTargetEvent(this.targetSearchEvent);
-        this.targetSearchEvent = null; // Clear after use
-    }
-}
-highlightTargetEvent(targetEvent) {
-    // Add a special highlight class for the primary search result
-    const eventElements = document.querySelectorAll('.event-item, .timed-event');
-    
-    eventElements.forEach(el => {
-        const eventId = el.dataset.eventId;
-        const eventTitle = el.textContent.split('\n')[0].trim();
-        
-        // Check if this is our target event
-        if ((eventId && parseInt(eventId) === targetEvent.id) || 
-            (eventTitle === targetEvent.title)) {
-            
-            // Add special primary highlight
-            el.classList.add('search-primary-highlight');
-            
-            // Scroll to the event (especially useful in day/week view)
-            el.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-            
-            // Add a brief pulse animation
-            el.style.animation = 'searchPulse 2s ease-in-out';
-            
-            // Remove animation after completion
-            setTimeout(() => {
-                el.style.animation = '';
-            }, 2000);
+    navigateToFirstSearchResult(filteredEvents) {
+        const sortedEvents = [...filteredEvents].sort((a, b) => {
+            const dateA = typeof a.date === 'string' ? new Date(a.date) : a.date;
+            const dateB = typeof b.date === 'string' ? new Date(b.date) : b.date;
+            return dateA.getTime() - dateB.getTime();
+        });
+        const firstEvent = sortedEvents[0];
+        const eventDate = typeof firstEvent.date === 'string' ? new Date(firstEvent.date) : firstEvent.date;
+        this.targetSearchEvent = firstEvent;
+        this.currentSearchIndex = 0; 
+        this.searchResults = sortedEvents; 
+        const needsNavigation = this.checkIfNavigationNeeded(eventDate);
+        if (needsNavigation) {
+            this.navigateToDate(eventDate);
+        } else {
+            this.applySearchFilter(filteredEvents);
+            this.highlightTargetEvent(firstEvent);
         }
-    });
-}
-clearSearchAndReturnToToday() {
-    this.resetSearch();
-    this.clearSearchHighlight();
-    this.goToToday();
-}
-applySearchFilter(filteredEvents) {
-    const filteredEventIds = new Set(filteredEvents.map(event => event.id));
-    switch(this.currentView) {
-        case 'month':
-            this.applyMonthSearchFilter(filteredEventIds);
-            break;
-        case 'week':
-            this.applyWeekSearchFilter(filteredEventIds);
-            break;
-        case 'day':
-            this.applyDaySearchFilter(filteredEventIds);
-            break;
+        this.showSearchResultsCount(filteredEvents.length);
     }
-}
-applyMonthSearchFilter(filteredEventIds) {
-    const eventElements = document.querySelectorAll('.event-item');
-    
-    eventElements.forEach(eventEl => {
-        const eventTitle = eventEl.textContent.replace(/^\+\d+\s+more$/, ''); // Handle "more" elements
-        const matchingEvent = this.events.find(event => 
-            event.title === eventTitle || eventTitle.includes(event.title)
+    checkIfNavigationNeeded(targetDate) {
+        const currentViewDate = new Date(this.currentDate);
+        const target = new Date(targetDate);
+        switch(this.currentView) {
+            case 'month':
+                return currentViewDate.getFullYear() !== target.getFullYear() || currentViewDate.getMonth() !== target.getMonth();
+            case 'week':
+                const currentWeekStart = new Date(currentViewDate);
+                currentWeekStart.setDate(currentViewDate.getDate() - currentViewDate.getDay());
+                const currentWeekEnd = new Date(currentWeekStart);
+                currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
+                return target < currentWeekStart || target > currentWeekEnd;
+            case 'day':
+                return !this.isSameDate(currentViewDate, target);
+            default:
+                return false;
+        }
+    }
+    navigateToDate(targetDate) {
+        const previousDate = new Date(this.currentDate);
+        this.currentDate = new Date(targetDate);
+        if (this.currentView === 'month') {
+            this.currentDate.setDate(1);
+        }
+        this.render();
+        setTimeout(() => {
+            this.applySearchFilterAfterNavigation();
+            if (this.targetSearchEvent) {
+                this.highlightTargetEvent(this.targetSearchEvent);
+                this.targetSearchEvent = null;
+            }
+        }, 100);
+    }
+    applySearchFilterAfterNavigation() {
+        const filteredEvents = this.events.filter(event => 
+            event.title.toLowerCase().includes(this.searchQuery) ||
+            (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+            (event.category && event.category.toLowerCase().includes(this.searchQuery))
         );
-        
-        if (matchingEvent && filteredEventIds.has(matchingEvent.id)) {
-            eventEl.style.display = 'block';
-            eventEl.classList.add('search-highlight');
-        } else if (!eventEl.classList.contains('more-events')) {
-            eventEl.style.display = 'none';
-            eventEl.classList.remove('search-highlight');
+        this.applySearchFilter(filteredEvents);
+        setTimeout(() => {
+            if (this.targetSearchEvent) {
+                this.highlightTargetEvent(this.targetSearchEvent);
+                    this.targetSearchEvent = null;
+                }
+            }, 200); 
         }
-    });
-}
-
-applyWeekSearchFilter(filteredEventIds) {
-    const eventElements = document.querySelectorAll('.timed-event');
-    eventElements.forEach(eventEl => {
-        const eventId = parseInt(eventEl.dataset.eventId);
-        
-        if (filteredEventIds.has(eventId)) {
-            eventEl.style.display = 'flex';
-            eventEl.classList.add('search-highlight');
-        } else {
-            eventEl.style.display = 'none';
-            eventEl.classList.remove('search-highlight');
-        }
-    });
-}
-
-applyDaySearchFilter(filteredEventIds) {
-    const eventElements = document.querySelectorAll('.timed-event');
-    
-    eventElements.forEach(eventEl => {
-        const eventId = parseInt(eventEl.dataset.eventId);
-        
-        if (filteredEventIds.has(eventId)) {
-            eventEl.style.display = 'flex';
-            eventEl.classList.add('search-highlight');
-        } else {
-            eventEl.style.display = 'none';
-            eventEl.classList.remove('search-highlight');
-        }
-    });
-}
-
-// Add this method to clear search highlighting
-clearSearchHighlight() {
-    const eventElements = document.querySelectorAll('.event-item, .timed-event');
-    eventElements.forEach(el => {
-        el.style.display = '';
-        el.classList.remove('search-highlight');
-    });
-    this.hideSearchResultsCount();
-}
-
-// Add this method to show search results count
-// showSearchResultsCount(count) {
-//     let resultsDisplay = document.getElementById('searchResults');
-    
-//     if (!resultsDisplay) {
-//         // Create results display element
-//         resultsDisplay = document.createElement('div');
-//         resultsDisplay.id = 'searchResults';
-//         resultsDisplay.className = 'search-results-count';
-        
-//         const searchContainer = document.getElementById('eventSearch')?.parentElement;
-//         if (searchContainer) {
-//             searchContainer.appendChild(resultsDisplay);
-//         }
-//     }
-    
-//     if (count === 0) {
-//         resultsDisplay.textContent = 'No events found';
-//         resultsDisplay.className = 'search-results-count no-results';
-//     } else {
-//         resultsDisplay.textContent = `${count} event${count !== 1 ? 's' : ''} found`;
-//         resultsDisplay.className = 'search-results-count has-results';
-//     }
-    
-//     resultsDisplay.style.display = 'block';
-// }
-showSearchResultsCount(count) {
-    let resultsDisplay = document.getElementById('searchResults');
-    if (!resultsDisplay) {
-        resultsDisplay = document.createElement('div');
-        resultsDisplay.id = 'searchResults';
-        resultsDisplay.className = 'search-results-count';
-        const searchContainer = document.getElementById('eventSearch')?.parentElement;
-        if (searchContainer) {
-            searchContainer.appendChild(resultsDisplay);
-        }
-    }
-    
-    if (count === 0) {
-        resultsDisplay.textContent = 'No events found';
-        resultsDisplay.className = 'search-results-count no-results';
-    } else {
-        const eventText = count === 1 ? 'event' : 'events';
-        resultsDisplay.textContent = `${count} ${eventText} found`;
-        resultsDisplay.className = 'search-results-count has-results';
-        
-        // Add navigation hint for multiple results
-        if (count > 1) {
-            resultsDisplay.textContent += ' (navigated to earliest)';
-        }
-    }
-    
-    resultsDisplay.style.display = 'block';
-}
-
-// Add this method to hide search results count
-hideSearchResultsCount() {
-    const resultsDisplay = document.getElementById('searchResults');
-    if (resultsDisplay) {
-        resultsDisplay.style.display = 'none';
-    }
-}
-
-navigateToNextSearchResult(direction = 1) {
-    if (!this.isSearchActive) return;
-    
-    const filteredEvents = this.events.filter(event => 
-        event.title.toLowerCase().includes(this.searchQuery) ||
-        (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
-        (event.category && event.category.toLowerCase().includes(this.searchQuery))
-    );
-    
-    if (filteredEvents.length === 0) return;
-    
-    // Sort by date
-    const sortedEvents = [...filteredEvents].sort((a, b) => {
-        const dateA = typeof a.date === 'string' ? new Date(a.date) : a.date;
-        const dateB = typeof b.date === 'string' ? new Date(b.date) : b.date;
-        return dateA.getTime() - dateB.getTime();
-    });
-    
-    // Find current index or start from beginning
-    let currentIndex = this.currentSearchIndex || 0;
-    currentIndex = (currentIndex + direction) % sortedEvents.length;
-    if (currentIndex < 0) currentIndex = sortedEvents.length - 1;
-    
-    this.currentSearchIndex = currentIndex;
-    const targetEvent = sortedEvents[currentIndex];
-    
-    // Navigate to this event
-    this.targetSearchEvent = targetEvent;
-    const eventDate = typeof targetEvent.date === 'string' ? new Date(targetEvent.date) : targetEvent.date;
-    this.navigateToDate(eventDate);
-    
-    // Update search results display
-    this.showSearchResultsCount(filteredEvents.length);
-}
-
-    // highlightSearchResults(filteredEvents) {
-    //     document.querySelectorAll('.event-item').forEach(el => {
-    //         el.classList.remove('search-highlight');
-    //     });
-    //     if (filteredEvents.length === 0) return;
-    //     filteredEvents.forEach(event => {
-    //         const eventElements = document.querySelectorAll('.event-item');
-    //         eventElements.forEach(el => {
-    //             if (el.textContent === event.title) {
-    //                 el.classList.add('search-highlight');
-    //             }
-    //         });
-    //     });
-    // }
-
-    highlightSearchResults(filteredEvents) {
-    // Clear previous highlights
-    document.querySelectorAll('.event-item, .timed-event').forEach(el => {
-        el.classList.remove('search-highlight');
-    });
-    
-    if (filteredEvents.length === 0) return;
-    
-    // Create a map of event titles to IDs for better matching
-    const eventMap = new Map();
-    filteredEvents.forEach(event => {
-        eventMap.set(event.title, event.id);
-    });
-    
-    // Highlight matching events
-    document.querySelectorAll('.event-item, .timed-event').forEach(el => {
-        const eventId = el.dataset.eventId;
-        const eventTitle = el.textContent.split('\n')[0].trim(); // Get first line as title
-        
-        if (eventId && filteredEvents.some(event => event.id === parseInt(eventId))) {
-            el.classList.add('search-highlight');
-        } else if (eventMap.has(eventTitle)) {
-            el.classList.add('search-highlight');
-        }
-    });
-}
-
-// Add this method to reset search when changing views
-resetSearch() {
-    const searchInput = document.getElementById('eventSearch');
-    if (searchInput) {
-        searchInput.value = '';
-    }
-    this.searchQuery = '';
-    this.isSearchActive = false;
-    this.hideSearchResultsCount();
-}
-    filterByCategory(category) {
-        document.querySelectorAll('.category-filter').forEach(btn => {
-            btn.classList.remove('active');});
-        const activeBtn = document.querySelector(`[data-category="${category}"]`);
-        if (activeBtn) activeBtn.classList.add('active');
-        const eventElements = document.querySelectorAll('.event-item');
+    highlightTargetEvent(targetEvent) {
+        document.querySelectorAll('.search-primary-highlight').forEach(el => {
+            el.classList.remove('search-primary-highlight');
+            el.style.animation = '';
+        });
+        const eventElements = document.querySelectorAll('.event-item, .timed-event');
+        let highlighted = false;
         eventElements.forEach(el => {
-            if (category === 'all') {
-                el.style.display = 'block';
-            } else {
-                el.style.display = el.classList.contains(category) ? 'block' : 'none';
+            const eventId = el.dataset.eventId;
+            const eventTitle = el.textContent.split('\n')[0].trim();
+            if ((eventId && parseInt(eventId) === targetEvent.id) || 
+                (eventTitle === targetEvent.title && !highlighted)) {
+                el.classList.add('search-primary-highlight');
+                highlighted = true;
+                setTimeout(() => {
+                    el.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center',
+                        inline: 'center'
+                    });
+                }, 100);
+                el.style.animation = 'searchPulse 2s ease-in-out';
+                setTimeout(() => {
+                    el.style.animation = '';
+                }, 2000);
+            }
+        });
+        if (!highlighted) {
+            console.warn('Target event not found in current view:', targetEvent.title);
+        }
+    }
+    clearSearchAndReturnToToday() {
+        this.resetSearch();
+        this.clearSearchHighlight();
+        this.goToToday();
+    }
+    applySearchFilter(filteredEvents) {
+        const filteredEventIds = new Set(filteredEvents.map(event => event.id));
+        switch(this.currentView) {
+            case 'month':
+                this.applyMonthSearchFilter(filteredEventIds);
+                break;
+            case 'week':
+                this.applyWeekSearchFilter(filteredEventIds);
+                break;
+            case 'day':
+                this.applyDaySearchFilter(filteredEventIds);
+                break;
+        }
+    }
+    applyMonthSearchFilter(filteredEventIds) {
+        const eventElements = document.querySelectorAll('.event-item');
+        eventElements.forEach(eventEl => {
+            const eventTitle = eventEl.textContent.replace(/^\+\d+\s+more$/, ''); 
+            const matchingEvent = this.events.find(event => 
+                event.title === eventTitle || eventTitle.includes(event.title)
+            );
+            if (matchingEvent && filteredEventIds.has(matchingEvent.id)) {
+                eventEl.style.display = 'block';
+                eventEl.classList.add('search-highlight');
+            } else if (!eventEl.classList.contains('more-events')) {
+                eventEl.style.display = 'none';
+                eventEl.classList.remove('search-highlight');
             }
         });
     }
+    applyWeekSearchFilter(filteredEventIds) {
+        const eventElements = document.querySelectorAll('.timed-event');
+        eventElements.forEach(eventEl => {
+            const eventId = parseInt(eventEl.dataset.eventId);
+            if (filteredEventIds.has(eventId)) {
+                eventEl.style.display = 'flex';
+                eventEl.classList.add('search-highlight');
+            } else {
+                eventEl.style.display = 'none';
+                eventEl.classList.remove('search-highlight');
+            }
+        });
+    }
+    applyDaySearchFilter(filteredEventIds) {
+        const eventElements = document.querySelectorAll('.timed-event');
+        eventElements.forEach(eventEl => {
+            const eventId = parseInt(eventEl.dataset.eventId);
+            if (filteredEventIds.has(eventId)) {
+                eventEl.style.display = 'flex';
+                eventEl.classList.add('search-highlight');
+            } else {
+                eventEl.style.display = 'none';
+                eventEl.classList.remove('search-highlight');
+            }
+        });
+    }
+    clearSearchHighlight() {
+        const eventElements = document.querySelectorAll('.event-item, .timed-event');
+        eventElements.forEach(el => {
+            el.style.display = '';
+            el.classList.remove('search-highlight');
+        });
+        this.hideSearchResultsCount();
+    }
+    showSearchResultsCount(count) {
+        let resultsDisplay = document.getElementById('searchResults');
+        if (!resultsDisplay) {
+            resultsDisplay = document.createElement('div');
+            resultsDisplay.id = 'searchResults';
+            resultsDisplay.className = 'search-results-count';
+            const searchContainer = document.getElementById('eventSearch')?.parentElement;
+            if (searchContainer) {
+                searchContainer.appendChild(resultsDisplay);
+            }
+        }
+        if (count === 0) {
+            resultsDisplay.textContent = 'No events found';
+            resultsDisplay.className = 'search-results-count no-results';
+        } else {
+            const eventText = count === 1 ? 'event' : 'events';
+            resultsDisplay.textContent = `${count} ${eventText} found`;
+            resultsDisplay.className = 'search-results-count has-results';
+            if (count > 1) {
+                resultsDisplay.textContent += ' (navigated to earliest)';
+            }
+        }
+        resultsDisplay.style.display = 'block';
+    }
+    hideSearchResultsCount() {
+        const resultsDisplay = document.getElementById('searchResults');
+        if (resultsDisplay) {
+            resultsDisplay.style.display = 'none';
+        }
+    }
+    navigateToNextSearchResult(direction = 1) {
+        if (!this.isSearchActive) return;
+        const filteredEvents = this.events.filter(event => 
+            event.title.toLowerCase().includes(this.searchQuery) ||
+            (event.description && event.description.toLowerCase().includes(this.searchQuery)) ||
+            (event.category && event.category.toLowerCase().includes(this.searchQuery))
+        );
+        if (filteredEvents.length === 0) return;
+        const sortedEvents = [...filteredEvents].sort((a, b) => {
+            const dateA = typeof a.date === 'string' ? new Date(a.date) : a.date;
+            const dateB = typeof b.date === 'string' ? new Date(b.date) : b.date;
+            return dateA.getTime() - dateB.getTime();
+        });
+        let currentIndex = this.currentSearchIndex || 0;
+        currentIndex = (currentIndex + direction) % sortedEvents.length;
+        if (currentIndex < 0) currentIndex = sortedEvents.length - 1;
+        this.currentSearchIndex = currentIndex;
+        const targetEvent = sortedEvents[currentIndex];
+        this.targetSearchEvent = targetEvent;
+        const eventDate = typeof targetEvent.date === 'string' ? new Date(targetEvent.date) : targetEvent.date;
+        this.navigateToDate(eventDate);
+        this.showSearchResultsCount(filteredEvents.length);
+        }
+        highlightSearchResults(filteredEvents) {
+        document.querySelectorAll('.event-item, .timed-event').forEach(el => {
+            el.classList.remove('search-highlight');
+        });
+        if (filteredEvents.length === 0) return;
+        const eventMap = new Map();
+        filteredEvents.forEach(event => {
+            eventMap.set(event.title, event.id);
+        });
+        document.querySelectorAll('.event-item, .timed-event').forEach(el => {
+            const eventId = el.dataset.eventId;
+            const eventTitle = el.textContent.split('\n')[0].trim();
+            if (eventId && filteredEvents.some(event => event.id === parseInt(eventId))) {
+                el.classList.add('search-highlight');
+            } else if (eventMap.has(eventTitle)) {
+                el.classList.add('search-highlight');
+            }
+        });
+    }
+    resetSearch() {
+        const searchInput = document.getElementById('eventSearch');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        this.searchQuery = '';
+        this.isSearchActive = false;
+        this.hideSearchResultsCount();
+    }
+        filterByCategory(category) {
+            document.querySelectorAll('.category-filter').forEach(btn => {
+                btn.classList.remove('active');});
+            const activeBtn = document.querySelector(`[data-category="${category}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+            const eventElements = document.querySelectorAll('.event-item');
+            eventElements.forEach(el => {
+                if (category === 'all') {
+                    el.style.display = 'block';
+                } else {
+                    el.style.display = el.classList.contains(category) ? 'block' : 'none';
+                }
+            });
+        }
     loadEvents() {
         try {
             const savedEvents = localStorage.getItem('calendar-events');

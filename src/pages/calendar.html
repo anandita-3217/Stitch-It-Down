@@ -92,14 +92,18 @@
                         <button class="category-filter" data-category="personal">Personal</button>
                         <button class="category-filter" data-category="meetings">Meetings</button>
                         <button class="category-filter" data-category="deadlines">Deadlines</button>
-                    </div>            
-                    <!-- <div class="search-container">
-                        <input type="text" id="eventSearch" placeholder="Search events..." class="search-input">
-                    </div> -->
+                    </div>                                                
                     <div class="search-container">
-    <input type="text" id="eventSearch" placeholder="Search events..." class="search-input" />
-    <!-- Search results count will be dynamically added here -->
-</div>
+                        <input type="text" id="eventSearch" class="search-input"  placeholder="Search events..." />
+                        <div id="searchDropdown" class="search-dropdown" style="display: none;">
+                            <div class="search-results-list"></div>
+                            <div class="search-footer">
+                                <span class="search-navigation">
+                                    Use ↑↓ to navigate, Enter to select
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             <div class="calendar-wrapper">
                 <div id="calendarContainer" class="calendar-container-view">
