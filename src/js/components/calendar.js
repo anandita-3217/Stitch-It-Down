@@ -16,15 +16,7 @@ class ProductivityCalendar {
         this.render();
     }
     init() {
-    // this.currentDate = new Date();
-    // if (this.currentView === 'month') {
-    //     // Don't set to day 1 in constructor, do it in render
-    //     // this.currentDate.setDate(1);
-    // }
-    this.selectedDate = null;
-    this.filteredEvents = [];
-    this.activeCategory = 'all';
-}
+    }
     setupEventListeners() {
         document.getElementById('prevBtn')?.addEventListener('click', () => {
             if (this.currentView === 'day') {
@@ -124,8 +116,6 @@ class ProductivityCalendar {
                 }
             }
             if (e.key === 'Escape') {
-                this.hideEventModal();
-                this.hideQuickAdd();
                 if (document.activeElement?.id === 'eventSearch') {
                     this.hideSearchDropdown();
                     this.clearSearch();
@@ -148,28 +138,28 @@ class ProductivityCalendar {
             errors.push('Event title is required');
         }
         if (!eventData.date) {
-    errors.push('Event date is required');
-} else {
-    const eventDate = new Date(eventData.date);
-    const now = new Date();
-    if (!this.selectedEvent) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const eventDateCopy = new Date(eventDate);
-        eventDateCopy.setHours(0, 0, 0, 0);
-        if (eventDateCopy < today) {
-            errors.push('Cannot create events in the past');
-        }
-        if (eventDateCopy.getTime() === today.getTime() && eventData.startTime) {
-            const currentTime = now.getHours() * 60 + now.getMinutes();
-            const eventStartTime = this.timeToMinutes(eventData.startTime);
-            
-            if (eventStartTime < currentTime) {
-                errors.push('Cannot create events with past start time for today');
+            errors.push('Event date is required');
+        } else {
+            const eventDate = new Date(eventData.date);
+            // const now = new Date();
+            if (!this.selectedEvent) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const eventDateCopy = new Date(eventDate);
+                eventDateCopy.setHours(0, 0, 0, 0);
+                if (eventDateCopy < today) {
+                    errors.push('Cannot create events in the past');
+                }
+                if (eventDateCopy.getTime() === today.getTime() && eventData.startTime) {
+                    const currentTime = new Date().getHours() * 60 + new Date().getMinutes();
+                    const eventStartTime = this.timeToMinutes(eventData.startTime);
+
+                    if (eventStartTime < currentTime) {
+                        errors.push('Cannot create events with past start time for today');
+                    }
+                }
             }
         }
-    }
-}
         if (eventData.startTime && eventData.endTime) {
             const startMinutes = this.timeToMinutes(eventData.startTime);
             const endMinutes = this.timeToMinutes(eventData.endTime);
@@ -752,7 +742,7 @@ class ProductivityCalendar {
                 const element = document.getElementById(id);
                 if (element) {
                     element.checked = false;
-                    element.dispatchEvent(new Event('change'));
+                    // element.dispatchEvent(new Event('change'));
                 }
             });
             const deleteBtn = document.getElementById('deleteEvent');
@@ -1294,25 +1284,6 @@ class ProductivityCalendar {
         this.navigateToDate(eventDate);
         this.showSearchResultsCount(filteredEvents.length);
         }
-        highlightSearchResults(filteredEvents) {
-        document.querySelectorAll('.event-item, .timed-event').forEach(el => {
-            el.classList.remove('search-highlight');
-        });
-        if (filteredEvents.length === 0) return;
-        const eventMap = new Map();
-        filteredEvents.forEach(event => {
-            eventMap.set(event.title, event.id);
-        });
-        document.querySelectorAll('.event-item, .timed-event').forEach(el => {
-            const eventId = el.dataset.eventId;
-            const eventTitle = el.textContent.split('\n')[0].trim();
-            if (eventId && filteredEvents.some(event => event.id === parseInt(eventId))) {
-                el.classList.add('search-highlight');
-            } else if (eventMap.has(eventTitle)) {
-                el.classList.add('search-highlight');
-            }
-        });
-    }
     resetSearch() {
         const searchInput = document.getElementById('eventSearch');
         if (searchInput) {
