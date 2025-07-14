@@ -1020,13 +1020,13 @@
 
 .search-result-details {
     font-size: 12px;
-    color: var(--text-secondary);
+    color: var(--info-color);
     display: flex;
     gap: 12px;
 }
 
 .search-result-date {
-    color: var(--medium-purple);
+    color: var(--info-color);
 }
 
 .search-result-category {
