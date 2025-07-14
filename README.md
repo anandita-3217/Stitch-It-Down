@@ -293,61 +293,59 @@ Would you like wireframes or implementation suggestions for any of these?
 
  -->
 # Stitch It Down 🌺
-
-A Lilo & Stitch inspired desktop productivity application built with Electron Forge and Webpack. Get organized with your favorite blue alien companion!
+*"Ohana means family, and family means nobody gets left behind or forgotten."*
+A Lilo & Stitch inspired desktop productivity application built with Electron Forge and Webpack. 
 
 ## Features
 
-
+<!-- For the devs 
+1. Used localStorage for persistent storage
+ -->
 ### ⏰ Pomodoro Timer
 A focused productivity timer featuring the beloved Stitch character with animated motivational support and comprehensive session management.
 
  **Key Features:**
 
- **🎯 Pomodoro Technique Implementation**
+ **Pomodoro Technique Implementation**
 * **Work Sessions**: 25-minute focused work periods (customizable)
 * **Short Breaks**: 5-minute refreshing breaks between work sessions
 * **Long Breaks**: 15-minute extended breaks after every 4 work sessions
 * **Automatic Progression**: Seamlessly transitions between work and break sessions
 * **Session Counter**: Track your completed pomodoro cycles throughout the day
 
- **🌟 Stitch Character Integration**
-* **Animated Companion**: Stitch changes animations based on timer state
-* **Motivational Quotes**: Context-aware encouragement from Stitch
-
-**🎨 Visual Design & Themes**
+**Visual Design & Themes**
 * **Dynamic Color Themes**: Interface adapts between work (focused) and break (relaxed) modes
 * **Progress Ring**: Animated circular progress indicator showing session completion
 * **Session Type Display**: Clear indication of current activity (Focus Time, Short Break, Long Break)
 * **Running State Indicator**: Visual feedback when timer is active
 
- **⚙️ Timer Controls**
+ **Timer Controls**
 * **Start/Pause Toggle**: Single button for easy timer control
 * **Reset Function**: Quickly restart current session
 * **Skip Session**: Jump to next session when needed
 * **Session Selection**: Manual switching between work, short break, and long break modes
 
-  **🔧 Customization Options**
+  **Customization Options**
 * **Adjustable Durations**: Customize work and break session lengths
 * **Auto-Start**: Automatically begin next session after completion
 * **Sound Notifications**: Audio alerts for session completion (toggleable)
 * **Settings Panel**: Easy access to all configuration options
 
- **📊 Session Management**
+ **Session Management**
 * **Session Tracking**: Monitor current session number and type
 * **Smart Progression**: Automatic long break after every 4 work sessions
 * **State Persistence**: Maintains session count and progress across app restarts
 * **Active Session Protection**: Prevents accidental session type changes during active timer
 
- **⌨️ Keyboard Shortcuts**
+ **Keyboard Shortcuts**
 * **Spacebar**: Start/pause timer (when not in input fields)
 * **Quick Access**: Efficient timer control without mouse interaction
-
+<!-- 
  **📈 Statistics Integration**
 * **Daily Tracking**: Count completed pomodoros per day
 * **Time Analytics**: Track total focused work time
 * **Progress Visualization**: See your productivity patterns over time
-* **Streak Monitoring**: Maintain consistency with daily completion tracking
+* **Streak Monitoring**: Maintain consistency with daily completion tracking -->
 
  **🔊 Audio Features**
 * **Completion Sounds**: Synthesized notification tones for session completion
@@ -380,7 +378,7 @@ A powerful task management system with recurring tasks, priority management, and
 * 🔄 **One-time**: Standard tasks that complete once
 * 📅 **Daily**: Tasks that reset every 24 hours at midnight IST
 * 📊 **Weekly**: Tasks that reset every 7 days
-* 📈 **Bi-weekly**: Tasks that reset every 14 days
+<!-- * 📈 **Bi-weekly**: Tasks that reset every 14 days -->
 * 📆 **Monthly**: Tasks that reset monthly on the same date
 
 **Priority Levels:**
@@ -523,6 +521,15 @@ Customize your Stitch It Down experience!
 
 ---
 
+Data & Privacy
+
+Local Storage: All notes and tasks are stored using localStorage on your device
+No Cloud Sync: Your data never leaves your computer - complete privacy
+Instant Access: No loading times - everything is stored locally
+Data Persistence: Survives app restarts and system reboots
+Export Ready: Easy to backup or migrate your data when needed
+
+---
 ## Installation
 
 1. Clone the repository:
@@ -564,49 +571,6 @@ npm run dev
 - **HTML/CSS/JavaScript**: Frontend technologies
 - **Node.js**: Backend runtime
 
-<!--## File Structure
-
-```
-stitch-it-down/
-├── src/
-│   ├── main.js              # Main Electron process
-│   ├── renderer.js          # Renderer process
-│   ├── calendar.js          # Calendar functionality
-│   ├── pomodoro.js          # Pomodoro timer
-│   ├── tasks.js             # Task management
-│   ├── notes.js             # Note-taking
-│   ├── stats.js             # Analytics and stats
-│   └── settings.js          # App settings
-├── assets/
-│   ├── icons/               # Application icons
-│   ├── sounds/              # Stitch sound effects
-│   └── images/              # UI images
-├── styles/
-│   ├── main.css             # Main stylesheet
-│   └── themes/              # Theme files
-└── README.md
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Inspired by Disney's Lilo & Stitch
-- Built with love for productivity and ohana spirit
-- Special thanks to the Electron and productivity app communities
-
----
---->
 *"Ohana means family, and family means nobody gets left behind... or forgets their tasks!"* - Stitch 🌺
 
 

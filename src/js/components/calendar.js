@@ -5,8 +5,6 @@ class ProductivityCalendar {
         this.currentView = 'month';
         this.events = [];
         this.selectedEvent = null;
-        this.draggedEvent = null;
-        this.analyticsVisible = false;
         this.searchQuery = '';
         this.isSearchActive = false;
         this.searchResults = [];
@@ -18,14 +16,13 @@ class ProductivityCalendar {
         this.render();
     }
     init() {
-    this.currentDate = new Date();
-    if (this.currentView === 'month') {
-        // Don't set to day 1 in constructor, do it in render
-        // this.currentDate.setDate(1);
-    }
+    // this.currentDate = new Date();
+    // if (this.currentView === 'month') {
+    //     // Don't set to day 1 in constructor, do it in render
+    //     // this.currentDate.setDate(1);
+    // }
     this.selectedDate = null;
     this.filteredEvents = [];
-    this.searchQuery = '';
     this.activeCategory = 'all';
 }
     setupEventListeners() {
@@ -53,7 +50,6 @@ class ProductivityCalendar {
         document.getElementById('parseEvent')?.addEventListener('click', () => this.parseQuickEvent());
         document.getElementById('cancelQuickAdd')?.addEventListener('click', () => this.hideQuickAdd());
         document.getElementById('cancelEvent')?.addEventListener('click', () => this.hideEventModal());
-        // document.getElementById('eventSearch')?.addEventListener('input', (e) => this.searchEvents(e.target.value));
     document.getElementById('eventSearch')?.addEventListener('input', (e) => {
         this.searchEvents(e.target.value);
     });
@@ -63,7 +59,6 @@ class ProductivityCalendar {
         }
     });
     document.getElementById('eventSearch')?.addEventListener('blur', (e) => {
-        // Delay hiding to allow clicks on dropdown items
         setTimeout(() => {
             if (!document.querySelector('.search-dropdown:hover')) {
                 this.hideSearchDropdown();
