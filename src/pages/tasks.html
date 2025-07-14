@@ -137,6 +137,42 @@
                         <input type="text" id="task-search" class="search-input" placeholder="Search tasks...">
                     </div>
                 </div>
+                <!-- Search and Filter Section -->
+<div class="search-section">
+    <div class="search-container">
+        <input type="text" id="task-search" placeholder="Search tasks..." class="search-input">
+        <button id="clear-search" class="clear-search-btn" title="Clear search">
+            <i class="bi bi-x-circle"></i>
+        </button>
+    </div>
+    
+    <div class="filters-container">
+        <div class="filter-group">
+            <label>Priority:</label>
+            <button class="filter-btn" data-filter="priority" data-value="urgent">Urgent</button>
+            <button class="filter-btn" data-filter="priority" data-value="high">High</button>
+            <button class="filter-btn" data-filter="priority" data-value="medium">Medium</button>
+            <button class="filter-btn" data-filter="priority" data-value="low">Low</button>
+        </div>
+        
+        <div class="filter-group">
+            <label>Status:</label>
+            <button class="filter-btn" data-filter="status" data-value="pending">Pending</button>
+            <button class="filter-btn" data-filter="status" data-value="completed">Completed</button>
+            <button class="filter-btn" data-filter="status" data-value="overdue">Overdue</button>
+        </div>
+        
+        <div class="filter-group">
+            <label>Frequency:</label>
+            <button class="filter-btn" data-filter="frequency" data-value="once">One-time</button>
+            <button class="filter-btn" data-filter="frequency" data-value="daily">Daily</button>
+            <button class="filter-btn" data-filter="frequency" data-value="weekly">Weekly</button>
+            <button class="filter-btn" data-filter="frequency" data-value="monthly">Monthly</button>
+        </div>
+    </div>
+    
+    <div id="search-results-count" class="search-results-count" style="display: none;"></div>
+</div>
 
                 <div class="add-task">
                     <input class="addTask" id="taskInput" placeholder="Add a quick task">

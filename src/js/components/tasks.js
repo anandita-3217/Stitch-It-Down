@@ -8,10 +8,14 @@ class TaskManager {
         this.tempTaskData = null;
         this.lastFocusedElement = null; // Track last focused element
         this.debug = true;
-
+        this.searchTerm = ''; // Add search term tracking
+        this.activeFilters = {
+            priority: null,
+            frequency: null,
+            status: null // 'completed', 'pending', 'overdue'
+        };
         this.init();
     }
-
     init() {
         // Clear any corrupted data on initialization
         try {
@@ -29,9 +33,23 @@ class TaskManager {
         this.setupDeadlineAlerts();
         this.setupISTReset();
         this.setupFocusTracking(); // Add focus tracking
+        this.setupSearchFunctionality(); 
     }
-
     // New method to track focus on input elements
+    // setupFocusTracking() {
+    //     const trackableFocusElements = ['taskInput', 'task-search'];
+        
+    //     trackableFocusElements.forEach(id => {
+    //         const element = document.getElementById(id);
+    //         if (element) {
+    //             element.addEventListener('focus', () => {
+    //                 this.lastFocusedElement = element;
+    //             });
+    //         }
+    //     });
+    // }
+
+        // Enhanced focus tracking to include search
     setupFocusTracking() {
         const trackableFocusElements = ['taskInput', 'task-search'];
         
@@ -41,6 +59,241 @@ class TaskManager {
                 element.addEventListener('focus', () => {
                     this.lastFocusedElement = element;
                 });
+            }
+        });
+        
+        // Setup keyboard shortcuts
+        this.setupKeyboardShortcuts();
+    }
+
+    // New method to set up search functionality
+    setupSearchFunctionality() {
+        const searchInput = document.getElementById('task-search');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        if (searchInput) {
+            // Real-time search as user types
+            searchInput.addEventListener('input', (e) => {
+                this.searchTerm = e.target.value.trim().toLowerCase();
+                this.applyFiltersAndSearch();
+            });
+
+            // Clear search on Escape key
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.clearSearch();
+                }
+            });
+        }
+
+        // Clear search button
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
+                this.clearSearch();
+            });
+        }
+
+        // Filter buttons
+        filterButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const filterType = e.target.dataset.filter;
+                const filterValue = e.target.dataset.value;
+                this.toggleFilter(filterType, filterValue, e.target);
+            });
+        });
+    }
+
+    // Method to clear search
+    clearSearch() {
+        const searchInput = document.getElementById('task-search');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        this.searchTerm = '';
+        this.applyFiltersAndSearch();
+        
+        // Update search results count
+        this.updateSearchResultsCount();
+    }
+
+    // Method to toggle filters
+    toggleFilter(filterType, filterValue, buttonElement) {
+        // Toggle the filter
+        if (this.activeFilters[filterType] === filterValue) {
+            this.activeFilters[filterType] = null;
+            buttonElement.classList.remove('active');
+        } else {
+            // Remove active class from other buttons of same type
+            document.querySelectorAll(`[data-filter="${filterType}"]`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            this.activeFilters[filterType] = filterValue;
+            buttonElement.classList.add('active');
+        }
+        
+        this.applyFiltersAndSearch();
+    }
+
+    // Main method to apply search and filters
+    applyFiltersAndSearch() {
+        const tasks = this.getTasks();
+        let filteredTasks = tasks;
+
+        // Apply search filter
+        if (this.searchTerm) {
+            filteredTasks = filteredTasks.filter(task => 
+                task.text.toLowerCase().includes(this.searchTerm)
+            );
+        }
+
+        // Apply priority filter
+        if (this.activeFilters.priority) {
+            filteredTasks = filteredTasks.filter(task => 
+                task.priority === this.activeFilters.priority
+            );
+        }
+
+        // Apply frequency filter
+        if (this.activeFilters.frequency) {
+            filteredTasks = filteredTasks.filter(task => 
+                task.frequency === this.activeFilters.frequency
+            );
+        }
+
+        // Apply status filter
+        if (this.activeFilters.status) {
+            filteredTasks = filteredTasks.filter(task => {
+                switch(this.activeFilters.status) {
+                    case 'completed':
+                        return task.completed;
+                    case 'pending':
+                        return !task.completed && (!task.deadline || !this.isOverdue(task.deadline));
+                    case 'overdue':
+                        return !task.completed && task.deadline && this.isOverdue(task.deadline);
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        // Display filtered tasks
+        this.displayFilteredTasks(filteredTasks);
+        this.updateSearchResultsCount(filteredTasks.length, tasks.length);
+    }
+
+    // Method to display filtered tasks
+    displayFilteredTasks(filteredTasks) {
+        const container = document.getElementById('tasksContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        // Sort by priority and due date
+        filteredTasks.sort((a, b) => {
+            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+            const aPriority = priorityOrder[a.priority] || 2;
+            const bPriority = priorityOrder[b.priority] || 2;
+            
+            if (aPriority !== bPriority) return bPriority - aPriority;
+            
+            if (a.deadline && b.deadline) {
+                return new Date(a.deadline) - new Date(b.deadline);
+            }
+            return 0;
+        });
+        
+        // Highlight search terms in results
+        filteredTasks.forEach(task => {
+            const taskElement = this.createTaskElement(task, this.searchTerm);
+            container.appendChild(taskElement);
+        });
+        
+        if (filteredTasks.length === 0) {
+            this.showEmptySearchState(container);
+        }
+    }
+
+    // Method to update search results count
+    updateSearchResultsCount(filteredCount = null, totalCount = null) {
+        const countElement = document.getElementById('search-results-count');
+        if (!countElement) return;
+
+        if (filteredCount !== null && totalCount !== null) {
+            if (this.searchTerm || Object.values(this.activeFilters).some(f => f !== null)) {
+                countElement.textContent = `${filteredCount} of ${totalCount} tasks`;
+                countElement.style.display = 'block';
+            } else {
+                countElement.style.display = 'none';
+            }
+        } else {
+            countElement.style.display = 'none';
+        }
+    }
+    // Enhanced empty state for search
+    showEmptySearchState(container) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state search-empty';
+        
+        if (this.searchTerm || Object.values(this.activeFilters).some(f => f !== null)) {
+            emptyState.innerHTML = `
+                <div class="empty-icon"><i class="bi bi-search"></i></div>
+                <p>No tasks match your search criteria</p>
+                <button class="btn-clear-filters" onclick="taskManager.clearAllFilters()">
+                    Clear filters
+                </button>
+            `;
+        } else {
+            emptyState.innerHTML = `
+                <div class="empty-icon"><i class="bi bi-pin-angle"></i></div>
+                <p>No tasks yet. Create your first task!</p>
+            `;
+        }
+        
+        container.appendChild(emptyState);
+    }
+
+    // Method to clear all filters
+    clearAllFilters() {
+        this.searchTerm = '';
+        this.activeFilters = {
+            priority: null,
+            frequency: null,
+            status: null
+        };
+        
+        // Clear search input
+        const searchInput = document.getElementById('task-search');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        
+        // Remove active classes from filter buttons
+        document.querySelectorAll('.filter-btn.active').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Display all tasks
+        this.displayTasks();
+        this.updateSearchResultsCount();
+    }
+
+    // Add search keyboard shortcuts
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + F to focus search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                const searchInput = document.getElementById('task-search');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }
+            
+            // Escape to clear search when search input is focused
+            if (e.key === 'Escape' && document.activeElement?.id === 'task-search') {
+                this.clearSearch();
             }
         });
     }
@@ -85,79 +338,145 @@ class TaskManager {
         }, 600);
     }
 
+//     setupEventListeners() {
+//     const addTaskBtn = document.getElementById('addTaskBtn');
+//     const taskInput = document.getElementById('taskInput');
+//     const tasksContainer = document.getElementById('tasksContainer');
+    
+//     console.log('Setting up event listeners...');
+    
+//     if (addTaskBtn) {
+//         addTaskBtn.addEventListener('click', () => this.handleAddTask());
+//     }
+    
+//     if (taskInput) {
+//         taskInput.addEventListener('keypress', (e) => {
+//             if (e.key === 'Enter') this.handleAddTask();
+//         });
+//     }
+
+//     if (tasksContainer) {
+//         // FIXED: Separate click handler specifically for checkboxes
+//         tasksContainer.addEventListener('click', (e) => {
+//             const target = e.target;
+            
+//             // Handle checkbox clicks FIRST
+//             if (target.type === 'checkbox' && target.classList.contains('task-checkbox')) {
+//                 console.log('Checkbox clicked:', target);
+//                 const taskId = parseInt(target.getAttribute('data-task-id'));
+//                 console.log('Toggling task ID:', taskId);
+                
+//                 if (taskId && !isNaN(taskId)) {
+//                     // Small delay to let checkbox state update
+//                     setTimeout(() => {
+//                         this.toggleTask(taskId);
+//                     }, 10);
+//                 }
+//                 return; // Exit early for checkbox clicks
+//             }
+            
+//             // Handle button clicks (edit/delete)
+//             const button = target.closest('button');
+//             if (button) {
+//                 e.preventDefault();
+//                 e.stopPropagation();
+                
+//                 const taskId = parseInt(button.getAttribute('data-task-id'));
+                
+//                 if (button.classList.contains('edit-task') || target.classList.contains('bi-pencil')) {
+//                     console.log('Edit button clicked for task:', taskId);
+//                     this.editTask(taskId);
+//                 } else if (button.classList.contains('delete-task') || target.classList.contains('bi-trash')) {
+//                     console.log('Delete button clicked for task:', taskId);
+//                     this.deleteTask(taskId);
+//                 }
+//             }
+//         });
+
+//         // BACKUP: Also listen for change events (in case click doesn't work)
+//         tasksContainer.addEventListener('change', (e) => {
+//             console.log('Change event detected:', e.target);
+            
+//             if (e.target.type === 'checkbox' && e.target.classList.contains('task-checkbox')) {
+//                 const taskId = parseInt(e.target.getAttribute('data-task-id'));
+//                 console.log('Change event - toggling task ID:', taskId, 'Checked:', e.target.checked);
+                
+//                 if (taskId && !isNaN(taskId)) {
+//                     this.toggleTask(taskId);
+//                 }
+//             }
+//         });
+
+//         console.log('✓ Task container listeners attached');
+//     }
+// }
     setupEventListeners() {
-    const addTaskBtn = document.getElementById('addTaskBtn');
-    const taskInput = document.getElementById('taskInput');
-    const tasksContainer = document.getElementById('tasksContainer');
-    
-    console.log('Setting up event listeners...');
-    
-    if (addTaskBtn) {
-        addTaskBtn.addEventListener('click', () => this.handleAddTask());
-    }
-    
-    if (taskInput) {
-        taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleAddTask();
-        });
-    }
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskInput = document.getElementById('taskInput');
+        const tasksContainer = document.getElementById('tasksContainer');
+        
+        console.log('Setting up event listeners...');
+        
+        if (addTaskBtn) {
+            addTaskBtn.addEventListener('click', () => this.handleAddTask());
+        }
+        
+        if (taskInput) {
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.handleAddTask();
+            });
+        }
 
-    if (tasksContainer) {
-        // FIXED: Separate click handler specifically for checkboxes
-        tasksContainer.addEventListener('click', (e) => {
-            const target = e.target;
-            
-            // Handle checkbox clicks FIRST
-            if (target.type === 'checkbox' && target.classList.contains('task-checkbox')) {
-                console.log('Checkbox clicked:', target);
-                const taskId = parseInt(target.getAttribute('data-task-id'));
-                console.log('Toggling task ID:', taskId);
+        if (tasksContainer) {
+            tasksContainer.addEventListener('click', (e) => {
+                const target = e.target;
                 
-                if (taskId && !isNaN(taskId)) {
-                    // Small delay to let checkbox state update
-                    setTimeout(() => {
+                if (target.type === 'checkbox' && target.classList.contains('task-checkbox')) {
+                    console.log('Checkbox clicked:', target);
+                    const taskId = parseInt(target.getAttribute('data-task-id'));
+                    console.log('Toggling task ID:', taskId);
+                    
+                    if (taskId && !isNaN(taskId)) {
+                        setTimeout(() => {
+                            this.toggleTask(taskId);
+                        }, 10);
+                    }
+                    return;
+                }
+                
+                const button = target.closest('button');
+                if (button) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const taskId = parseInt(button.getAttribute('data-task-id'));
+                    
+                    if (button.classList.contains('edit-task') || target.classList.contains('bi-pencil')) {
+                        console.log('Edit button clicked for task:', taskId);
+                        this.editTask(taskId);
+                    } else if (button.classList.contains('delete-task') || target.classList.contains('bi-trash')) {
+                        console.log('Delete button clicked for task:', taskId);
+                        this.deleteTask(taskId);
+                    }
+                }
+            });
+
+            tasksContainer.addEventListener('change', (e) => {
+                console.log('Change event detected:', e.target);
+                
+                if (e.target.type === 'checkbox' && e.target.classList.contains('task-checkbox')) {
+                    const taskId = parseInt(e.target.getAttribute('data-task-id'));
+                    console.log('Change event - toggling task ID:', taskId, 'Checked:', e.target.checked);
+                    
+                    if (taskId && !isNaN(taskId)) {
                         this.toggleTask(taskId);
-                    }, 10);
+                    }
                 }
-                return; // Exit early for checkbox clicks
-            }
-            
-            // Handle button clicks (edit/delete)
-            const button = target.closest('button');
-            if (button) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const taskId = parseInt(button.getAttribute('data-task-id'));
-                
-                if (button.classList.contains('edit-task') || target.classList.contains('bi-pencil')) {
-                    console.log('Edit button clicked for task:', taskId);
-                    this.editTask(taskId);
-                } else if (button.classList.contains('delete-task') || target.classList.contains('bi-trash')) {
-                    console.log('Delete button clicked for task:', taskId);
-                    this.deleteTask(taskId);
-                }
-            }
-        });
+            });
 
-        // BACKUP: Also listen for change events (in case click doesn't work)
-        tasksContainer.addEventListener('change', (e) => {
-            console.log('Change event detected:', e.target);
-            
-            if (e.target.type === 'checkbox' && e.target.classList.contains('task-checkbox')) {
-                const taskId = parseInt(e.target.getAttribute('data-task-id'));
-                console.log('Change event - toggling task ID:', taskId, 'Checked:', e.target.checked);
-                
-                if (taskId && !isNaN(taskId)) {
-                    this.toggleTask(taskId);
-                }
-            }
-        });
-
-        console.log('✓ Task container listeners attached');
+            console.log('✓ Task container listeners attached');
+        }
     }
-}
-
 
 
     handleAddTask() {
@@ -357,14 +676,126 @@ class TaskManager {
         this.updateProgress();
     }
     
+    // displayTasks(filter = null) {
+    //     const tasks = this.getTasks();
+    //     const container = document.getElementById('tasksContainer');
+    //     if (!container) return;
+        
+    //     container.innerHTML = '';
+        
+    //     // Ensure tasks is always an array
+    //     if (!Array.isArray(tasks)) {
+    //         console.error('Tasks is not an array:', tasks);
+    //         this.showEmptyState(container);
+    //         return;
+    //     }
+        
+    //     let filteredTasks = filter ? tasks.filter(filter) : tasks;
+        
+    //     // Double-check that filteredTasks is an array
+    //     if (!Array.isArray(filteredTasks)) {
+    //         console.error('Filtered tasks is not an array:', filteredTasks);
+    //         filteredTasks = [];
+    //     }
+        
+    //     // Sort by priority and due date
+    //     filteredTasks.sort((a, b) => {
+    //         const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+    //         const aPriority = priorityOrder[a.priority] || 2;
+    //         const bPriority = priorityOrder[b.priority] || 2;
+            
+    //         if (aPriority !== bPriority) return bPriority - aPriority;
+            
+    //         // If same priority, sort by deadline
+    //         if (a.deadline && b.deadline) {
+    //             return new Date(a.deadline) - new Date(b.deadline);
+    //         }
+    //         return 0;
+    //     });
+        
+    //     filteredTasks.forEach(task => {
+    //         const taskElement = this.createTaskElement(task);
+    //         container.appendChild(taskElement);
+    //     });
+        
+    //     if (filteredTasks.length === 0) {
+    //         this.showEmptyState(container);
+    //     }
+    // }
+
+//     createTaskElement(task) {
+//     const div = document.createElement('div');
+//     div.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+    
+//     const isOverdue = task.deadline && this.isOverdue(task.deadline);
+//     if (isOverdue) div.classList.add('overdue');
+    
+//     div.innerHTML = `
+//         <div class="task-content">
+//             <input type="checkbox" 
+//                    ${task.completed ? 'checked' : ''} 
+//                    data-task-id="${task.id}" 
+//                    class="task-checkbox"
+//                    id="checkbox-${task.id}">
+//             <div class="task-text ${task.completed ? 'completed-text' : ''}">
+//                 ${task.completed ? 
+//                     `<del>${detectAndCreateLinks(task.text)}</del>` : 
+//                     detectAndCreateLinks(task.text)
+//                 }
+//             </div>
+//             <div class="task-meta">
+//                 <span class="task-frequency">${task.frequency}</span>
+//                 <span class="task-priority priority-${task.priority}">${task.priority}</span>
+//                 ${task.deadline ? `
+//                     <div class="deadline-info ${isOverdue ? 'overdue' : ''}">
+//                         📅 ${this.formatDeadline(task.deadline)}
+//                     </div>
+//                 ` : ''}
+//             </div>
+//         </div>
+//         <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
+//         <div class="task-actions">
+//             <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
+//                 <i class="bi bi-pencil"></i>
+//             </button>
+//             <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button" id="delete-task">
+//                 <i class="bi bi-trash"></i>
+//             </button>
+//         </div>
+//     `;
+    
+//     // SOLUTION 2: Direct event binding (more reliable than delegation)
+//     const checkbox = div.querySelector('.task-checkbox');
+//     if (checkbox) {
+//         checkbox.addEventListener('change', (e) => {
+//             console.log('Direct checkbox event:', e.target.checked, 'Task ID:', task.id);
+//             this.toggleTask(task.id);
+//         });
+        
+//         // Also handle click events
+//         checkbox.addEventListener('click', (e) => {
+//             console.log('Direct checkbox click:', e.target.checked, 'Task ID:', task.id);
+//             // Let the change event handle the toggle
+//         });
+//     }
+    
+//     return div;
+// }
+
+ // Override displayTasks to work with search
     displayTasks(filter = null) {
+        // If search is active, use search results instead
+        if (this.searchTerm || Object.values(this.activeFilters).some(f => f !== null)) {
+            this.applyFiltersAndSearch();
+            return;
+        }
+        
         const tasks = this.getTasks();
         const container = document.getElementById('tasksContainer');
         if (!container) return;
         
         container.innerHTML = '';
         
-        // Ensure tasks is always an array
         if (!Array.isArray(tasks)) {
             console.error('Tasks is not an array:', tasks);
             this.showEmptyState(container);
@@ -373,7 +804,6 @@ class TaskManager {
         
         let filteredTasks = filter ? tasks.filter(filter) : tasks;
         
-        // Double-check that filteredTasks is an array
         if (!Array.isArray(filteredTasks)) {
             console.error('Filtered tasks is not an array:', filteredTasks);
             filteredTasks = [];
@@ -387,7 +817,6 @@ class TaskManager {
             
             if (aPriority !== bPriority) return bPriority - aPriority;
             
-            // If same priority, sort by deadline
             if (a.deadline && b.deadline) {
                 return new Date(a.deadline) - new Date(b.deadline);
             }
@@ -404,65 +833,64 @@ class TaskManager {
         }
     }
 
-    createTaskElement(task) {
-    const div = document.createElement('div');
-    div.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
-    
-    const isOverdue = task.deadline && this.isOverdue(task.deadline);
-    if (isOverdue) div.classList.add('overdue');
-    
-    div.innerHTML = `
-        <div class="task-content">
-            <input type="checkbox" 
-                   ${task.completed ? 'checked' : ''} 
-                   data-task-id="${task.id}" 
-                   class="task-checkbox"
-                   id="checkbox-${task.id}">
-            <div class="task-text ${task.completed ? 'completed-text' : ''}">
-                ${task.completed ? 
-                    `<del>${detectAndCreateLinks(task.text)}</del>` : 
-                    detectAndCreateLinks(task.text)
-                }
-            </div>
-            <div class="task-meta">
-                <span class="task-frequency">${task.frequency}</span>
-                <span class="task-priority priority-${task.priority}">${task.priority}</span>
-                ${task.deadline ? `
-                    <div class="deadline-info ${isOverdue ? 'overdue' : ''}">
-                        📅 ${this.formatDeadline(task.deadline)}
-                    </div>
-                ` : ''}
-            </div>
-        </div>
-        <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
-        <div class="task-actions">
-            <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
-                <i class="bi bi-pencil"></i>
-            </button>
-            <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button" id="delete-task">
-                <i class="bi bi-trash"></i>
-            </button>
-        </div>
-    `;
-    
-    // SOLUTION 2: Direct event binding (more reliable than delegation)
-    const checkbox = div.querySelector('.task-checkbox');
-    if (checkbox) {
-        checkbox.addEventListener('change', (e) => {
-            console.log('Direct checkbox event:', e.target.checked, 'Task ID:', task.id);
-            this.toggleTask(task.id);
-        });
+    createTaskElement(task, searchTerm = '') {
+        const div = document.createElement('div');
+        div.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
         
-        // Also handle click events
-        checkbox.addEventListener('click', (e) => {
-            console.log('Direct checkbox click:', e.target.checked, 'Task ID:', task.id);
-            // Let the change event handle the toggle
-        });
+        const isOverdue = task.deadline && this.isOverdue(task.deadline);
+        if (isOverdue) div.classList.add('overdue');
+        
+        // Highlight search term in task text
+        let displayText = task.text;
+        if (searchTerm) {
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            displayText = displayText.replace(regex, '<mark>$1</mark>');
+        }
+        
+        div.innerHTML = `
+            <div class="task-content">
+                <input type="checkbox" 
+                       ${task.completed ? 'checked' : ''} 
+                       data-task-id="${task.id}" 
+                       class="task-checkbox"
+                       id="checkbox-${task.id}">
+                <div class="task-text ${task.completed ? 'completed-text' : ''}">
+                    ${task.completed ? 
+                        `<del>${detectAndCreateLinks(displayText)}</del>` : 
+                        detectAndCreateLinks(displayText)
+                    }
+                </div>
+                <div class="task-meta">
+                    <span class="task-frequency">${task.frequency}</span>
+                    <span class="task-priority priority-${task.priority}">${task.priority}</span>
+                    ${task.deadline ? `
+                        <div class="deadline-info ${isOverdue ? 'overdue' : ''}">
+                            📅 ${this.formatDeadline(task.deadline)}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
+            <div class="task-actions">
+                <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        // Direct event binding for checkbox
+        const checkbox = div.querySelector('.task-checkbox');
+        if (checkbox) {
+            checkbox.addEventListener('change', (e) => {
+                this.toggleTask(task.id);
+            });
+        }
+        
+        return div;
     }
-    
-    return div;
-}
-
 
     detectAndCreateLinks(text) {
         // Simple link detection and creation
@@ -919,7 +1347,6 @@ class TaskManager {
             console.error('Could not reset daily tasks:', error);
         }
     }
-
     // Public API methods
     getTaskStats() {
         const tasks = this.getTasks();
@@ -929,6 +1356,51 @@ class TaskManager {
             pending: tasks.filter(t => !t.completed).length,
             overdue: tasks.filter(t => t.deadline && this.isOverdue(t.deadline) && !t.completed).length
         };
+    }
+        // Public API method to search tasks
+    searchTasks(searchTerm) {
+        this.searchTerm = searchTerm.toLowerCase();
+        this.applyFiltersAndSearch();
+    }
+
+    // Public API method to get filtered tasks
+    getFilteredTasks() {
+        const tasks = this.getTasks();
+        let filteredTasks = tasks;
+
+        if (this.searchTerm) {
+            filteredTasks = filteredTasks.filter(task => 
+                task.text.toLowerCase().includes(this.searchTerm)
+            );
+        }
+
+        Object.entries(this.activeFilters).forEach(([filterType, filterValue]) => {
+            if (filterValue) {
+                filteredTasks = filteredTasks.filter(task => {
+                    switch(filterType) {
+                        case 'priority':
+                            return task.priority === filterValue;
+                        case 'frequency':
+                            return task.frequency === filterValue;
+                        case 'status':
+                            switch(filterValue) {
+                                case 'completed':
+                                    return task.completed;
+                                case 'pending':
+                                    return !task.completed && (!task.deadline || !this.isOverdue(task.deadline));
+                                case 'overdue':
+                                    return !task.completed && task.deadline && this.isOverdue(task.deadline);
+                                default:
+                                    return true;
+                            }
+                        default:
+                            return true;
+                    }
+                });
+            }
+        });
+
+        return filteredTasks;
     }
 
     getTasksByPriority(priority) {
