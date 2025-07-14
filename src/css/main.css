@@ -583,27 +583,135 @@ body {
         opacity: 0.5;
     }
 }
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
 @media (max-width: 768px) {
-    .upper {
+  .upper {
         flex-direction: column;
     }
     
     .upper-right {
-        margin-left: 0;
+      margin-left: 0;
         margin-top: 20px;
     }
-}
-
-/* Portrait tablets, iPads, landscape e-readers */
-@media (min-width: 641px) {
-  .upper-left {
-    flex: 0 0 30%;
   }
-
-  .upper-right {
+  
+  /* Portrait tablets, iPads, landscape e-readers */
+  @media (min-width: 641px) {
+    .upper-left {
+      flex: 0 0 30%;
+    }
+    
+    .upper-right {
     flex: 1;
   }
-
+  
   .add-note {
     flex-direction: row;
   }
@@ -619,7 +727,7 @@ body {
   .upper-left {
     flex: 0 0 25%;
   }
-
+  
   .upper-right {
     flex: 0 0 70%;
   }
@@ -638,15 +746,15 @@ body {
   .upper-left {
     flex: 0 0 20%;
   }
-
+  
   .upper-right {
     flex: 0 0 75%;
   }
-
+  
   .notes-container {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }
-
+  
   .addNote {
     font-size: 18px;
   }
@@ -657,20 +765,101 @@ body {
   .upper {
     gap: 20px;
   }
-
+  
   .upper-left {
     flex: 0 0 18%;
   }
-
+  
   .upper-right {
     flex: 0 0 78%;
   }
-
+  
   .notes-container {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
-
+  
   .modal-content {
     max-width: 600px;
+  }
+}
+
+@keyframes twinkle {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1);
+    }
+    50% { 
+        transform: scale(1.05);
+    }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+@keyframes searchPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.6); }
+}
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.5; }
+}
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-6px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(6px);
+    }
+}
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }

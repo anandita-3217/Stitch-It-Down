@@ -471,10 +471,10 @@
 }
 
 
-@keyframes pulse-red {
+/* @keyframes pulse-red {
     0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.3); }
     50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.6); }
-}
+} */
 
 /* Task meta information styling */
 .task-meta {
@@ -538,10 +538,10 @@
     animation: blink 1s infinite;
 }
 
-@keyframes blink {
+/* @keyframes blink {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0.5; }
-}
+} */
 
 /* Modal improvements */
 .task-frequency-modal,
@@ -804,7 +804,7 @@
   }
 }
 
-@keyframes slideOut {
+/* @keyframes slideOut {
   from {
     transform: translateX(0);
     opacity: 1;
@@ -813,12 +813,12 @@
     transform: translateX(100%);
     opacity: 0;
   }
-}
+} */
 
 /* Optional: Add red border during shake for better visual feedback */
 .shake-animation {
     animation: shake 0.6s ease-in-out;
-    border-color: #ef4444 !important;
+    border-color: var(--danger-color) !important;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
 .task-checkbox {
@@ -895,7 +895,7 @@
     }
 }
 
-
+/* 
 @keyframes shake {
     0%, 100% {
         transform: translateX(0);
@@ -906,7 +906,7 @@
     20%, 40%, 60%, 80% {
         transform: translateX(6px);
     }
-}
+} */
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {

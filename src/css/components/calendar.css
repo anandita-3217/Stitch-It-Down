@@ -1002,15 +1002,15 @@
     color: #dc2626;
 }
 
-@keyframes searchPulse {
+/* @keyframes searchPulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
-}
+} */
 
 
 
 /* Animations */
-@keyframes slideInRight {
+/* @keyframes slideInRight {
     from { transform: translateX(100%); }
     to { transform: translateX(0); }
 }
@@ -1039,7 +1039,7 @@
         opacity: 1;
         transform: translateY(0) scale(1);
     }
-}
+} */
 
 /* Responsive Design */
 @media (max-width: 850px) {
