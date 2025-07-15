@@ -186,7 +186,7 @@ class WindowManager {
             // Handle window closed
             window.on('closed', () => {
                 this.windows.delete(pageName);
-                console.log(`Window closed: ${pageName}`);
+                // console.log(`Window closed: ${pageName}`);
             });
 
             // Handle window focus/blur events
@@ -200,7 +200,7 @@ class WindowManager {
 
             // Store window reference
             this.windows.set(pageName, window);
-            console.log(`Window created: ${pageName}`);
+            // console.log(`Window created: ${pageName}`);
 
             return window;
         } catch (error) {
@@ -216,7 +216,7 @@ class WindowManager {
      */
     async navigateToPage(pageName) {
         try {
-            console.log(`Navigation request to: ${pageName}`);
+            // console.log(`Navigation request to: ${pageName}`);
 
             // Check if window already exists
             if (this.windows.has(pageName)) {
