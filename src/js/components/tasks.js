@@ -48,10 +48,6 @@ class TaskManager {
         const searchInput = document.getElementById('task-search');
         const clearSearchBtn = document.getElementById('clear-search');
         const filterButtons = document.querySelectorAll('.filter-btn');
-        // console.log('Setting up search functionality...');
-        // console.log('Search input:', searchInput);
-        // console.log('Clear button:', clearSearchBtn);
-        // console.log('Filter buttons:', filterButtons.length);
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 this.searchTerm = e.target.value.trim().toLowerCase();
@@ -462,76 +458,36 @@ class TaskManager {
         this.tempTaskData = null;
         this.restoreFocus(); 
     }
-    // calculateNextReset(frequency) {
-    //     const now = new Date();
-    //     switch(frequency) {
-    //         case 'daily': 
-    //             return new Date(now.getTime() + 24*60*60*1000);
-    //         case 'weekly': 
-    //             return new Date(now.getTime() + 7*24*60*60*1000);
-    //         case 'biweekly': 
-    //             return new Date(now.getTime() + 14*24*60*60*1000);
-    //         case 'monthly': 
-    //             const nextMonth = new Date(now);
-    //             nextMonth.setMonth(nextMonth.getMonth() + 1);
-    //             return nextMonth;
-    //         default: 
-    //             return new Date(now.getTime() + 24*60*60*1000);
-    //     }
-    // }
         calculateNextReset(frequency) {
-        const now = new Date();
-        
+        const now = new Date(); 
         switch(frequency) {
             case 'daily': 
-                // Set to next day at midnight
                 const nextDay = new Date(now);
                 nextDay.setDate(nextDay.getDate() + 1);
                 nextDay.setHours(0, 0, 0, 0);
                 return nextDay;
-                
             case 'weekly': 
-                // Set to next week same day at midnight
                 const nextWeek = new Date(now);
                 nextWeek.setDate(nextWeek.getDate() + 7);
                 nextWeek.setHours(0, 0, 0, 0);
-                return nextWeek;
-                
+                return nextWeek;                
             case 'biweekly': 
-                // Set to 2 weeks from now at midnight
                 const nextBiweek = new Date(now);
                 nextBiweek.setDate(nextBiweek.getDate() + 14);
                 nextBiweek.setHours(0, 0, 0, 0);
-                return nextBiweek;
-                
+                return nextBiweek;                
             case 'monthly': 
-                // Set to next month same date at midnight
                 const nextMonth = new Date(now);
                 nextMonth.setMonth(nextMonth.getMonth() + 1);
                 nextMonth.setHours(0, 0, 0, 0);
                 return nextMonth;
                 
             default: 
-                return null; // One-time tasks don't reset
+                return null;
         }
     }
-    // saveTask(taskData) {
-    //     try {
-    //         const tasks = this.getTasks();
-    //         tasks.push(taskData);
-    //         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
-    //         this.displayTasks();
-    //         this.updateProgress();
-    //         this.emitTaskUpdate('task-added', taskData);
-    //         this.emitToastNotification(`Task "${taskData.text}" created successfully!`, 'success');
-    //     } catch (error) {
-    //         console.error('Could not save task to localStorage:', error);
-    //         this.emitToastNotification('Failed to save task', 'error');
-    //     }
-    // }
     saveTask(taskData) {
         try {
-            // Ensure nextReset is properly set for recurring tasks
             if (taskData.frequency !== 'once' && !taskData.nextReset) {
                 taskData.nextReset = this.calculateNextReset(taskData.frequency);
             }
@@ -959,70 +915,33 @@ class TaskManager {
             });
         }
     }
-    // setupProgressTracking() {
-    //     setInterval(() => this.checkTaskResets(), 60000);
-    //     this.checkTaskResets();
-    // }
         setupProgressTracking() {
-        // Check every 5 minutes instead of every minute to reduce load
         setInterval(() => this.checkTaskResets(), 5 * 60 * 1000);
         this.checkTaskResets();
     }
-    // checkTaskResets() {
-    //     try {
-    //         const tasks = this.getTasks();
-    //         const now = new Date();
-    //         let updated = false;            
-    //         const updatedTasks = tasks.map(task => {
-    //             if (task.nextReset && new Date(task.nextReset) <= now) {
-    //                 task.completed = false;
-    //                 task.nextReset = this.calculateNextReset(task.frequency);
-    //                 delete task.alerted; 
-    //                 updated = true;
-    //             }
-    //             return task;
-    //         });            
-    //         if (updated) {
-    //             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedTasks));
-    //             this.displayTasks();
-    //             this.updateProgress();
-    //         }
-    //     } catch (error) {
-    //         console.error('Could not check task resets:', error);
-    //     }
-    // }
         checkTaskResets() {
         try {
             const tasks = this.getTasks();
             const now = new Date();
-            let updated = false;
-            
-            console.log('Checking task resets at:', now.toISOString());
-            
+            let updated = false;            
+            console.log('Checking task resets at:', now.toISOString());            
             const updatedTasks = tasks.map(task => {
                 if (task.nextReset && task.frequency !== 'once') {
                     const resetTime = new Date(task.nextReset);
-                    
-                    // Only reset if current time is past the reset time
                     if (now >= resetTime) {
                         console.log(`Resetting task: ${task.text} (was due: ${resetTime.toISOString()})`);
-                        
                         const wasCompleted = task.completed;
                         task.completed = false;
                         task.nextReset = this.calculateNextReset(task.frequency);
                         delete task.alerted;
-                        
-                        // Only mark as updated if task was actually completed
                         if (wasCompleted) {
                             updated = true;
                         }
-                        
                         console.log(`Next reset scheduled for: ${task.nextReset.toISOString()}`);
                     }
                 }
                 return task;
             });
-            
             if (updated) {
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedTasks));
                 this.displayTasks();
@@ -1033,73 +952,33 @@ class TaskManager {
             console.error('Could not check task resets:', error);
         }
     }
-    // setupISTReset() {
-    //     const checkMidnight = () => {
-    //         const now = new Date();
-    //         const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-    //         if (istTime.getHours() === 0 && istTime.getMinutes() === 1) {
-    //             this.resetDailyTasks();
-    //         }
-    //     };
-    //     setInterval(checkMidnight, 60000);
-    //     checkMidnight();
-    // }
     setupISTReset() {
         const checkMidnight = () => {
             const now = new Date();
             const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-            
-            // Check if it's exactly midnight (00:00) in IST
             if (istTime.getHours() === 0 && istTime.getMinutes() === 0) {
                 console.log('IST Midnight detected, resetting daily tasks');
                 this.resetDailyTasks();
             }
         };
-        
-        // Check every minute, but only act at exactly midnight
         setInterval(checkMidnight, 60000);
         checkMidnight();
     }
-    // resetDailyTasks() {
-    //     try {
-    //         const tasks = this.getTasks();
-    //         let updated = false;
-    //         const updatedTasks = tasks.map(task => {
-    //             if (task.frequency === 'daily' && task.completed) {
-    //                 task.completed = false;
-    //                 delete task.alerted;
-    //                 updated = true;
-    //             }
-    //             return task;
-    //         });
-    //         if (updated) {
-    //             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedTasks));
-    //             this.displayTasks();
-    //             this.updateProgress();
-    //         }
-    //     } catch (error) {
-    //         console.error('Could not reset daily tasks:', error);
-    //     }
-    // }
     resetDailyTasks() {
         try {
             const tasks = this.getTasks();
             let updated = false;
             
             const updatedTasks = tasks.map(task => {
-                // Only reset daily tasks that are completed
                 if (task.frequency === 'daily' && task.completed) {
                     console.log(`Resetting daily task: ${task.text}`);
                     task.completed = false;
                     delete task.alerted;
-                    
-                    // Update next reset to tomorrow
                     task.nextReset = this.calculateNextReset('daily');
                     updated = true;
                 }
                 return task;
             });
-            
             if (updated) {
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedTasks));
                 this.displayTasks();
@@ -1115,12 +994,9 @@ class TaskManager {
         this.checkTaskResets();
         this.resetDailyTasks();
     }
-
-    // Add method to check task status
     getTaskResetStatus() {
         const tasks = this.getTasks();
         const now = new Date();
-        
         return tasks.map(task => ({
             id: task.id,
             text: task.text,
