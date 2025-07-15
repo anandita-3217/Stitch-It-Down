@@ -758,12 +758,12 @@
 .search-input {
     width: 100%;
     padding: 12px 16px;
-    padding-right: 45px; /* Space for clear button */
+    /* padding-right: 45px;  */
     border: 2px solid var(--border-color);
     border-radius: 8px;
     background: var(--light-bg);
     color: var(--text-primary);
-    font-size: 16px;
+    font-size: 12px;
     transition: all 0.3s ease;
     box-sizing: border-box;
 }
@@ -817,21 +817,21 @@
 .filters-container {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
 }
 
 .filter-group {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 }
 
 .filter-group label {
     font-weight: 600;
     color: var(--text-primary);
     margin-right: 8px;
-    font-size: 14px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     min-width: 80px;
@@ -865,7 +865,7 @@
 
 .filter-btn:hover {
     border-color: var(--dark-purple);
-    background: var(--white);
+    background: var(--card-bg);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px var(--shadow-hover);
 }
