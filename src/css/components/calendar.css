@@ -554,10 +554,22 @@
     font-size: 14px;
     letter-spacing: 0.5px;
 }
+.cal-form-input[type="date"]::-webkit-calendar-picker-indicator,
+.cal-form-input[type="time"]::-webkit-calendar-picker-indicator {
+    /* First, make the icon black, then apply your color filter */
+    filter: brightness(0) saturate(100%) var(--text-color-filter);
+    cursor: pointer;
+}
 
+/* Define the filter equivalent of your text color */
+:root {
+    --text-color: var(var(--text-primary));
+    /* You'll need to generate this filter value based on your actual color */
+    --text-color-filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);
+}
 .cal-form-input, .cal-form-select, .cal-form-textarea {
     width: 100%;
-    padding: 14px 16px;
+    padding: 14px 14px;
     border: 2px solid var(--border-light);
     border-radius: 12px;
     font-size: 16px;
@@ -580,14 +592,7 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
 }
-.cal-form-select {
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236ab6ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
-    padding-right: 40px;
-}
+
 .cal-form-textarea {
     resize: vertical;
     min-height: 100px;

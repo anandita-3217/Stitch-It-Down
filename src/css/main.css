@@ -31,6 +31,8 @@
     --primary-color: var(--dark-purple);
     --primary-hover: var(--darker-blue);
     --primary-rgb: 106, 182, 255;
+    --text-color-filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);
+
 
 }
 :root[data-theme="dark"] {
@@ -67,6 +69,8 @@
     --primary-color: var(--dark-purple);
     --primary-hover: #00bfff;
     --primary-rgb: 13, 209, 255;
+    --text-color-filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);
+
 }
 
 /* Default to light theme if no preference is set */
@@ -103,6 +107,8 @@
     --primary-color: var(--dark-purple);
     --primary-hover: var(--darker-blue);
     --primary-rgb: 106, 182, 255;
+    --text-color-filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);
+
 }
 ::-webkit-scrollbar {
     width: 8px;

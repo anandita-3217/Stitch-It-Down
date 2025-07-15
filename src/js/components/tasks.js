@@ -35,20 +35,6 @@ class TaskManager {
         this.setupFocusTracking(); // Add focus tracking
         this.setupSearchFunctionality(); 
     }
-    // New method to track focus on input elements
-    // setupFocusTracking() {
-    //     const trackableFocusElements = ['taskInput', 'task-search'];
-        
-    //     trackableFocusElements.forEach(id => {
-    //         const element = document.getElementById(id);
-    //         if (element) {
-    //             element.addEventListener('focus', () => {
-    //                 this.lastFocusedElement = element;
-    //             });
-    //         }
-    //     });
-    // }
-
         // Enhanced focus tracking to include search
     setupFocusTracking() {
         const trackableFocusElements = ['taskInput', 'task-search'];
@@ -67,55 +53,131 @@ class TaskManager {
     }
 
     // New method to set up search functionality
-    setupSearchFunctionality() {
-        const searchInput = document.getElementById('task-search');
-        const clearSearchBtn = document.getElementById('clear-search');
-        const filterButtons = document.querySelectorAll('.filter-btn');
+    // setupSearchFunctionality() {
+    //     const searchInput = document.getElementById('task-search');
+    //     const clearSearchBtn = document.getElementById('clear-search');
+    //     const filterButtons = document.querySelectorAll('.filter-btn');
         
-        if (searchInput) {
-            // Real-time search as user types
-            searchInput.addEventListener('input', (e) => {
-                this.searchTerm = e.target.value.trim().toLowerCase();
-                this.applyFiltersAndSearch();
-            });
+    //     if (searchInput) {
+    //         // Real-time search as user types
+    //         searchInput.addEventListener('input', (e) => {
+    //             this.searchTerm = e.target.value.trim().toLowerCase();
+    //             this.applyFiltersAndSearch();
+    //         });
 
-            // Clear search on Escape key
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    this.clearSearch();
-                }
-            });
-        }
+    //         // Clear search on Escape key
+    //         searchInput.addEventListener('keydown', (e) => {
+    //             if (e.key === 'Escape') {
+    //                 this.clearSearch();
+    //             }
+    //         });
+    //     }
 
-        // Clear search button
-        if (clearSearchBtn) {
-            clearSearchBtn.addEventListener('click', () => {
+    //     // Clear search button
+    //     if (clearSearchBtn) {
+    //         clearSearchBtn.addEventListener('click', () => {
+    //             this.clearSearch();
+    //         });
+    //     }
+
+    //     // Filter buttons
+    //     filterButtons.forEach(button => {
+    //         button.addEventListener('click', (e) => {
+    //             const filterType = e.target.dataset.filter;
+    //             const filterValue = e.target.dataset.value;
+    //             this.toggleFilter(filterType, filterValue, e.target);
+    //         });
+    //     });
+    // }
+setupSearchFunctionality() {
+    const searchInput = document.getElementById('task-search');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    console.log('Setting up search functionality...');
+    console.log('Search input:', searchInput);
+    console.log('Clear button:', clearSearchBtn);
+    console.log('Filter buttons:', filterButtons.length);
+    
+    if (searchInput) {
+        // Real-time search as user types
+        searchInput.addEventListener('input', (e) => {
+            this.searchTerm = e.target.value.trim().toLowerCase();
+            this.applyFiltersAndSearch();
+            console.log('Search term changed:', this.searchTerm);
+        });
+
+        // Clear search on Escape key
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
                 this.clearSearch();
-            });
-        }
-
-        // Filter buttons
-        filterButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                const filterType = e.target.dataset.filter;
-                const filterValue = e.target.dataset.value;
-                this.toggleFilter(filterType, filterValue, e.target);
-            });
+            }
         });
     }
 
-    // Method to clear search
-    clearSearch() {
-        const searchInput = document.getElementById('task-search');
-        if (searchInput) {
-            searchInput.value = '';
-        }
-        this.searchTerm = '';
-        this.applyFiltersAndSearch();
+    // Clear search button - Fixed event handling
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Clear search button clicked');
+            this.clearSearch();
+        });
         
-        // Update search results count
-        this.updateSearchResultsCount();
+        // Also handle mousedown for immediate feedback
+        clearSearchBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+        });
     }
+
+    // Filter buttons
+    filterButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const filterType = e.target.dataset.filter;
+            const filterValue = e.target.dataset.value;
+            console.log('Filter clicked:', filterType, filterValue);
+            this.toggleFilter(filterType, filterValue, e.target);
+        });
+    });
+}
+
+
+    // Method to clear search
+    // clearSearch() {
+    //     const searchInput = document.getElementById('task-search');
+    //     if (searchInput) {
+    //         searchInput.value = '';
+    //     }
+    //     this.searchTerm = '';
+    //     this.applyFiltersAndSearch();
+        
+    //     // Update search results count
+    //     this.updateSearchResultsCount();
+    // }
+
+    clearSearch() {
+    console.log('Clearing search...');
+    const searchInput = document.getElementById('task-search');
+    if (searchInput) {
+        searchInput.value = '';
+        // Trigger input event to update search
+        searchInput.dispatchEvent(new Event('input'));
+    }
+    this.searchTerm = '';
+    this.applyFiltersAndSearch();
+    
+    // Update search results count
+    this.updateSearchResultsCount();
+    
+    // Focus back to search input
+    if (searchInput) {
+        searchInput.focus();
+    }
+    
+    console.log('Search cleared');
+}
 
     // Method to toggle filters
     toggleFilter(filterType, filterValue, buttonElement) {
@@ -137,14 +199,63 @@ class TaskManager {
     }
 
     // Main method to apply search and filters
+    // applyFiltersAndSearch() {
+    //     const tasks = this.getTasks();
+    //     let filteredTasks = tasks;
+
+    //     // Apply search filter
+    //     if (this.searchTerm) {
+    //         filteredTasks = filteredTasks.filter(task => 
+    //             task.text.toLowerCase().includes(this.searchTerm)
+    //         );
+    //     }
+
+    //     // Apply priority filter
+    //     if (this.activeFilters.priority) {
+    //         filteredTasks = filteredTasks.filter(task => 
+    //             task.priority === this.activeFilters.priority
+    //         );
+    //     }
+
+    //     // Apply frequency filter
+    //     if (this.activeFilters.frequency) {
+    //         filteredTasks = filteredTasks.filter(task => 
+    //             task.frequency === this.activeFilters.frequency
+    //         );
+    //     }
+
+    //     // Apply status filter
+    //     if (this.activeFilters.status) {
+    //         filteredTasks = filteredTasks.filter(task => {
+    //             switch(this.activeFilters.status) {
+    //                 case 'completed':
+    //                     return task.completed;
+    //                 case 'pending':
+    //                     return !task.completed && (!task.deadline || !this.isOverdue(task.deadline));
+    //                 case 'overdue':
+    //                     return !task.completed && task.deadline && this.isOverdue(task.deadline);
+    //                 default:
+    //                     return true;
+    //             }
+    //         });
+    //     }
+
+    //     // Display filtered tasks
+    //     this.displayFilteredTasks(filteredTasks);
+    //     this.updateSearchResultsCount(filteredTasks.length, tasks.length);
+    // }
+
     applyFiltersAndSearch() {
+    try {
         const tasks = this.getTasks();
         let filteredTasks = tasks;
 
         // Apply search filter
         if (this.searchTerm) {
             filteredTasks = filteredTasks.filter(task => 
-                task.text.toLowerCase().includes(this.searchTerm)
+                task.text.toLowerCase().includes(this.searchTerm) ||
+                task.priority.toLowerCase().includes(this.searchTerm) ||
+                task.frequency.toLowerCase().includes(this.searchTerm)
             );
         }
 
@@ -181,56 +292,111 @@ class TaskManager {
         // Display filtered tasks
         this.displayFilteredTasks(filteredTasks);
         this.updateSearchResultsCount(filteredTasks.length, tasks.length);
+        
+        console.log(`Applied filters: ${filteredTasks.length}/${tasks.length} tasks shown`);
+    } catch (error) {
+        console.error('Error in applyFiltersAndSearch:', error);
     }
+}
 
     // Method to display filtered tasks
-    displayFilteredTasks(filteredTasks) {
-        const container = document.getElementById('tasksContainer');
-        if (!container) return;
+    // displayFilteredTasks(filteredTasks) {
+    //     const container = document.getElementById('tasksContainer');
+    //     if (!container) return;
         
-        container.innerHTML = '';
+    //     container.innerHTML = '';
         
-        // Sort by priority and due date
-        filteredTasks.sort((a, b) => {
-            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-            const aPriority = priorityOrder[a.priority] || 2;
-            const bPriority = priorityOrder[b.priority] || 2;
+    //     // Sort by priority and due date
+    //     filteredTasks.sort((a, b) => {
+    //         const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+    //         const aPriority = priorityOrder[a.priority] || 2;
+    //         const bPriority = priorityOrder[b.priority] || 2;
             
-            if (aPriority !== bPriority) return bPriority - aPriority;
+    //         if (aPriority !== bPriority) return bPriority - aPriority;
             
-            if (a.deadline && b.deadline) {
-                return new Date(a.deadline) - new Date(b.deadline);
-            }
-            return 0;
-        });
+    //         if (a.deadline && b.deadline) {
+    //             return new Date(a.deadline) - new Date(b.deadline);
+    //         }
+    //         return 0;
+    //     });
         
-        // Highlight search terms in results
-        filteredTasks.forEach(task => {
-            const taskElement = this.createTaskElement(task, this.searchTerm);
-            container.appendChild(taskElement);
-        });
+    //     // Highlight search terms in results
+    //     filteredTasks.forEach(task => {
+    //         const taskElement = this.createTaskElement(task, this.searchTerm);
+    //         container.appendChild(taskElement);
+    //     });
         
-        if (filteredTasks.length === 0) {
-            this.showEmptySearchState(container);
+    //     if (filteredTasks.length === 0) {
+    //         this.showEmptySearchState(container);
+    //     }
+    // }
+displayFilteredTasks(filteredTasks) {
+    const container = document.getElementById('tasksContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Sort by priority and due date
+    filteredTasks.sort((a, b) => {
+        const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+        const aPriority = priorityOrder[a.priority] || 2;
+        const bPriority = priorityOrder[b.priority] || 2;
+        
+        if (aPriority !== bPriority) return bPriority - aPriority;
+        
+        if (a.deadline && b.deadline) {
+            return new Date(a.deadline) - new Date(b.deadline);
         }
+        return 0;
+    });
+    
+    // Highlight search terms in results
+    filteredTasks.forEach(task => {
+        const taskElement = this.createTaskElement(task, this.searchTerm);
+        container.appendChild(taskElement);
+    });
+    
+    if (filteredTasks.length === 0) {
+        this.showEmptySearchState(container);
     }
+}
 
     // Method to update search results count
-    updateSearchResultsCount(filteredCount = null, totalCount = null) {
-        const countElement = document.getElementById('search-results-count');
-        if (!countElement) return;
+    // updateSearchResultsCount(filteredCount = null, totalCount = null) {
+    //     const countElement = document.getElementById('search-results-count');
+    //     if (!countElement) return;
 
-        if (filteredCount !== null && totalCount !== null) {
-            if (this.searchTerm || Object.values(this.activeFilters).some(f => f !== null)) {
-                countElement.textContent = `${filteredCount} of ${totalCount} tasks`;
-                countElement.style.display = 'block';
-            } else {
-                countElement.style.display = 'none';
-            }
+    //     if (filteredCount !== null && totalCount !== null) {
+    //         if (this.searchTerm || Object.values(this.activeFilters).some(f => f !== null)) {
+    //             countElement.textContent = `${filteredCount} of ${totalCount} tasks`;
+    //             countElement.style.display = 'block';
+    //         } else {
+    //             countElement.style.display = 'none';
+    //         }
+    //     } else {
+    //         countElement.style.display = 'none';
+    //     }
+    // }
+// Enhanced updateSearchResultsCount method
+updateSearchResultsCount(filteredCount = null, totalCount = null) {
+    const countElement = document.getElementById('search-results-count');
+    if (!countElement) return;
+
+    if (filteredCount !== null && totalCount !== null) {
+        const hasActiveFilters = this.searchTerm || Object.values(this.activeFilters).some(f => f !== null);
+        
+        if (hasActiveFilters) {
+            countElement.textContent = `Showing ${filteredCount} of ${totalCount} tasks`;
+            countElement.style.display = 'block';
         } else {
             countElement.style.display = 'none';
         }
+    } else {
+        countElement.style.display = 'none';
     }
+}
+
+
     // Enhanced empty state for search
     showEmptySearchState(container) {
         const emptyState = document.createElement('div');
@@ -255,29 +421,65 @@ class TaskManager {
     }
 
     // Method to clear all filters
+    // clearAllFilters() {
+    //     this.searchTerm = '';
+    //     this.activeFilters = {
+    //         priority: null,
+    //         frequency: null,
+    //         status: null
+    //     };
+        
+    //     // Clear search input
+    //     const searchInput = document.getElementById('task-search');
+    //     if (searchInput) {
+    //         searchInput.value = '';
+    //     }
+        
+    //     // Remove active classes from filter buttons
+    //     document.querySelectorAll('.filter-btn.active').forEach(btn => {
+    //         btn.classList.remove('active');
+    //     });
+        
+    //     // Display all tasks
+    //     this.displayTasks();
+    //     this.updateSearchResultsCount();
+    // }
     clearAllFilters() {
-        this.searchTerm = '';
-        this.activeFilters = {
-            priority: null,
-            frequency: null,
-            status: null
-        };
-        
-        // Clear search input
-        const searchInput = document.getElementById('task-search');
-        if (searchInput) {
-            searchInput.value = '';
-        }
-        
-        // Remove active classes from filter buttons
-        document.querySelectorAll('.filter-btn.active').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // Display all tasks
-        this.displayTasks();
-        this.updateSearchResultsCount();
+    console.log('Clearing all filters...');
+    
+    this.searchTerm = '';
+    this.activeFilters = {
+        priority: null,
+        frequency: null,
+        status: null
+    };
+    
+    // Clear search input
+    const searchInput = document.getElementById('task-search');
+    if (searchInput) {
+        searchInput.value = '';
     }
+    
+    // Remove active classes from filter buttons
+    document.querySelectorAll('.filter-btn.active').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Display all tasks
+    this.displayTasks();
+    this.updateSearchResultsCount();
+    
+    // Focus back to search input
+    if (searchInput) {
+        searchInput.focus();
+    }
+    
+    console.log('All filters cleared');
+}
+makeGloballyAccessible() {
+    // Make the taskManager instance globally accessible for HTML onclick handlers
+    window.taskManager = this;
+}
 
     // Add search keyboard shortcuts
     setupKeyboardShortcuts() {
