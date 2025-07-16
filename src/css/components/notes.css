@@ -928,8 +928,6 @@
 .modal-actions button[data-action="cancel"]:hover {
   background: var(--medium-purple);
 }
-
-/* Responsive Design */
 @media (max-width: 768px) {
   .filter-row {
     flex-direction: column;
