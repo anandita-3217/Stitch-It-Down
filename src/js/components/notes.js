@@ -17,6 +17,9 @@ class NotesManager {
         this.tempNoteData = null;
         this.lastFocusedElement = null; 
         this.debug = true;
+        this.currentFilter = 'all';
+        this.currentSubFilter = null;
+        this.searchQuery = '';
         this.init();
     }
 
@@ -35,18 +38,18 @@ class NotesManager {
         this.setupFocusTracking(); 
     }
 
-    setupFocusTracking() {
-        const trackableFocusElements = ['noteInput', 'note-search'];
-        
-        trackableFocusElements.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('focus', () => {
-                    this.lastFocusedElement = element;
-                });
-            }
-        });
-    }
+setupFocusTracking() {
+    const trackableFocusElements = ['noteInput', 'note-search'];
+    
+    trackableFocusElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('focus', () => {
+                this.lastFocusedElement = element;
+            });
+        }
+    });
+}
 
     restoreFocus() {
         setTimeout(() => {
@@ -98,6 +101,37 @@ class NotesManager {
                     this.handleAddNote();
                 }
             });
+        // Add search functionality
+const searchInput = document.getElementById('note-search');
+const clearSearchBtn = document.getElementById('clear-search');
+    
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        this.searchQuery = e.target.value.toLowerCase();
+        this.applyFilters();
+    });
+    
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.applyFilters();
+        }
+    });
+}
+    
+if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+        this.clearSearch();
+    });
+}
+    
+// Add filter functionality
+const filterButtons = document.querySelectorAll('.filter-btn');
+filterButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        this.handleFilterClick(e.target);
+    });
+});
         }
 
         if (notesContainer) {
@@ -294,44 +328,70 @@ class NotesManager {
         this.displayNotes();
     }
     
-    displayNotes(filter = null) {
-        const notes = this.getNotes();
-        const container = document.getElementById('notesContainer');
-        if (!container) return;
+    // displayNotes(filter = null) {
+    //     const notes = this.getNotes();
+    //     const container = document.getElementById('notesContainer');
+    //     if (!container) return;
         
-        container.innerHTML = '';
-        if (!Array.isArray(notes)) {
-            console.error('Notes is not an array:', notes);
-            this.showEmptyState(container);
-            return;
-        }
+    //     container.innerHTML = '';
+    //     if (!Array.isArray(notes)) {
+    //         console.error('Notes is not an array:', notes);
+    //         this.showEmptyState(container);
+    //         return;
+    //     }
 
-        let filteredNotes = filter ? notes.filter(filter) : notes;
+    //     let filteredNotes = filter ? notes.filter(filter) : notes;
 
-        if (!Array.isArray(filteredNotes)) {
-            console.error('Filtered notes is not an array:', filteredNotes);
-            filteredNotes = [];
-        }
+    //     if (!Array.isArray(filteredNotes)) {
+    //         console.error('Filtered notes is not an array:', filteredNotes);
+    //         filteredNotes = [];
+    //     }
 
-        // Enhanced sorting - pinned first, then by last modified
-        filteredNotes.sort((a, b) => {
-            if (a.pinned && !b.pinned) return -1;
-            if (!a.pinned && b.pinned) return 1;
+    //     // Enhanced sorting - pinned first, then by last modified
+    //     filteredNotes.sort((a, b) => {
+    //         if (a.pinned && !b.pinned) return -1;
+    //         if (!a.pinned && b.pinned) return 1;
             
-            const aTime = new Date(a.lastModified || a.timestamp);
-            const bTime = new Date(b.lastModified || b.timestamp);
-            return bTime - aTime;
-        });
+    //         const aTime = new Date(a.lastModified || a.timestamp);
+    //         const bTime = new Date(b.lastModified || b.timestamp);
+    //         return bTime - aTime;
+    //     });
         
-        filteredNotes.forEach(note => {
-            const noteElement = this.createNoteElement(note);
-            container.appendChild(noteElement);
-        });
+    //     filteredNotes.forEach(note => {
+    //         const noteElement = this.createNoteElement(note);
+    //         container.appendChild(noteElement);
+    //     });
         
-        if (filteredNotes.length === 0) {
-            this.showEmptyState(container);
-        }
+    //     if (filteredNotes.length === 0) {
+    //         this.showEmptyState(container);
+    //     }
+    // }
+    displayNotes() {
+    // Reset filters when displaying all notes
+    this.currentFilter = 'all';
+    this.currentSubFilter = null;
+    this.searchQuery = '';
+    
+    // Clear search input
+    const searchInput = document.getElementById('note-search');
+    if (searchInput) {
+        searchInput.value = '';
     }
+    
+    // Reset filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector('.filter-btn[data-filter="all"]')?.classList.add('active');
+    
+    // Hide sub-filters
+    const subFiltersContainer = document.getElementById('sub-filters');
+    if (subFiltersContainer) {
+        subFiltersContainer.style.display = 'none';
+    }
+    
+    this.applyFilters();
+}
     createNoteElement(note) {
         const div = document.createElement('div');
         div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
@@ -706,6 +766,137 @@ class NotesManager {
             note.tags.some(tag => tag.toLowerCase().includes(searchTerm))
         );
     }
+    clearSearch() {
+    const searchInput = document.getElementById('note-search');
+    if (searchInput) {
+        searchInput.value = '';
+        this.searchQuery = '';
+        this.applyFilters();
+    }
+}
+
+handleFilterClick(button) {
+    const filter = button.getAttribute('data-filter');
+    
+    // Update active filter button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    button.classList.add('active');
+    
+    this.currentFilter = filter;
+    this.currentSubFilter = null;
+    
+    this.showSubFilters(filter);
+    this.applyFilters();
+}
+
+showSubFilters(filter) {
+    const subFiltersContainer = document.getElementById('sub-filters');
+    subFiltersContainer.innerHTML = '';
+    
+    if (filter === 'category') {
+        const categories = ['general', 'work', 'personal', 'ideas', 'reminders', 'quotes', 'research'];
+        categories.forEach(category => {
+            const btn = document.createElement('button');
+            btn.className = 'sub-filter-btn';
+            btn.setAttribute('data-sub-filter', category);
+            btn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            btn.addEventListener('click', () => this.handleSubFilterClick(btn, category));
+            subFiltersContainer.appendChild(btn);
+        });
+        subFiltersContainer.style.display = 'block';
+    } else if (filter === 'color') {
+        const colors = ['default', 'yellow', 'blue', 'green', 'pink', 'purple'];
+        colors.forEach(color => {
+            const btn = document.createElement('button');
+            btn.className = `sub-filter-btn color-${color}`;
+            btn.setAttribute('data-sub-filter', color);
+            btn.textContent = color.charAt(0).toUpperCase() + color.slice(1);
+            btn.addEventListener('click', () => this.handleSubFilterClick(btn, color));
+            subFiltersContainer.appendChild(btn);
+        });
+        subFiltersContainer.style.display = 'block';
+    } else {
+        subFiltersContainer.style.display = 'none';
+    }
+}
+
+handleSubFilterClick(button, subFilter) {
+    document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    button.classList.add('active');
+    
+    this.currentSubFilter = subFilter;
+    this.applyFilters();
+}
+
+applyFilters() {
+    const notes = this.getNotes();
+    let filteredNotes = notes;
+    
+    // Apply search filter
+    if (this.searchQuery) {
+        filteredNotes = filteredNotes.filter(note => 
+            note.text.toLowerCase().includes(this.searchQuery) ||
+            note.category.toLowerCase().includes(this.searchQuery) ||
+            note.tags.some(tag => tag.toLowerCase().includes(this.searchQuery))
+        );
+    }
+    
+    // Apply main filter
+    switch (this.currentFilter) {
+        case 'pinned':
+            filteredNotes = filteredNotes.filter(note => note.pinned);
+            break;
+        case 'archived':
+            filteredNotes = filteredNotes.filter(note => note.archived);
+            break;
+        case 'category':
+            if (this.currentSubFilter) {
+                filteredNotes = filteredNotes.filter(note => note.category === this.currentSubFilter);
+            }
+            break;
+        case 'color':
+            if (this.currentSubFilter) {
+                filteredNotes = filteredNotes.filter(note => note.color === this.currentSubFilter);
+            }
+            break;
+        case 'all':
+        default:
+            // Show all notes (no additional filtering)
+            break;
+    }
+    
+    this.displayFilteredNotes(filteredNotes);
+}
+
+displayFilteredNotes(filteredNotes) {
+    const container = document.getElementById('notesContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Enhanced sorting - pinned first, then by last modified
+    filteredNotes.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        
+        const aTime = new Date(a.lastModified || a.timestamp);
+        const bTime = new Date(b.lastModified || b.timestamp);
+        return bTime - aTime;
+    });
+    
+    filteredNotes.forEach(note => {
+        const noteElement = this.createNoteElement(note);
+        container.appendChild(noteElement);
+    });
+    
+    if (filteredNotes.length === 0) {
+        this.showEmptyState(container);
+    }
+}
 
     getNotesByCategory(category) {
         return this.getNotes().filter(note => note.category === category);
