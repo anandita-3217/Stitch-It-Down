@@ -440,7 +440,7 @@
 }
 
 .task-item.priority-low {
-    border-left: 4px solid #6ab6ff;
+    border-left: 4px solid #059669;
 }
 
 [data-theme="light"] .task-item.priority-low {
@@ -469,12 +469,6 @@
     color: #dc3545;
     font-weight: 500;
 }
-
-
-/* @keyframes pulse-red {
-    0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.3); }
-    50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.6); }
-} */
 
 /* Task meta information styling */
 .task-meta {
