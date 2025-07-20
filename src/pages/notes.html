@@ -90,8 +90,7 @@
                         <div class="search-input-group">
                             <i class="bi bi-search search-icon"></i>
                             <input type="text" id="note-search" placeholder="Search notes, categories, or tags..." class="search-input">
-                            <button id="clearSearch" class="clear-search-btn" title="Clear search">
-                                <i class="bi bi-x"></i>
+                            <button id="clearSearch" class="clear-search-btn" title="Clear search">×
                             </button>
                         </div>
                     </div>
@@ -118,12 +117,12 @@
 
                             <div class="filter-group">
                                 <label>Color:</label>
-                                <button class="filter-btn color-default" data-filter="color" data-value="default"></button>
-                                <button class="filter-btn color-yellow" data-filter="color" data-value="yellow"></button>
-                                <button class="filter-btn color-blue" data-filter="color" data-value="blue"></button>
-                                <button class="filter-btn color-green" data-filter="color" data-value="green"></button>
-                                <button class="filter-btn color-pink" data-filter="color" data-value="pink"></button>
-                                <button class="filter-btn color-purple" data-filter="color" data-value="purple"></button>
+                                <button class="filter-btn filter-btn-color color-default" data-filter="color" data-value="default"></button>
+                                <button class="filter-btn filter-btn-color color-yellow" data-filter="color" data-value="yellow"></button>
+                                <button class="filter-btn filter-btn-color color-blue" data-filter="color" data-value="blue"></button>
+                                <button class="filter-btn filter-btn-color color-green" data-filter="color" data-value="green"></button>
+                                <button class="filter-btn filter-btn-color color-pink" data-filter="color" data-value="pink"></button>
+                                <button class="filter-btn filter-btn-color color-purple" data-filter="color" data-value="purple"></button>
                             </div>
                         </div>
                     </div>
@@ -154,29 +153,45 @@
                         
                     
                         <div class="bulk-actions-group">
-                            <button id="selectAll" class="action-btn" title="Select All">
-                                <i class="bi bi-check-all"></i> Select All
-                            </button>
+                        <button id="bulkActionsBtn" class="bulk-actions-toggle" type="button">
+                            <i class="bi bi-check-square"></i>
+                            Select Multiple
+                        </button>
+                        <div id="bulkControls" class="bulk-controls hidden">
+                            <div class="bulk-info">
+                                <span id="selectedCount">0</span> selected
+                            </div>
+                            
+                            <div class="bulk-buttons">
+                                <button id="selectAllBtn" class="bulk-btn secondary" type="button">
+                                    <i class="bi bi-check-all"></i>
+                                    Select All
+                                </button>
+                                
+                                <button id="deselectAllBtn" class="bulk-btn secondary" type="button" style="display: none;">
+                                    <i class="bi bi-square"></i>
+                                    Deselect All
+                                </button>
+                                
+                                <button id="bulkPinBtn" class="bulk-btn" type="button" disabled>
+                                    <i class="bi bi-pin-angle"></i>
+                                    Toggle Pin
+                                </button>
+                                
+                                <button id="bulkArchiveBtn" class="bulk-btn" type="button" disabled>
+                                    <i class="bi bi-archive"></i>
+                                    Toggle Archive
+                                </button>
+                                
+                                <button id="bulkDeleteBtn" class="bulk-btn danger" type="button" disabled>
+                                    <i class="bi bi-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>
-                
-                
-                <div id="bulkToolbar" class="bulk-toolbar hidden">
-                    <div class="bulk-actions">
-                        <span class="selection-count">0 selected</span>
-                        <button id="archiveSelected" class="bulk-btn">
-                            <i class="bi bi-archive"></i> Archive
-                        </button>
-                        <button id="deleteSelected" class="bulk-btn danger">
-                            <i class="bi bi-trash"></i> Delete
-                        </button>
-                        <button id="clearSelection" class="bulk-btn">
-                            <i class="bi bi-x"></i> Clear
-                        </button>
-                    </div>
-                </div>
-                
             <div class="notes-container view-grid" id="notesContainer">
                 
                 </div>

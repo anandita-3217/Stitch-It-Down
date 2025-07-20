@@ -136,17 +136,12 @@
     background: var(--card-bg);
 }
 
-/* Firefox scrollbar */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) var(--card-bg);
-}
-
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) var(--card-bg);
 }
 
 body {
