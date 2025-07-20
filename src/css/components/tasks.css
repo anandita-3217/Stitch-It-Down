@@ -155,21 +155,7 @@
     border-radius: 15px;
     transition: width 0.8s ease;
     position: relative;
-    width: 43%; /* Example progress */
 }
-
-/* .task-progress-bar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 2s infinite;
-} */
-
-
 .task-progress-text {
     font-size: 1rem;
     color: var(--text-secondary);
@@ -531,13 +517,6 @@
     font-weight: bold;
     animation: blink 1s infinite;
 }
-
-/* @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.5; }
-} */
-
-/* Modal improvements */
 .task-frequency-modal,
 .task-edit-modal {
     position: fixed;

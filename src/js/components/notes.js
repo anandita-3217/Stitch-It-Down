@@ -17,10 +17,6 @@ class NotesManager {
         this.tempNoteData = null;
         this.lastFocusedElement = null; 
         this.debug = true;
-        // this.currentFilter = 'all';
-        // this.currentSubFilter = null;
-        // this.searchQuery = '';
-        // this.init();
         this.activeFilters = {
             view: 'all',
             category: null,
@@ -29,7 +25,6 @@ class NotesManager {
         this.searchQuery = '';
         this.init();
     }
-
     init() {
         try {
             const testData = this.getNotes();
@@ -39,25 +34,27 @@ class NotesManager {
         } catch (error) {
             localStorage.removeItem(this.STORAGE_KEY);
         }
-        
-        this.setupEventListeners();
-        this.loadNotes();
         this.setupFocusTracking(); 
-    }
-
-setupFocusTracking() {
-    const trackableFocusElements = ['noteInput', 'note-search'];
-    
-    trackableFocusElements.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('focus', () => {
-                this.lastFocusedElement = element;
+        this.loadNotes();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.setupEventListeners();
             });
-        }
-    });
-}
-
+        } else {
+            setTimeout(() => {
+                this.setupEventListeners();
+            }, 100);}}
+    setupFocusTracking() {
+        const trackableFocusElements = ['noteInput', 'note-search'];
+        trackableFocusElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('focus', () => {
+                    this.lastFocusedElement = element;
+                });
+            }
+        });
+    }
     restoreFocus() {
         setTimeout(() => {
             if (this.lastFocusedElement && document.contains(this.lastFocusedElement)) {
@@ -70,7 +67,6 @@ setupFocusTracking() {
             }
         }, 100);
     }
-
     validateInput(inputElement, errorMessage = 'Please enter a valid value') {
         const value = inputElement.value.trim();
         
@@ -80,7 +76,6 @@ setupFocusTracking() {
         }
         return true;
     }
-
     shakeInput(inputElement) {
         inputElement.classList.remove('shake-animation');
         inputElement.offsetHeight;
@@ -89,97 +84,14 @@ setupFocusTracking() {
             inputElement.classList.remove('shake-animation');
         }, 600);
     }
-
-//     setupEventListeners() {
-//         const addNoteBtn = document.getElementById('addNoteBtn');
-//         const noteInput = document.getElementById('noteInput');
-//         const notesContainer = document.getElementById('notesContainer');
-        
-//         console.log('Setting up event listeners...');
-        
-//         if (addNoteBtn) {
-//             addNoteBtn.addEventListener('click', () => this.handleAddNote());
-//         }
-        
-//         if (noteInput) {
-//             noteInput.addEventListener('keypress', (e) => {
-//                 if (e.key === 'Enter' && !e.shiftKey) {
-//                     e.preventDefault();
-//                     this.handleAddNote();
-//                 }
-//             });
-//         // Add search functionality
-// const searchInput = document.getElementById('note-search');
-// const clearSearchBtn = document.getElementById('clear-search');
-    
-// if (searchInput) {
-//     searchInput.addEventListener('input', (e) => {
-//         this.searchQuery = e.target.value.toLowerCase();
-//         this.applyFilters();
-//     });
-    
-//     searchInput.addEventListener('keypress', (e) => {
-//         if (e.key === 'Enter') {
-//             e.preventDefault();
-//             this.applyFilters();
-//         }
-//     });
-// }
-    
-// if (clearSearchBtn) {
-//     clearSearchBtn.addEventListener('click', () => {
-//         this.clearSearch();
-//     });
-// }
-    
-// // Add filter functionality
-// const filterButtons = document.querySelectorAll('.filter-btn');
-// filterButtons.forEach(btn => {
-//     btn.addEventListener('click', (e) => {
-//         this.handleFilterClick(e.target);
-//     });
-// });
-//         }
-
-//         if (notesContainer) {
-//             notesContainer.addEventListener('click', (e) => {
-//                 const button = e.target.closest('button');
-//                 if (button) {
-//                     e.preventDefault();
-//                     e.stopPropagation();
-                    
-//                     const noteId = parseInt(button.getAttribute('data-note-id'));
-                    
-//                     if (button.classList.contains('edit-note') || e.target.classList.contains('bi-pencil')) {
-//                         console.log('Edit button clicked for note:', noteId);
-//                         this.editNote(noteId);
-//                     } else if (button.classList.contains('delete-note') || e.target.classList.contains('bi-trash')) {
-//                         console.log('Delete button clicked for note:', noteId);
-//                         this.deleteNote(noteId);
-//                     } else if (button.classList.contains('pin-note') || e.target.classList.contains('bi-pin-angle')) {
-//                         console.log('Pin button clicked for note:', noteId);
-//                         this.togglePinNote(noteId);
-//                     } else if (button.classList.contains('archive-note') || e.target.classList.contains('bi-archive')) {
-//                         console.log('Archive button clicked for note:', noteId);
-//                         this.toggleArchiveNote(noteId);
-//                     }
-//                 }
-//             });
-
-//             console.log('✓ Notes container listeners attached');
-//         }
-//     }
     setupEventListeners() {
         const addNoteBtn = document.getElementById('addNoteBtn');
         const noteInput = document.getElementById('noteInput');
-        const notesContainer = document.getElementById('notesContainer');
-        
-        console.log('Setting up event listeners...');
-        
+        const notesContainer = document.getElementById('notesContainer');        
+        console.log('Setting up event listeners...');        
         if (addNoteBtn) {
             addNoteBtn.addEventListener('click', () => this.handleAddNote());
         }
-        
         if (noteInput) {
             noteInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -188,11 +100,8 @@ setupFocusTracking() {
                 }
             });
         }
-
-        // Search functionality
         const searchInput = document.getElementById('note-search');
         const clearSearchBtn = document.getElementById('clearSearch');
-
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 this.searchQuery = e.target.value.toLowerCase();
@@ -205,25 +114,19 @@ setupFocusTracking() {
                 }
             });
         }
-
         if (clearSearchBtn) {
             clearSearchBtn.addEventListener('click', () => {
                 this.clearSearch();
             });
         }
-
-        // NEW: Updated filter button event listeners
         this.setupFilterListeners();
-
         if (notesContainer) {
             notesContainer.addEventListener('click', (e) => {
                 const button = e.target.closest('button');
                 if (button) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
                     const noteId = parseInt(button.getAttribute('data-note-id'));
-                    
                     if (button.classList.contains('edit-note') || e.target.classList.contains('bi-pencil')) {
                         console.log('Edit button clicked for note:', noteId);
                         this.editNote(noteId);
@@ -242,18 +145,15 @@ setupFocusTracking() {
             console.log('✓ Notes container listeners attached');
         }
     }
-
     handleAddNote() {
         const noteInput = document.getElementById('noteInput');
         if (!this.validateInput(noteInput, 'Please enter a note')) {
             return;
         }
-        
         const noteText = noteInput.value.trim();
         this.showCategoryModal(noteText);
         noteInput.value = '';
     }
-
     showCategoryModal(noteText) {
         const modal = document.createElement('div');
         modal.className = 'note-category-modal';
@@ -263,7 +163,6 @@ setupFocusTracking() {
                 <div class="note-text-preview">
                     <strong>Note:</strong> ${noteText.length > 100 ? noteText.substring(0, 100) + '...' : noteText}
                 </div>
-                
                 <div class="category-section">
                     <label>Category:</label>
                     <select id="note-category">
@@ -275,52 +174,41 @@ setupFocusTracking() {
                         <option value="quotes">Quotes</option>
                         <option value="research">Research</option>
                     </select>
-                </div>
-                
+                </div>                
                 <div class="color-section">
                     <label>Color:</label>
                     <div class="color-picker">
                         <input type="radio" name="note-color" value="default" id="color-default" checked>
-                        <label for="color-default" class="color-option color-default"></label>
-                        
+                        <label for="color-default" class="color-option color-default"></label>                        
                         <input type="radio" name="note-color" value="yellow" id="color-yellow">
-                        <label for="color-yellow" class="color-option color-yellow"></label>
-                        
+                        <label for="color-yellow" class="color-option color-yellow"></label>                        
                         <input type="radio" name="note-color" value="blue" id="color-blue">
-                        <label for="color-blue" class="color-option color-blue"></label>
-                        
+                        <label for="color-blue" class="color-option color-blue"></label>                        
                         <input type="radio" name="note-color" value="green" id="color-green">
-                        <label for="color-green" class="color-option color-green"></label>
-                        
+                        <label for="color-green" class="color-option color-green"></label>                        
                         <input type="radio" name="note-color" value="pink" id="color-pink">
-                        <label for="color-pink" class="color-option color-pink"></label>
-                        
+                        <label for="color-pink" class="color-option color-pink"></label>                        
                         <input type="radio" name="note-color" value="purple" id="color-purple">
                         <label for="color-purple" class="color-option color-purple"></label>
                     </div>
-                </div>
-                
+                </div>                
                 <div class="tags-section">
                     <label for="note-tags">Tags (comma-separated):</label>
                     <input type="text" id="note-tags" placeholder="e.g., important, meeting, project">
-                </div>
-                
+                </div>                
                 <div class="options-section">
                     <label>
                         <input type="checkbox" id="note-pinned"> Pin this note
                     </label>
-                </div>
-                
+                </div>                
                 <div class="modal-actions">
                     <button data-action="create">Create Note</button>
                     <button data-action="cancel">Cancel</button>
                 </div>
             </div>
-        `;
-        
+        `;        
         document.body.appendChild(modal);
-        this.tempNoteData = { text: noteText };
-        
+        this.tempNoteData = { text: noteText };        
         const buttons = modal.querySelectorAll('button');
         buttons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -333,15 +221,12 @@ setupFocusTracking() {
             });
         });
     }
-
     createNoteFromModal() {
         if (!this.tempNoteData) return;
-        
         const category = document.getElementById('note-category').value;
         const colorInput = document.querySelector('input[name="note-color"]:checked');
         const tagsInput = document.getElementById('note-tags');
         const pinnedCheckbox = document.getElementById('note-pinned');
-        
         const noteData = {
             id: Date.now(),
             text: this.tempNoteData.text,
@@ -355,13 +240,11 @@ setupFocusTracking() {
             wordCount: this.countWords(this.tempNoteData.text),
             lastModified: new Date().toISOString()
         };
-        
         this.saveNote(noteData);
         closeModal();
         this.tempNoteData = null;
         this.restoreFocus(); 
     }
-
     cancelNoteCreation(noteText) {
         const noteInput = document.getElementById('noteInput');
         if (noteInput) {
@@ -371,23 +254,20 @@ setupFocusTracking() {
         this.tempNoteData = null;
         this.restoreFocus();
     }
-
     countWords(text) {
         return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     }
-
     saveNote(noteData) {
-        try {
-            const notes = this.getNotes();
-            notes.push(noteData);
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            this.displayNotes();
-            this.emitNoteUpdate('note-added', noteData);
-        } catch (error) {
-            console.error('Could not save note to localStorage:', error);
-        }
+    try {
+        const notes = this.getNotes();
+        notes.push(noteData);
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+        this.displayNotes(false);
+        this.emitNoteUpdate('note-added', noteData);
+    } catch (error) {
+        console.error('Could not save note to localStorage:', error);
     }
-
+}
     getNotes() {
         try {
             const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -402,110 +282,35 @@ setupFocusTracking() {
             return [];
         }
     }
-
     loadNotes() {
-        const notes = this.getNotes();
-        this.displayNotes();
+        this.applyFilters();
     }
-    
-    // displayNotes(filter = null) {
-    //     const notes = this.getNotes();
-    //     const container = document.getElementById('notesContainer');
-    //     if (!container) return;
-        
-    //     container.innerHTML = '';
-    //     if (!Array.isArray(notes)) {
-    //         console.error('Notes is not an array:', notes);
-    //         this.showEmptyState(container);
-    //         return;
-    //     }
-
-    //     let filteredNotes = filter ? notes.filter(filter) : notes;
-
-    //     if (!Array.isArray(filteredNotes)) {
-    //         console.error('Filtered notes is not an array:', filteredNotes);
-    //         filteredNotes = [];
-    //     }
-
-    //     // Enhanced sorting - pinned first, then by last modified
-    //     filteredNotes.sort((a, b) => {
-    //         if (a.pinned && !b.pinned) return -1;
-    //         if (!a.pinned && b.pinned) return 1;
-            
-    //         const aTime = new Date(a.lastModified || a.timestamp);
-    //         const bTime = new Date(b.lastModified || b.timestamp);
-    //         return bTime - aTime;
-    //     });
-        
-    //     filteredNotes.forEach(note => {
-    //         const noteElement = this.createNoteElement(note);
-    //         container.appendChild(noteElement);
-    //     });
-        
-    //     if (filteredNotes.length === 0) {
-    //         this.showEmptyState(container);
-    //     }
-    // }
-//     displayNotes() {
-//     // Reset filters when displaying all notes
-//     this.currentFilter = 'all';
-//     this.currentSubFilter = null;
-//     this.searchQuery = '';
-    
-//     // Clear search input
-//     const searchInput = document.getElementById('note-search');
-//     if (searchInput) {
-//         searchInput.value = '';
-//     }
-    
-//     // Reset filter buttons
-//     document.querySelectorAll('.filter-btn').forEach(btn => {
-//         btn.classList.remove('active');
-//     });
-//     document.querySelector('.filter-btn[data-filter="all"]')?.classList.add('active');
-    
-//     // Hide sub-filters
-//     const subFiltersContainer = document.getElementById('sub-filters');
-//     if (subFiltersContainer) {
-//         subFiltersContainer.style.display = 'none';
-//     }
-    
-//     this.applyFilters();
-// }
-    displayNotes() {
-        // Reset filters to default state
+    displayNotes(resetFilters = false) {
+    // Only reset filters if explicitly requested
+    if (resetFilters) {
         this.resetAllFilters();
         this.searchQuery = '';
-        
-        // Clear search input
         const searchInput = document.getElementById('note-search');
         if (searchInput) {
             searchInput.value = '';
         }
-
-        this.applyFilters();
+    }
+    this.applyFilters();
     }
     createNoteElement(note) {
         const div = document.createElement('div');
         div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
-        
         const isLongNote = note.text.length > 200;
         const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
-        
-        // Helper function to safely escape HTML and then create links
         const safeTextWithLinks = (text) => {
-            // First escape HTML entities
             const escaped = text
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
-
-            // Then apply link detection on the escaped text
             return detectAndCreateLinks(escaped);
         };
-
         div.innerHTML = `
             <div class="note-content">
                 <div class="note-header">
@@ -544,30 +349,21 @@ setupFocusTracking() {
                 </button>
             </div>
         `;
-                
-        // Fixed expand/collapse functionality
         const noteTextDiv = div.querySelector('.note-text');
         let isExpanded = false;
-                
-        // Use event delegation to handle both initial and dynamically created buttons
         const toggleExpand = (e) => {
             e.preventDefault();
             e.stopPropagation();
-
             if (isExpanded) {
-                // Collapse
                 noteTextDiv.innerHTML = safeTextWithLinks(truncatedText) + '<button class="expand-note-btn" type="button">Show more</button>';
                 noteTextDiv.classList.remove('expanded');
                 isExpanded = false;
             } else {
-                // Expand
                 noteTextDiv.innerHTML = safeTextWithLinks(note.text) + '<button class="expand-note-btn" type="button">Show less</button>';
                 noteTextDiv.classList.add('expanded');
                 isExpanded = true;
             }
         };
-
-        // Use event delegation on the noteTextDiv instead of individual button listeners
         if (isLongNote) {
             noteTextDiv.addEventListener('click', (e) => {
                 if (e.target.classList.contains('expand-note-btn')) {
@@ -575,67 +371,51 @@ setupFocusTracking() {
                 }
             });
         }
-
         return div;
     }
-
-
     togglePinNote(noteId) {
-        console.log('togglePinNote called with ID:', noteId);
-        
-        if (!noteId || isNaN(noteId)) {
-            console.error('Invalid note ID provided to togglePinNote:', noteId);
-            return;
+    console.log('togglePinNote called with ID:', noteId);        
+    if (!noteId || isNaN(noteId)) {
+        console.error('Invalid note ID provided to togglePinNote:', noteId);
+        return;
+    }        
+    try {
+        const notes = this.getNotes();
+        const noteIndex = notes.findIndex(note => note.id === noteId);            
+        if (noteIndex !== -1) {
+            const oldPinned = notes[noteIndex].pinned;
+            notes[noteIndex].pinned = !notes[noteIndex].pinned;
+            notes[noteIndex].lastModified = new Date().toISOString();
+            const newPinned = notes[noteIndex].pinned;                
+            console.log(`✓ Note ${noteId} pin toggled: ${oldPinned} → ${newPinned}`);                
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+            this.displayNotes(false); // Don't reset filters
+            this.emitNoteUpdate('note-pinned', notes[noteIndex]);                
+        } else {
+            console.error('Note not found with ID:', noteId);
         }
-        
-        try {
-            const notes = this.getNotes();
-            const noteIndex = notes.findIndex(note => note.id === noteId);
-            
-            if (noteIndex !== -1) {
-                const oldPinned = notes[noteIndex].pinned;
-                notes[noteIndex].pinned = !notes[noteIndex].pinned;
-                notes[noteIndex].lastModified = new Date().toISOString();
-                const newPinned = notes[noteIndex].pinned;
-                
-                console.log(`✓ Note ${noteId} pin toggled: ${oldPinned} → ${newPinned}`);
-                
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-                this.displayNotes();
-                this.emitNoteUpdate('note-pinned', notes[noteIndex]);
-                
-            } else {
-                console.error('Note not found with ID:', noteId);
-            }
-        } catch (error) {
-            console.error('Error in togglePinNote:', error);
-        }
+    } catch (error) {
+        console.error('Error in togglePinNote:', error);
     }
-
+    }
     toggleArchiveNote(noteId) {
-        console.log('toggleArchiveNote called with ID:', noteId);
-        
+        console.log('toggleArchiveNote called with ID:', noteId);        
         if (!noteId || isNaN(noteId)) {
             console.error('Invalid note ID provided to toggleArchiveNote:', noteId);
             return;
-        }
-        
+        }        
         try {
             const notes = this.getNotes();
-            const noteIndex = notes.findIndex(note => note.id === noteId);
-            
+            const noteIndex = notes.findIndex(note => note.id === noteId);            
             if (noteIndex !== -1) {
                 const oldArchived = notes[noteIndex].archived;
                 notes[noteIndex].archived = !notes[noteIndex].archived;
                 notes[noteIndex].lastModified = new Date().toISOString();
-                const newArchived = notes[noteIndex].archived;
-                
-                console.log(`✓ Note ${noteId} archive toggled: ${oldArchived} → ${newArchived}`);
-                
+                const newArchived = notes[noteIndex].archived;                
+                console.log(`✓ Note ${noteId} archive toggled: ${oldArchived} → ${newArchived}`);                
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-                this.displayNotes();
-                this.emitNoteUpdate('note-archived', notes[noteIndex]);
-                
+                this.displayNotes(false); // Don't reset filters
+                this.emitNoteUpdate('note-archived', notes[noteIndex]);                
             } else {
                 console.error('Note not found with ID:', noteId);
             }
@@ -643,40 +423,31 @@ setupFocusTracking() {
             console.error('Error in toggleArchiveNote:', error);
         }
     }
-
     deleteNote(noteId) {
-        console.log('deleteNote called with ID:', noteId);
-        
+        console.log('deleteNote called with ID:', noteId);        
         if (!noteId || isNaN(noteId)) {
             console.error('Invalid note ID:', noteId);
             return;
         }
-
         if (!confirm('Are you sure you want to delete this note?')) {
             this.restoreFocus();
             return;
-        }
-        
+        }        
         try {
             let notes = this.getNotes();
             console.log('Notes before delete:', notes.length);
-            
             const noteToDelete = notes.find(note => note.id === noteId);
-            console.log('Note to delete:', noteToDelete);
-            
+            console.log('Note to delete:', noteToDelete);            
             if (!noteToDelete) {
                 console.error('Note not found with ID:', noteId);
                 this.restoreFocus();
                 return;
-            }
-            
+            }            
             notes = notes.filter(note => note.id !== noteId);
-            console.log('Notes after delete:', notes.length);
-            
+            console.log('Notes after delete:', notes.length);            
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-            this.displayNotes();
-            this.emitNoteUpdate('note-deleted', noteToDelete);
-            
+            this.displayNotes(false); 
+            this.emitNoteUpdate('note-deleted', noteToDelete);            
             console.log('Note deleted successfully');
             this.restoreFocus();
         } catch (error) {
@@ -684,39 +455,31 @@ setupFocusTracking() {
             this.restoreFocus();
         }
     }
-
     editNote(noteId) {
-        console.log('editNote called with ID:', noteId);
-        
+        console.log('editNote called with ID:', noteId);        
         if (!noteId || isNaN(noteId)) {
             console.error('Invalid note ID:', noteId);
             return;
         }
-
         const notes = this.getNotes();
-        const note = notes.find(n => n.id === noteId);
-        
+        const note = notes.find(n => n.id === noteId);        
         if (!note) {
             console.error('Note not found with ID:', noteId);
             this.restoreFocus();
             return;
-        }
-        
+        }        
         console.log('Editing note:', note);
         this.editingNote = note;
         this.showEditModal(note);
     }
-
     showEditModal(note) {
-        closeModal();
-        
+        closeModal();        
         const modal = document.createElement('div');
         modal.className = 'note-edit-modal';
         modal.innerHTML = `
             <div class="modal-content">
                 <h3>Edit Note</h3>
-                <textarea id="editNoteText" rows="6">${note.text}</textarea>
-                
+                <textarea id="editNoteText" rows="6">${note.text}</textarea>                
                 <div class="edit-sections">
                     <div class="category-section">
                         <label>Category:</label>
@@ -729,52 +492,41 @@ setupFocusTracking() {
                             <option value="quotes" ${note.category === 'quotes' ? 'selected' : ''}>Quotes</option>
                             <option value="research" ${note.category === 'research' ? 'selected' : ''}>Research</option>
                         </select>
-                    </div>
-                    
+                    </div>                    
                     <div class="color-section">
                         <label>Color:</label>
                         <div class="color-picker">
                             <input type="radio" name="edit-note-color" value="default" id="edit-color-default" ${note.color === 'default' ? 'checked' : ''}>
                             <label for="edit-color-default" class="color-option color-default"></label>
-                            
                             <input type="radio" name="edit-note-color" value="yellow" id="edit-color-yellow" ${note.color === 'yellow' ? 'checked' : ''}>
                             <label for="edit-color-yellow" class="color-option color-yellow"></label>
-                            
                             <input type="radio" name="edit-note-color" value="blue" id="edit-color-blue" ${note.color === 'blue' ? 'checked' : ''}>
                             <label for="edit-color-blue" class="color-option color-blue"></label>
-                            
                             <input type="radio" name="edit-note-color" value="green" id="edit-color-green" ${note.color === 'green' ? 'checked' : ''}>
                             <label for="edit-color-green" class="color-option color-green"></label>
-                            
                             <input type="radio" name="edit-note-color" value="pink" id="edit-color-pink" ${note.color === 'pink' ? 'checked' : ''}>
                             <label for="edit-color-pink" class="color-option color-pink"></label>
-                            
                             <input type="radio" name="edit-note-color" value="purple" id="edit-color-purple" ${note.color === 'purple' ? 'checked' : ''}>
                             <label for="edit-color-purple" class="color-option color-purple"></label>
                         </div>
                     </div>
-                    
                     <div class="tags-section">
                         <label for="edit-tags">Tags:</label>
                         <input type="text" id="edit-tags" value="${note.tags.join(', ')}">
                     </div>
-                    
                     <div class="options-section">
                         <label>
                             <input type="checkbox" id="edit-pinned" ${note.pinned ? 'checked' : ''}> Pin this note
                         </label>
                     </div>
                 </div>
-                
                 <div class="modal-actions">
                     <button data-action="save" type="button">Save Changes</button>
                     <button data-action="cancel" type="button">Cancel</button>
                 </div>
             </div>
         `;
-        
         document.body.appendChild(modal);
-        
         const buttons = modal.querySelectorAll('button');
         buttons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -790,25 +542,20 @@ setupFocusTracking() {
             });
         });
     }
-
     saveEditedNote() {
         const textArea = document.getElementById('editNoteText');
         const categorySelect = document.getElementById('editCategory');
         const colorInput = document.querySelector('input[name="edit-note-color"]:checked');
         const tagsInput = document.getElementById('edit-tags');
         const pinnedCheckbox = document.getElementById('edit-pinned');
-        
         if (!this.validateInput(textArea, 'Please enter a note')) {
             return;
         }
-        
         const newText = textArea.value.trim();
         if (!this.editingNote) return;
-        
         try {
             const notes = this.getNotes();
             const noteIndex = notes.findIndex(note => note.id === this.editingNote.id);
-            
             if (noteIndex !== -1) {
                 notes[noteIndex].text = newText;
                 notes[noteIndex].category = categorySelect.value;
@@ -817,20 +564,17 @@ setupFocusTracking() {
                 notes[noteIndex].pinned = pinnedCheckbox.checked;
                 notes[noteIndex].wordCount = this.countWords(newText);
                 notes[noteIndex].lastModified = new Date().toISOString();
-                
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-                this.displayNotes();
+                this.displayNotes(false); // Don't reset filters
                 this.emitNoteUpdate('note-updated', notes[noteIndex]);
             }
         } catch (error) {
             console.error('Could not save edited note:', error);
         }
-        
         this.editingNote = null;
         closeModal();
         this.restoreFocus();
     }
-
     showEmptyState(container) {
         const emptyState = document.createElement('div');
         emptyState.className = 'empty-state';
@@ -840,19 +584,15 @@ setupFocusTracking() {
         `;
         container.appendChild(emptyState);
     }
-
     emitNoteUpdate(eventType, noteData) {
         const event = new CustomEvent('noteUpdate', {
             detail: { type: eventType, note: noteData }
         });
         document.dispatchEvent(event);
     }
-
-    // Additional utility methods
     searchNotes(query) {
         const notes = this.getNotes();
         const searchTerm = query.toLowerCase();
-        
         return notes.filter(note => 
             note.text.toLowerCase().includes(searchTerm) ||
             note.category.toLowerCase().includes(searchTerm) ||
@@ -860,295 +600,217 @@ setupFocusTracking() {
         );
     }
     clearSearch() {
-    const searchInput = document.getElementById('note-search');
-    if (searchInput) {
-        searchInput.value = '';
-        this.searchQuery = '';
-        this.applyFilters();
+        const searchInput = document.getElementById('note-search');
+        if (searchInput) {
+            searchInput.value = '';
+            this.searchQuery = '';
+            this.applyFilters();
+        }
+    }
+    setupFilterListeners() {
+        const setupFilters = () => {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        console.log('Found filter buttons:', filterButtons.length);
+        if (filterButtons.length === 0) {
+            console.warn('No filter buttons found. Retrying in 100ms...');
+            setTimeout(setupFilters, 100);
+            return;
+        }
+        filterButtons.forEach((btn, index) => {
+            console.log(`Setting up filter button ${index}:`, btn.getAttribute('data-filter'), btn.getAttribute('data-value'));
+            btn.removeEventListener('click', this.handleFilterClick);
+            btn.addEventListener('click', (e) => this.handleNewFilterClick(e.target));
+        });
+        
+        console.log('✓ Filter listeners set up successfully');
+    };
+        if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupFilters);
+    } else {
+        setupFilters();
     }
 }
 
-// handleFilterClick(button) {
-//     const filter = button.getAttribute('data-filter');
-    
-//     // Update active filter button
-//     document.querySelectorAll('.filter-btn').forEach(btn => {
-//         btn.classList.remove('active');
-//     });
-//     button.classList.add('active');
-    
-//     this.currentFilter = filter;
-//     this.currentSubFilter = null;
-    
-//     // this.showSubFilters(filter);
-//     this.applyFilters();
-// }
-
-// showSubFilters(filter) {
-//     const subFiltersContainer = document.getElementById('sub-filters');
-//     subFiltersContainer.innerHTML = '';
-    
-//     if (filter === 'category') {
-//         const categories = ['general', 'work', 'personal', 'ideas', 'reminders', 'quotes', 'research'];
-//         categories.forEach(category => {
-//             const btn = document.createElement('button');
-//             btn.className = 'sub-filter-btn';
-//             btn.setAttribute('data-sub-filter', category);
-//             btn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-//             btn.addEventListener('click', () => this.handleSubFilterClick(btn, category));
-//             subFiltersContainer.appendChild(btn);
-//         });
-//         subFiltersContainer.style.display = 'block';
-//     } else if (filter === 'color') {
-//         const colors = ['default', 'yellow', 'blue', 'green', 'pink', 'purple'];
-//         colors.forEach(color => {
-//             const btn = document.createElement('button');
-//             btn.className = `sub-filter-btn color-${color}`;
-//             btn.setAttribute('data-sub-filter', color);
-//             btn.textContent = color.charAt(0).toUpperCase() + color.slice(1);
-//             btn.addEventListener('click', () => this.handleSubFilterClick(btn, color));
-//             subFiltersContainer.appendChild(btn);
-//         });
-//         subFiltersContainer.style.display = 'block';
-//     } else {
-//         subFiltersContainer.style.display = 'none';
-//     }
-// }
-
-// handleSubFilterClick(button, subFilter) {
-//     document.querySelectorAll('.sub-filter-btn').forEach(btn => {
-//         btn.classList.remove('active');
-//     });
-//     button.classList.add('active');
-    
-//     this.currentSubFilter = subFilter;
-//     this.applyFilters();
-// }
-    setupFilterListeners() {
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        filterButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.handleNewFilterClick(e.target);
-            });
-        });
-    }
     handleNewFilterClick(button) {
+        console.log('Filter clicked:', button.getAttribute('data-filter'), button.getAttribute('data-value'));        
         const filterType = button.getAttribute('data-filter');
         const filterValue = button.getAttribute('data-value');
-
-        // Remove active class from buttons in the same filter group
+        if (!filterType || !filterValue) {
+            console.error('Invalid filter button - missing data attributes');
+            return;
+        }
         const filterGroup = button.closest('.filter-group');
-        const groupButtons = filterGroup.querySelectorAll('.filter-btn');
-        groupButtons.forEach(btn => btn.classList.remove('active'));
-
-        // Handle different filter types
+        if (!filterGroup) {
+            console.error('Filter button not inside filter group');
+            return;
+        }
         if (filterType === 'view' && filterValue === 'all') {
-            // Reset all filters when "All Notes" is clicked
             this.resetAllFilters();
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
+            console.log('All filters reset');
         } else {
-            // Set the specific filter
-            this.activeFilters[filterType] = this.activeFilters[filterType] === filterValue ? null : filterValue;
-            
-            // Update button active state
-            if (this.activeFilters[filterType] === filterValue) {
+            const currentValue = this.activeFilters[filterType];
+            if (currentValue === filterValue) {
+                this.activeFilters[filterType] = null;
+                button.classList.remove('active');
+                console.log(`Filter ${filterType}:${filterValue} deactivated`);
+            } else {
+                const groupButtons = filterGroup.querySelectorAll('.filter-btn');
+                groupButtons.forEach(btn => btn.classList.remove('active'));
+                this.activeFilters[filterType] = filterValue;
                 button.classList.add('active');
+                console.log(`Filter ${filterType}:${filterValue} activated`);
             }
-
-            // If any specific filter is active, remove "All Notes" active state
             const allButton = document.querySelector('.filter-btn[data-value="all"]');
             if (allButton && this.hasActiveFilters()) {
                 allButton.classList.remove('active');
             }
+            if (!this.hasActiveFilters()) {
+                if (allButton) {
+                    allButton.classList.add('active');
+                }
+            }
         }
-
+        console.log('Active filters:', this.activeFilters);
         this.applyFilters();
     }
-
     resetAllFilters() {
         this.activeFilters = {
             view: 'all',
             category: null,
             color: null
         };
-
-        // Remove active class from all filter buttons except "All Notes"
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
-        });
-        
+        });        
         document.querySelector('.filter-btn[data-value="all"]')?.classList.add('active');
     }
-// applyFilters() {
-//     const notes = this.getNotes();
-//     let filteredNotes = notes;
-    
-//     // Apply search filter
-//     if (this.searchQuery) {
-//         filteredNotes = filteredNotes.filter(note => 
-//             note.text.toLowerCase().includes(this.searchQuery) ||
-//             note.category.toLowerCase().includes(this.searchQuery) ||
-//             note.tags.some(tag => tag.toLowerCase().includes(this.searchQuery))
-//         );
-//     }
-    
-//     // Apply main filter
-//     switch (this.currentFilter) {
-//         case 'pinned':
-//             filteredNotes = filteredNotes.filter(note => note.pinned);
-//             break;
-//         case 'archived':
-//             filteredNotes = filteredNotes.filter(note => note.archived);
-//             break;
-//         case 'category':
-//             if (this.currentSubFilter) {
-//                 filteredNotes = filteredNotes.filter(note => note.category === this.currentSubFilter);
-//             }
-//             break;
-//         case 'color':
-//             if (this.currentSubFilter) {
-//                 filteredNotes = filteredNotes.filter(note => note.color === this.currentSubFilter);
-//             }
-//             break;
-//         case 'all':
-//         default:
-//             // Show all notes (no additional filtering)
-//             break;
-//     }
-    
-//     this.displayFilteredNotes(filteredNotes);
-// }
- applyFilters() {
-        const notes = this.getNotes();
-        let filteredNotes = notes;
-
-        // Apply search filter
-        if (this.searchQuery) {
-            filteredNotes = filteredNotes.filter(note => 
-                note.text.toLowerCase().includes(this.searchQuery) ||
-                note.category.toLowerCase().includes(this.searchQuery) ||
-                note.tags.some(tag => tag.toLowerCase().includes(this.searchQuery))
-            );
-        }
-
-        // Apply view filters
-        if (this.activeFilters.view && this.activeFilters.view !== 'all') {
-            switch (this.activeFilters.view) {
-                case 'pinned':
-                    filteredNotes = filteredNotes.filter(note => note.pinned);
-                    break;
-                case 'archived':
-                    filteredNotes = filteredNotes.filter(note => note.archived);
-                    break;
-                case 'recent':
-                    // Get notes from last 7 days
-                    const weekAgo = new Date();
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    filteredNotes = filteredNotes.filter(note => 
-                        new Date(note.timestamp) > weekAgo
-                    );
-                    break;
+    applyFilters() {
+            const notes = this.getNotes();
+            let filteredNotes = notes;
+            if (this.searchQuery) {
+                filteredNotes = filteredNotes.filter(note => 
+                    note.text.toLowerCase().includes(this.searchQuery) ||
+                    note.category.toLowerCase().includes(this.searchQuery) ||
+                    note.tags.some(tag => tag.toLowerCase().includes(this.searchQuery))
+                );
             }
-        }
-
-        // Apply category filter
-        if (this.activeFilters.category) {
-            filteredNotes = filteredNotes.filter(note => 
-                note.category === this.activeFilters.category
-            );
-        }
-
-        // Apply color filter
-        if (this.activeFilters.color) {
-            filteredNotes = filteredNotes.filter(note => 
-                note.color === this.activeFilters.color
-            );
-        }
-
-        this.displayFilteredNotes(filteredNotes);
+            if (this.activeFilters.view && this.activeFilters.view !== 'all') {
+                switch (this.activeFilters.view) {
+                    case 'pinned':
+                        filteredNotes = filteredNotes.filter(note => note.pinned);
+                        break;
+                    case 'archived':
+                        filteredNotes = filteredNotes.filter(note => note.archived);
+                        break;
+                    case 'recent':
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        filteredNotes = filteredNotes.filter(note => 
+                            new Date(note.timestamp) > weekAgo
+                        );
+                        break;
+                }
+            }
+            if (this.activeFilters.category) {
+                filteredNotes = filteredNotes.filter(note => 
+                    note.category === this.activeFilters.category
+                );
+            }
+            if (this.activeFilters.color) {
+                filteredNotes = filteredNotes.filter(note => 
+                    note.color === this.activeFilters.color
+                );
+            }
+            this.displayFilteredNotes(filteredNotes);
     }
     hasActiveFilters() {
         return this.activeFilters.category !== null || 
             this.activeFilters.color !== null ||
             (this.activeFilters.view !== 'all' && this.activeFilters.view !== null);
     }
-displayFilteredNotes(filteredNotes) {
-    const container = document.getElementById('notesContainer');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    // Enhanced sorting - pinned first, then by last modified
-    filteredNotes.sort((a, b) => {
-        if (a.pinned && !b.pinned) return -1;
-        if (!a.pinned && b.pinned) return 1;
-        
-        const aTime = new Date(a.lastModified || a.timestamp);
-        const bTime = new Date(b.lastModified || b.timestamp);
-        return bTime - aTime;
-    });
-    
-    filteredNotes.forEach(note => {
-        const noteElement = this.createNoteElement(note);
-        container.appendChild(noteElement);
-    });
-    
-    if (filteredNotes.length === 0) {
-        this.showEmptyState(container);
-    }
-}
+    displayFilteredNotes(filteredNotes) {
+        const container = document.getElementById('notesContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        filteredNotes.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
 
+            const aTime = new Date(a.lastModified || a.timestamp);
+            const bTime = new Date(b.lastModified || b.timestamp);
+            return bTime - aTime;
+        });
+        filteredNotes.forEach(note => {
+            const noteElement = this.createNoteElement(note);
+            container.appendChild(noteElement);
+        });
+        if (filteredNotes.length === 0) {
+            this.showEmptyState(container);
+        }
+    }
     getNotesByCategory(category) {
         return this.getNotes().filter(note => note.category === category);
     }
-
     getNotesByTag(tag) {
         return this.getNotes().filter(note => 
             note.tags.some(noteTag => noteTag.toLowerCase() === tag.toLowerCase())
         );
     }
-
     getPinnedNotes() {
         return this.getNotes().filter(note => note.pinned && !note.archived);
     }
-
     getArchivedNotes() {
         return this.getNotes().filter(note => note.archived);
     }
-
     exportNotes() {
         const notes = this.getNotes();
         const dataStr = JSON.stringify(notes, null, 2);
         const dataBlob = new Blob([dataStr], {type: 'application/json'});
         const url = URL.createObjectURL(dataBlob);
-        
         const link = document.createElement('a');
         link.href = url;
         link.download = `notes-export-${new Date().toISOString().split('T')[0]}.json`;
         link.click();
-        
         URL.revokeObjectURL(url);
     }
-
     importNotes(jsonData) {
         try {
             const importedNotes = JSON.parse(jsonData);
             if (!Array.isArray(importedNotes)) {
                 throw new Error('Invalid notes format');
             }
-            
             const existingNotes = this.getNotes();
             const mergedNotes = [...existingNotes, ...importedNotes];
-            
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(mergedNotes));
             this.displayNotes();
-            
             return true;
         } catch (error) {
             console.error('Could not import notes:', error);
             return false;
         }
     }
+    debugFilters() {
+        console.log('=== FILTER DEBUG INFO ===');
+        console.log('Active filters:', this.activeFilters);
+        console.log('Search query:', this.searchQuery);
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        console.log('Total filter buttons found:', filterButtons.length);
+        filterButtons.forEach((btn, index) => {
+            console.log(`Button ${index}:`, {
+                filter: btn.getAttribute('data-filter'),
+                value: btn.getAttribute('data-value'),
+                active: btn.classList.contains('active'),
+                text: btn.textContent.trim()
+            });
+        });
+        const notes = this.getNotes();
+        console.log('Total notes:', notes.length);
+        const container = document.getElementById('notesContainer');
+        console.log('Notes container found:', !!container);
+        console.log('Notes in container:', container ? container.children.length : 'N/A');
+        console.log('=== END DEBUG INFO ===');
+    }
 }
-
 export default NotesManager;

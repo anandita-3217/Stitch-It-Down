@@ -75,135 +75,6 @@
 .AddNote:active {
     transform: rotate(90deg) scale(0.95);
 }
-
-
-/* .search-container {
-  margin-bottom: 1.5rem;
-  padding: 0 1rem;
-}
-
-.search-input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px var(--shadow);
-  transition: all 0.3s ease;
-}
-
-.search-input-group:focus-within {
-  border-color: var(--dark-purple);
-  box-shadow: 0 0 0 3px var(--shadow-hover);
-}
-
-.search-icon {
-  margin-left: 1rem;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 1rem 1rem 1rem 0.5rem;
-  font-size: 1rem;
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.search-input::placeholder {
-  color: var(--text-secondary);
-}
-
-.clear-search-btn {
-  display: none;
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  margin-right: 0.5rem;
-  border-radius: 50%;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.clear-search-btn:hover {
-  background: var(--light-bg);
-  color: var(--text-primary);
-}
-
-.note-filters {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 12px var(--shadow);
-  border: 1px solid var(--border-color);
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: var(--light-bg);
-  border: 2px solid transparent;
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.filter-btn:hover {
-  background: var(--medium-purple);
-  transform: translateY(-1px);
-}
-
-.filter-btn.active {
-  background: var(--dark-purple);
-  color: var(--white);
-  border-color: var(--dark-purple);
-  box-shadow: 0 2px 8px var(--shadow-hover);
-}
-
-.filter-select {
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 140px;
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: var(--dark-purple);
-  box-shadow: 0 0 0 3px var(--shadow-hover);
-} */
-
 .view-mode-btn {
   display: flex;
   align-items: center;
@@ -739,54 +610,87 @@
     color: var(--text-color);
 }
 
-/* Filter Section */
-.filter-section {
+.filters-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .filter-group {
     display: flex;
-    gap: 0.5rem;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-right: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
 }
 
 .filter-btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-light);
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
     border-radius: 20px;
-    background: var(--background-color);
-    color: var(--text-color);
+    background: var(--light-bg);
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.9rem;
+    font-size: 14px;
+    font-weight: 500;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+}
+
+/* .filter-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--shadow-hover), transparent);
+    transition: left 0.5s ease;
 }
 
 .filter-btn:hover {
-    background: var(--background-hover);
-    border-color: var(--primary-color);
+    border-color: var(--dark-purple);
+    background: var(--card-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-hover);
+}
+
+.filter-btn:hover::before {
+    left: 100%;
 }
 
 .filter-btn.active {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-    color: white;
-    border-color: var(--primary-color);
-}
+    background: var(--dark-purple);
+    color: var(--white);
+    border-color: var(--dark-purple);
+    box-shadow: 0 4px 12px var(--shadow-hover);
+} */
 
-/* Sub Filters */
-.sub-filters {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    padding: 1rem;
-    background: var(--background-secondary);
-    border-radius: 8px;
-    margin-top: 0.5rem;
+.filter-btn:active {
+    transform: translateY(0);
 }
-
+.filter-btn[data-filter="color"]{
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    position: relative;
+}
+.filter-btn[data-filter="color"]:hover,.filter-btn[data-filter="color"]:active,.filter-btn[data-filter="color"]:hover::before{
+    all: none;
+}
 /* Action Controls */
 .action-controls {
     display: flex;
