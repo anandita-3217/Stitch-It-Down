@@ -274,24 +274,18 @@ class NotesManager {
     const textarea = modal.querySelector('#modalNoteText');
     if (!this.validateInput(textarea, 'Please enter a note')) {
         return;
-    }
-    
-    const newText = textarea.value.trim();
-    
+    }    
+    const newText = textarea.value.trim();    
     try {
         const notes = this.getNotes();
-        const noteIndex = notes.findIndex(note => note.id === noteId);
-        
+        const noteIndex = notes.findIndex(note => note.id === noteId);        
         if (noteIndex !== -1) {
             notes[noteIndex].text = newText;
             notes[noteIndex].wordCount = this.countWords(newText);
-            notes[noteIndex].lastModified = new Date().toISOString();
-            
+            notes[noteIndex].lastModified = new Date().toISOString();            
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
             this.displayNotes(false);
             this.emitNoteUpdate('note-updated', notes[noteIndex]);
-            
-            // Close modal
             if (modal.parentNode) {
                 modal.parentNode.removeChild(modal);
             }
@@ -303,13 +297,10 @@ class NotesManager {
 }
 showNoteModal(button) {
     const noteTextDiv = button.closest('.note-text');
-    if (!noteTextDiv) return;
-    
+    if (!noteTextDiv) return;    
     const fullText = noteTextDiv.getAttribute('data-full-text');
     const noteItem = button.closest('.note-item');
     const noteId = parseInt(noteItem.querySelector('[data-note-id]').getAttribute('data-note-id'));
-    
-    // Get the full note data
     const notes = this.getNotes();
     const note = notes.find(n => n.id === noteId);
     if (!note) return;
@@ -317,28 +308,21 @@ showNoteModal(button) {
     this.showFullNoteModal(note);
 }
 setupModalEventListeners(modal, note) {
-    // Close button
     const closeBtn = modal.querySelector('.modal-close-btn');
     const cancelBtn = modal.querySelector('.cancel-modal');
-    
     const closeModal = () => {
         if (modal.parentNode) {
             modal.parentNode.removeChild(modal);
         }
         this.restoreFocus();
-    };
-    
+    };    
     closeBtn?.addEventListener('click', closeModal);
     cancelBtn?.addEventListener('click', closeModal);
-    
-    // Click outside to close
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModal();
         }
     });
-    
-    // ESC key to close
     const escHandler = (e) => {
         if (e.key === 'Escape') {
             closeModal();

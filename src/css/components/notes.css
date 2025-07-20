@@ -342,6 +342,7 @@
 }
 
 .note-content {
+  font-size: 13px;
   margin-bottom: 1rem;
 }
 
@@ -446,56 +447,57 @@
 }
 
 /* View Modes */
-.view-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1rem;
-}
+
+
 .view-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    border: none;
 }
-
-.view-list .note-item {
-  display: flex;
-  align-items: flex-start; /* Changed from center to flex-start */
-  padding: 1rem 1.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-}
-
 .view-list .note-content {
-  flex: 1;
-  margin-bottom: 0;
-  margin-right: 1rem;
-  min-width: 0; /* Add this to prevent overflow issues */
-}
-
-.view-list .note-text {
-  /* Ensure text can expand properly */
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+    flex: 1;
+    margin-right: 1rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .view-list .note-header {
-  margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
 }
 
-.view-list .note-actions {
-  margin-left: auto;
-  flex-shrink: 0; /* Prevent action buttons from shrinking */
+.view-list .note-text {
+    flex: 1;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
 }
 
-/* Add this to ensure expand buttons are visible */
+.view-list .note-text.expandable {
+    position: relative;
+}
+
 .view-list .expand-note-btn {
-  margin-left: 0.5rem;
-  color: var(--primary-color);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9em;
-  text-decoration: underline;
+    margin-top: 0.5rem;
+    align-self: flex-start;
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.2s;
+
+}
+
+.view-list .expand-note-btn:hover {
+   background: var(--primary-color-dark, #0056b3);
 }
 
 
@@ -1291,6 +1293,43 @@
     padding: 1rem;
     border: none;
 }
+.view-grid .note-item {
+    display: flex;
+    flex-direction: column;
+    height: 320px;
+    overflow: hidden;
+}
+
+.view-grid .note-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.view-grid .note-text {
+    flex: 1;
+    overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.view-grid .expand-note-btn {
+    margin-top: 0.5rem;
+    align-self: flex-start;
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.2s;
+}
+
+.view-grid .expand-note-btn:hover {
+    background: var(--primary-color-dark, #0056b3);
+}
 
 .view-list {
     display: flex;
@@ -1339,8 +1378,8 @@
 }
 
 .note-title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 500;
     color: var(--text-color);
     margin-bottom: 0.5rem;
 }
@@ -1352,7 +1391,7 @@
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-    padding: 8px;
+    /* padding: 8px; */
     opacity: 1;
     visibility: visible;
     transition: opacity 0.3s ease; 
@@ -1499,16 +1538,11 @@
   border-left: 4px solid var(--dark-purple);
 }
 
-.category-section,
-.color-section,
-.tags-section,
-.options-section {
+.category-section,.color-section,.tags-section,.options-section {
   margin-bottom: 1.5rem;
 }
 
-.category-section label,
-.color-section label,
-.tags-section label {
+.category-section label,.color-section label,.tags-section label {
   display: block;
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -1519,15 +1553,11 @@
   margin: 1.5rem 0;
 }
 
-.edit-sections .category-section,
-.edit-sections .color-section,
-.edit-sections .tags-section,
-.edit-sections .options-section {
+.edit-sections .category-section,.edit-sections .color-section,.edit-sections .tags-section,.edit-sections .options-section {
   margin-bottom: 1rem;
 }
 
-#note-category,
-#editCategory {
+#note-category,#editCategory {
   width: 100%;
   padding: 0.75rem;
   border: 2px solid var(--border-color);
@@ -1537,8 +1567,7 @@
   font-weight: 500;
 }
 
-#note-category:focus,
-#editCategory:focus {
+#note-category:focus,#editCategory:focus {
   outline: none;
   border-color: var(--dark-purple);
   box-shadow: 0 0 0 3px var(--shadow-hover);
@@ -1767,8 +1796,11 @@
     font-size: 24px;
     cursor: pointer;
     color: var(--text-secondary);
+    cursor: pointer;
 }
-
+.modal-close-btn:hover {
+    color: var(--text-color);
+}
 .note-view-modal .modal-body {
     flex: 1;
     overflow-y: auto;
@@ -1776,7 +1808,8 @@
 }
 
 .note-view-modal .modal-note-textarea {
-    width: 100%;
+    width: 90%;
+    margin: 1.2rem;
     min-height: 300px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -1790,8 +1823,6 @@
 }
 
 .note-view-modal .modal-footer {
-    /* padding: 1.5rem; */
-    /* border-top: 1px solid var(--border-color); */
     display: flex;
     justify-content: space-between;
     align-items: center;
