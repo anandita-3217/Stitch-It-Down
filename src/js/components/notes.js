@@ -1,6 +1,5 @@
 // notes.js
 import { detectAndCreateLinks, formatTimestamp } from '@components/utils.js';
-
 function closeModal() {
     const modals = document.querySelectorAll('.note-category-modal, .note-edit-modal');
     modals.forEach(modal => {
@@ -9,7 +8,6 @@ function closeModal() {
         }
     });
 }
-
 class NotesManager {
     constructor() {
         this.STORAGE_KEY = 'stitch_Notes';
@@ -17,7 +15,7 @@ class NotesManager {
         this.tempNoteData = null;
         this.lastFocusedElement = null; 
         this.debug = true;
-        this.selectedNotes = new Set(); // Track selected note IDs
+        this.selectedNotes = new Set();
         this.bulkMode = false;
         this.activeFilters = {view: 'all',category: null,color: null};
         this.searchQuery = '';
@@ -140,37 +138,14 @@ class NotesManager {
                         this.toggleArchiveNote(noteId);
                     }
                 }
+                // ADD THIS NEW SECTION FOR EXPAND/COLLAPSE
+                if (e.target.classList.contains('expand-note-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showNoteModal(e.target);
+                }
             });
-            console.log('✓ Notes container listeners attached');
-                if (bulkActionsBtn) {
-                    bulkActionsBtn.addEventListener('click', () => this.toggleBulkMode());
-                }
-
-                const selectAllBtn = document.getElementById('selectAllBtn');
-                if (selectAllBtn) {
-                    selectAllBtn.addEventListener('click', () => this.selectAllNotes());
-                }
-
-                const deselectAllBtn = document.getElementById('deselectAllBtn');
-                if (deselectAllBtn) {
-                    deselectAllBtn.addEventListener('click', () => this.deselectAllNotes());
-                }
-
-                const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-                if (bulkDeleteBtn) {
-                    bulkDeleteBtn.addEventListener('click', () => this.bulkDeleteNotes());
-                }
-
-                const bulkArchiveBtn = document.getElementById('bulkArchiveBtn');
-                if (bulkArchiveBtn) {
-                    bulkArchiveBtn.addEventListener('click', () => this.bulkArchiveNotes());
-                }
-
-                const bulkPinBtn = document.getElementById('bulkPinBtn');
-                if (bulkPinBtn) {
-                    bulkPinBtn.addEventListener('click', () => this.bulkPinNotes());
-                }
-            }
+        }
     }
     handleAddNote() {
         const noteInput = document.getElementById('noteInput');
@@ -285,16 +260,196 @@ class NotesManager {
         return text.trim().split(/\s+/).filter(word => word.length > 0).length;
     }
     saveNote(noteData) {
+        try {
+            const notes = this.getNotes();
+            notes.push(noteData);
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+            this.displayNotes(false);
+            this.emitNoteUpdate('note-added', noteData);
+        } catch (error) {
+            console.error('Could not save note to localStorage:', error);
+        }
+    }
+    saveModalNote(noteId, modal) {
+    const textarea = modal.querySelector('#modalNoteText');
+    if (!this.validateInput(textarea, 'Please enter a note')) {
+        return;
+    }
+    
+    const newText = textarea.value.trim();
+    
     try {
         const notes = this.getNotes();
-        notes.push(noteData);
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
-        this.displayNotes(false);
-        this.emitNoteUpdate('note-added', noteData);
+        const noteIndex = notes.findIndex(note => note.id === noteId);
+        
+        if (noteIndex !== -1) {
+            notes[noteIndex].text = newText;
+            notes[noteIndex].wordCount = this.countWords(newText);
+            notes[noteIndex].lastModified = new Date().toISOString();
+            
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
+            this.displayNotes(false);
+            this.emitNoteUpdate('note-updated', notes[noteIndex]);
+            
+            // Close modal
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+            this.restoreFocus();
+        }
     } catch (error) {
-        console.error('Could not save note to localStorage:', error);
+        console.error('Could not save modal note:', error);
     }
 }
+showNoteModal(button) {
+    const noteTextDiv = button.closest('.note-text');
+    if (!noteTextDiv) return;
+    
+    const fullText = noteTextDiv.getAttribute('data-full-text');
+    const noteItem = button.closest('.note-item');
+    const noteId = parseInt(noteItem.querySelector('[data-note-id]').getAttribute('data-note-id'));
+    
+    // Get the full note data
+    const notes = this.getNotes();
+    const note = notes.find(n => n.id === noteId);
+    if (!note) return;
+    
+    this.showFullNoteModal(note);
+}
+setupModalEventListeners(modal, note) {
+    // Close button
+    const closeBtn = modal.querySelector('.modal-close-btn');
+    const cancelBtn = modal.querySelector('.cancel-modal');
+    
+    const closeModal = () => {
+        if (modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+        this.restoreFocus();
+    };
+    
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+    
+    // Click outside to close
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // ESC key to close
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+    
+    // Save button
+    const saveBtn = modal.querySelector('.save-modal-note');
+    saveBtn?.addEventListener('click', () => {
+        this.saveModalNote(note.id, modal);
+    });
+    
+    // Note action buttons (pin, archive, edit, delete)
+    const actionButtons = modal.querySelectorAll('.note-actions button');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const noteId = parseInt(button.getAttribute('data-note-id'));
+            
+            if (button.classList.contains('pin-note')) {
+                this.togglePinNote(noteId);
+                closeModal();
+            } else if (button.classList.contains('archive-note')) {
+                this.toggleArchiveNote(noteId);
+                closeModal();
+            } else if (button.classList.contains('edit-note')) {
+                // Already in edit mode, maybe show additional edit options
+                this.showEditModal(note);
+                closeModal();
+            } else if (button.classList.contains('delete-note')) {
+                this.deleteNote(noteId);
+                closeModal();
+            }
+        });
+    });
+}
+showFullNoteModal(note) {
+    // Close any existing modals first
+    closeModal();
+    
+    const modal = document.createElement('div');
+    modal.className = 'note-view-modal';
+    modal.innerHTML = `
+        <div class="modal-content note-modal-content">
+            <div class="modal-header">
+                <h3>View/Edit Note</h3>
+                <button class="modal-close-btn" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="note-header-info">
+                    <span class="note-category">${note.category}</span>
+                    <span class="note-word-count">${note.wordCount} words</span>
+                    ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
+                </div>
+                <div class="editable-note-content">
+                    <textarea id="modalNoteText" class="modal-note-textarea">${note.text}</textarea>
+                </div>
+                ${note.tags.length > 0 ? `
+                    <div class="note-tags">
+                        ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+                <div class="note-meta">
+                    <div class="note-timestamp">
+                        Created: ${formatTimestamp(note.timestamp)}
+                        ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="note-actions modal-actions">
+                    <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
+                        <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
+                    </button>
+                    <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
+                        <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
+                    </button>
+                    <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="modal-save-actions">
+                    <button class="save-modal-note" data-note-id="${note.id}" type="button">Save Changes</button>
+                    <button class="cancel-modal" type="button">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Setup event listeners
+    this.setupModalEventListeners(modal, note);
+}
+    safeTextWithLinks(text) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = text;
+        const decodedText = tempDiv.textContent || tempDiv.innerText || '';
+        const escaped = decodedText
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        return detectAndCreateLinks(escaped);
+    }
     getNotes() {
         try {
             const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -313,7 +468,6 @@ class NotesManager {
         this.applyFilters();
     }
     displayNotes(resetFilters = false) {
-    // Only reset filters if explicitly requested
     if (resetFilters) {
         this.resetAllFilters();
         this.searchQuery = '';
@@ -324,11 +478,12 @@ class NotesManager {
     }
     this.applyFilters();
     }
-    createNoteElement(note) {
+createNoteElement(note) {
     const div = document.createElement('div');
     div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
     const isLongNote = note.text.length > 200;
     const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
+    
     const safeTextWithLinks = (text) => {
         const escaped = text
             .replace(/&/g, '&amp;')
@@ -351,7 +506,7 @@ class NotesManager {
                 <span class="note-category">${note.category}</span>
                 <span class="note-word-count">${note.wordCount} words</span>
             </div>
-            <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
+            <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
                 ${safeTextWithLinks(isLongNote ? truncatedText : note.text)}
                 ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
             </div>
@@ -382,6 +537,7 @@ class NotesManager {
             </button>
         </div>
     `;
+    
     if (this.bulkMode) {
         const checkbox = div.querySelector('.note-checkbox');
         if (checkbox) {
@@ -391,6 +547,7 @@ class NotesManager {
             });
         }
     }
+    
     return div;
 }
     togglePinNote(noteId) {
