@@ -14,7 +14,6 @@ class NotesManager {
         this.editingNote = null;
         this.tempNoteData = null;
         this.lastFocusedElement = null; 
-        this.debug = true;
         this.selectedNotes = new Set();
         this.bulkMode = false;
         this.activeFilters = {view: 'all',category: null,color: null};
@@ -97,6 +96,12 @@ class NotesManager {
                 }
             });
         }
+            if (bulkActionsBtn) {
+        bulkActionsBtn.addEventListener('click', () => this.toggleBulkMode());
+    }
+
+    // ADD BULK CONTROL LISTENERS
+    this.setupBulkControlListeners();
         const searchInput = document.getElementById('note-search');
         const clearSearchBtn = document.getElementById('clearSearch');
         if (searchInput) {
@@ -147,6 +152,37 @@ class NotesManager {
             });
         }
     }
+    setupBulkControlListeners() {
+    const setupBulkListeners = () => {
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const bulkArchiveBtn = document.getElementById('bulkArchiveBtn');
+        const bulkPinBtn = document.getElementById('bulkPinBtn');
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => this.selectAllNotes());
+        }
+        if (deselectAllBtn) {
+            deselectAllBtn.addEventListener('click', () => this.deselectAllNotes());
+        }
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', () => this.bulkDeleteNotes());
+        }
+        if (bulkArchiveBtn) {
+            bulkArchiveBtn.addEventListener('click', () => this.bulkArchiveNotes());
+        }
+        if (bulkPinBtn) {
+            bulkPinBtn.addEventListener('click', () => this.bulkPinNotes());
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupBulkListeners);
+    } else {
+        setupBulkListeners();
+    }
+}
     handleAddNote() {
         const noteInput = document.getElementById('noteInput');
         if (!this.validateInput(noteInput, 'Please enter a note')) {
@@ -306,8 +342,8 @@ showNoteModal(button) {
     if (!note) return;
     
     this.showFullNoteModal(note);
-}
-setupModalEventListeners(modal, note) {
+    }
+    setupModalEventListeners(modal, note) {
     const closeBtn = modal.querySelector('.modal-close-btn');
     const cancelBtn = modal.querySelector('.cancel-modal');
     const closeModal = () => {
@@ -327,23 +363,17 @@ setupModalEventListeners(modal, note) {
         if (e.key === 'Escape') {
             closeModal();
             document.removeEventListener('keydown', escHandler);
-        }
-    };
+        }    };
     document.addEventListener('keydown', escHandler);
-    
-    // Save button
     const saveBtn = modal.querySelector('.save-modal-note');
     saveBtn?.addEventListener('click', () => {
         this.saveModalNote(note.id, modal);
     });
-    
-    // Note action buttons (pin, archive, edit, delete)
     const actionButtons = modal.querySelectorAll('.note-actions button');
     actionButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
             const noteId = parseInt(button.getAttribute('data-note-id'));
-            
             if (button.classList.contains('pin-note')) {
                 this.togglePinNote(noteId);
                 closeModal();
@@ -351,7 +381,6 @@ setupModalEventListeners(modal, note) {
                 this.toggleArchiveNote(noteId);
                 closeModal();
             } else if (button.classList.contains('edit-note')) {
-                // Already in edit mode, maybe show additional edit options
                 this.showEditModal(note);
                 closeModal();
             } else if (button.classList.contains('delete-note')) {
@@ -362,9 +391,7 @@ setupModalEventListeners(modal, note) {
     });
 }
 showFullNoteModal(note) {
-    // Close any existing modals first
     closeModal();
-    
     const modal = document.createElement('div');
     modal.className = 'note-view-modal';
     modal.innerHTML = `
@@ -415,11 +442,8 @@ showFullNoteModal(note) {
                 </div>
             </div>
         </div>
-    `;
-    
+    `;    
     document.body.appendChild(modal);
-    
-    // Setup event listeners
     this.setupModalEventListeners(modal, note);
 }
     safeTextWithLinks(text) {
@@ -462,21 +486,88 @@ showFullNoteModal(note) {
     }
     this.applyFilters();
     }
+// createNoteElement(note) {
+//     const div = document.createElement('div');
+//     div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
+//     const isLongNote = note.text.length > 200;
+//     const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
+    
+//     const safeTextWithLinks = (text) => {
+//         const escaped = text
+//             .replace(/&/g, '&amp;')
+//             .replace(/</g, '&lt;')
+//             .replace(/>/g, '&gt;')
+//             .replace(/"/g, '&quot;')
+//             .replace(/'/g, '&#39;');
+//         return detectAndCreateLinks(escaped);
+//     };
+//     div.innerHTML = `
+//         ${this.bulkMode ? `
+//             <div class="note-checkbox-container">
+//                 <input type="checkbox" class="note-checkbox" data-note-id="${note.id}" 
+//                        ${this.selectedNotes.has(note.id) ? 'checked' : ''}>
+//             </div>
+//         ` : ''}
+//         <div class="note-content">
+//             <div class="note-header">
+//                 ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
+//                 <span class="note-category">${note.category}</span>
+//                 <span class="note-word-count">${note.wordCount} words</span>
+//             </div>
+//             <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
+//                 ${safeTextWithLinks(isLongNote ? truncatedText : note.text)}
+//                 ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
+//             </div>
+//             ${note.tags.length > 0 ? `
+//                 <div class="note-tags">
+//                     ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+//                 </div>
+//             ` : ''}
+//         </div>
+//         <div class="note-meta">
+//             <div class="note-timestamp">
+//                 Created: ${formatTimestamp(note.timestamp)}
+//                 ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+//             </div>
+//         </div>
+//         <div class="note-actions">
+//             <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
+//                 <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
+//             </button>
+//             <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
+//                 <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
+//             </button>
+//             <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
+//                 <i class="bi bi-pencil"></i>
+//             </button>
+//             <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
+//                 <i class="bi bi-trash"></i>
+//             </button>
+//         </div>
+//     `;
+    
+//     if (this.bulkMode) {
+//         const checkbox = div.querySelector('.note-checkbox');
+//         if (checkbox) {
+//             checkbox.addEventListener('change', (e) => {
+//                 e.stopPropagation();
+//                 this.toggleNoteSelection(note.id);
+//             });
+//         }
+//     }
+    
+//     return div;
+// }
 createNoteElement(note) {
     const div = document.createElement('div');
     div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
     const isLongNote = note.text.length > 200;
     const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
     
-    const safeTextWithLinks = (text) => {
-        const escaped = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-        return detectAndCreateLinks(escaped);
-    };
+    // FIX: Use the existing safeTextWithLinks method properly
+    const fullTextSafe = this.safeTextWithLinks(note.text);
+    const truncatedTextSafe = this.safeTextWithLinks(truncatedText);
+    
     div.innerHTML = `
         ${this.bulkMode ? `
             <div class="note-checkbox-container">
@@ -491,7 +582,7 @@ createNoteElement(note) {
                 <span class="note-word-count">${note.wordCount} words</span>
             </div>
             <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
-                ${safeTextWithLinks(isLongNote ? truncatedText : note.text)}
+                ${isLongNote ? truncatedTextSafe : fullTextSafe}
                 ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
             </div>
             ${note.tags.length > 0 ? `
@@ -736,15 +827,60 @@ createNoteElement(note) {
         closeModal();
         this.restoreFocus();
     }
+    // showEmptyState(container) {
+    //     const emptyState = document.createElement('div');
+    //     emptyState.className = 'empty-state';
+    //     emptyState.innerHTML = `
+    //         <div class="empty-icon"><i class="bi bi-journal-text"></i></div>
+    //         <p>No notes yet. Create your first note!</p>
+    //     `;
+    //     container.appendChild(emptyState);
+    // }
+
+    clearAllFilters() {
+    this.resetAllFilters();
+    this.searchQuery = '';
+    const searchInput = document.getElementById('note-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    this.applyFilters();
+}
+
     showEmptyState(container) {
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
+    const emptyState = document.createElement('div');
+    emptyState.className = 'empty-state';
+    
+    // Check if we have active filters or search
+    const hasActiveSearch = this.searchQuery && this.searchQuery.trim() !== '';
+    const hasActiveFilters = this.hasActiveFilters();
+    
+    if (hasActiveSearch || hasActiveFilters) {
+        // Show search/filter empty state with clear button
+        emptyState.classList.add('search-empty');
+        emptyState.innerHTML = `
+            <div class="empty-icon"><i class="bi bi-search"></i></div>
+            <p>No notes match your search criteria</p>
+            <button class="btn-clear-filters" type="button">
+                Clear filters
+            </button>
+        `;
+        
+        // Add event listener for clear filters button
+        const clearBtn = emptyState.querySelector('.btn-clear-filters');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearAllFilters());
+        }
+    } else {
+        // Show default empty state
         emptyState.innerHTML = `
             <div class="empty-icon"><i class="bi bi-journal-text"></i></div>
             <p>No notes yet. Create your first note!</p>
         `;
-        container.appendChild(emptyState);
     }
+    
+    container.appendChild(emptyState);
+}
     emitNoteUpdate(eventType, noteData) {
         const event = new CustomEvent('noteUpdate', {
             detail: { type: eventType, note: noteData }
@@ -779,7 +915,6 @@ createNoteElement(note) {
         }
         filterButtons.forEach((btn, index) => {
             console.log(`Setting up filter button ${index}:`, btn.getAttribute('data-filter'), btn.getAttribute('data-value'));
-            btn.removeEventListener('click', this.handleFilterClick);
             btn.addEventListener('click', (e) => this.handleNewFilterClick(e.target));
         });
         
@@ -791,20 +926,11 @@ createNoteElement(note) {
         setupFilters();
     }
 }
-
     handleNewFilterClick(button) {
         console.log('Filter clicked:', button.getAttribute('data-filter'), button.getAttribute('data-value'));        
         const filterType = button.getAttribute('data-filter');
         const filterValue = button.getAttribute('data-value');
-        if (!filterType || !filterValue) {
-            console.error('Invalid filter button - missing data attributes');
-            return;
-        }
         const filterGroup = button.closest('.filter-group');
-        if (!filterGroup) {
-            console.error('Filter button not inside filter group');
-            return;
-        }
         if (filterType === 'view' && filterValue === 'all') {
             this.resetAllFilters();
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -892,25 +1018,57 @@ createNoteElement(note) {
             (this.activeFilters.view !== 'all' && this.activeFilters.view !== null);
     }
     displayFilteredNotes(filteredNotes) {
-        const container = document.getElementById('notesContainer');
-        if (!container) return;
-        container.innerHTML = '';
-        filteredNotes.sort((a, b) => {
-            if (a.pinned && !b.pinned) return -1;
-            if (!a.pinned && b.pinned) return 1;
+    const container = document.getElementById('notesContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Sort notes (pinned first, then by last modified)
+    filteredNotes.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
 
-            const aTime = new Date(a.lastModified || a.timestamp);
-            const bTime = new Date(b.lastModified || b.timestamp);
-            return bTime - aTime;
-        });
-        filteredNotes.forEach(note => {
-            const noteElement = this.createNoteElement(note);
-            container.appendChild(noteElement);
-        });
-        if (filteredNotes.length === 0) {
-            this.showEmptyState(container);
-        }
+        const aTime = new Date(a.lastModified || a.timestamp);
+        const bTime = new Date(b.lastModified || b.timestamp);
+        return bTime - aTime;
+    });
+    
+    // Display notes
+    filteredNotes.forEach(note => {
+        const noteElement = this.createNoteElement(note);
+        container.appendChild(noteElement);
+    });
+    
+    // Show empty state if no notes
+    if (filteredNotes.length === 0) {
+        this.showEmptyState(container);
     }
+    
+    // Update bulk controls if in bulk mode
+    if (this.bulkMode) {
+        this.updateBulkControls();
+    }
+}
+    // displayFilteredNotes(filteredNotes) {
+    //     const container = document.getElementById('notesContainer');
+    //     if (!container) return;
+    //     container.innerHTML = '';
+    //     filteredNotes.sort((a, b) => {
+    //         if (a.pinned && !b.pinned) return -1;
+    //         if (!a.pinned && b.pinned) return 1;
+
+    //         const aTime = new Date(a.lastModified || a.timestamp);
+    //         const bTime = new Date(b.lastModified || b.timestamp);
+    //         return bTime - aTime;
+    //     });
+    //     filteredNotes.forEach(note => {
+    //         const noteElement = this.createNoteElement(note);
+    //         container.appendChild(noteElement);
+    //     });
+    //     if (filteredNotes.length === 0) {
+    //         this.showEmptyState(container);
+    //     }
+    // }
     getNotesByCategory(category) {
         return this.getNotes().filter(note => note.category === category);
     }

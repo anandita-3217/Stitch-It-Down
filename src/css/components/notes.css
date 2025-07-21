@@ -1479,6 +1479,19 @@
 .modal-actions button[data-action="cancel"]:hover {
   background: var(--medium-purple);
 }
+.btn-clear-filters {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-clear-filters:hover {
+    background: var(--accent-color-hover);
+}
 
 @media (max-width: 768px) {
   .filter-row {
