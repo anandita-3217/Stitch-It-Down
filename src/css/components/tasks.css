@@ -1125,13 +1125,11 @@
     border-color: var(--danger-color) !important;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
-.task-checkbox {
-    /* Hide the default checkbox */
+/* .task-checkbox {
+
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    
-    /* Custom styling */
     width: 20px;
     height: 20px;
     border: 2px solid var(--border-color);
@@ -1142,8 +1140,6 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
     margin-right: 12px;
-    
-    /* Focus states */
     outline: none;
     box-shadow: 0 0 0 0 var(--dark-purple);
 }
@@ -1159,15 +1155,11 @@
     border-color: var(--dark-purple);
     box-shadow: 0 0 0 3px rgba(106, 182, 255, 0.2);
 }
-
-/* Checked state */
 .task-checkbox:checked {
     background-color: var(--dark-purple);
     border-color: var(--dark-purple);
     box-shadow: 0 2px 8px var(--shadow-hover);
 }
-
-/* Checkmark */
 .task-checkbox:checked::before {
     content: '';
     position: absolute;
@@ -1187,7 +1179,6 @@
     transition: opacity 0.2s ease-out;
 }
 
-/* Checkmark animation */
 @keyframes checkmark-appear {
     0% {
         opacity: 0;
@@ -1197,7 +1188,7 @@
         opacity: 1;
         transform: rotate(45deg) scale(1);
     }
-}
+} */
 
 /* Responsive Design */
 @media (max-width: 768px) {
