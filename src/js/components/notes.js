@@ -402,13 +402,14 @@ escapeHtml(text) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/'/g, "&#039;")
+        .replace(/\//g, "&#x2F;");;
 }
 showFullNoteModal(note) {
     closeModal();
     const modal = document.createElement('div');
     modal.className = 'note-view-modal';
-    const escapedNoteText = note.text.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+    const escapedNoteText = this.escapeHtml(note.text);
     modal.innerHTML = `
         <div class="modal-content note-modal-content">
             <div class="modal-header">
@@ -422,7 +423,8 @@ showFullNoteModal(note) {
                     ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
                 </div>
                 <div class="editable-note-content">
-                    <textarea id="modalNoteText" class="modal-note-textarea">${note.text}</textarea>
+                    <textarea id="modalNoteText" class="modal-note-textarea">${this.escapeHtml(note.text)}</textarea>
+
                 </div>
                 ${note.tags.length > 0 ? `
                     <div class="note-tags">
@@ -462,7 +464,6 @@ showFullNoteModal(note) {
     this.setupModalEventListeners(modal, note);
 }
     safeTextWithLinks(text) {
-    // First, properly escape ALL HTML characters
     const escapeHtml = (unsafe) => {
         return unsafe
             .replace(/&/g, "&amp;")
@@ -472,11 +473,7 @@ showFullNoteModal(note) {
             .replace(/'/g, "&#039;")
             .replace(/\//g, "&#x2F;");
     };
-    
-    // Escape the text first
     const escapedText = escapeHtml(text);
-    
-    // Then apply link detection to the escaped text
     return detectAndCreateLinks(escapedText);
 }
     getNotes() {
@@ -507,90 +504,19 @@ showFullNoteModal(note) {
     }
     this.applyFilters();
     }
-// createNoteElement(note) {
-//     const div = document.createElement('div');
-//     div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
-//     const isLongNote = note.text.length > 200;
-//     const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
-    
-//     const safeTextWithLinks = (text) => {
-//         const escaped = text
-//             .replace(/&/g, '&amp;')
-//             .replace(/</g, '&lt;')
-//             .replace(/>/g, '&gt;')
-//             .replace(/"/g, '&quot;')
-//             .replace(/'/g, '&#39;');
-//         return detectAndCreateLinks(escaped);
-//     };
-//     div.innerHTML = `
-//         ${this.bulkMode ? `
-//             <div class="note-checkbox-container">
-//                 <input type="checkbox" class="note-checkbox" data-note-id="${note.id}" 
-//                        ${this.selectedNotes.has(note.id) ? 'checked' : ''}>
-//             </div>
-//         ` : ''}
-//         <div class="note-content">
-//             <div class="note-header">
-//                 ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
-//                 <span class="note-category">${note.category}</span>
-//                 <span class="note-word-count">${note.wordCount} words</span>
-//             </div>
-//             <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
-//                 ${safeTextWithLinks(isLongNote ? truncatedText : note.text)}
-//                 ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
-//             </div>
-//             ${note.tags.length > 0 ? `
-//                 <div class="note-tags">
-//                     ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
-//                 </div>
-//             ` : ''}
-//         </div>
-//         <div class="note-meta">
-//             <div class="note-timestamp">
-//                 Created: ${formatTimestamp(note.timestamp)}
-//                 ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
-//             </div>
-//         </div>
-//         <div class="note-actions">
-//             <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
-//                 <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
-//             </button>
-//             <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
-//                 <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
-//             </button>
-//             <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
-//                 <i class="bi bi-pencil"></i>
-//             </button>
-//             <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
-//                 <i class="bi bi-trash"></i>
-//             </button>
-//         </div>
-//     `;
-    
-//     if (this.bulkMode) {
-//         const checkbox = div.querySelector('.note-checkbox');
-//         if (checkbox) {
-//             checkbox.addEventListener('change', (e) => {
-//                 e.stopPropagation();
-//                 this.toggleNoteSelection(note.id);
-//             });
-//         }
-//     }
-    
-//     return div;
-// }
+
 createNoteElement(note) {
     const div = document.createElement('div');
     div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
-    const isLongNote = note.text.length > 200;
-    const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
-    
-    // Use textContent for data attributes to prevent HTML injection
-    const fullTextSafe = this.safeTextWithLinks(note.text);
-    const truncatedTextSafe = this.safeTextWithLinks(truncatedText);
-    
-    // Create a safe data attribute value
-    const safeDataAttribute = note.text.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+    const isLongNote = note.text.length > 100;
+    const truncatedText = isLongNote ? note.text.substring(0, 100) + '...' : note.text;
+    // const fullTextSafe = this.safeTextWithLinks(note.text);
+    // const truncatedTextSafe = this.safeTextWithLinks(truncatedText);
+    // const safeDataAttribute = note.text.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+        const fullTextSafe = this.safeTextWithLinks(note.text);
+        const truncatedTextSafe = this.safeTextWithLinks(truncatedText);
+        // But for the data attribute, use escaped HTML only
+        const safeDataAttribute = this.escapeHtml(note.text);
     div.innerHTML = `
         ${this.bulkMode ? `
             <div class="note-checkbox-container">
@@ -850,16 +776,6 @@ createNoteElement(note) {
         closeModal();
         this.restoreFocus();
     }
-    // showEmptyState(container) {
-    //     const emptyState = document.createElement('div');
-    //     emptyState.className = 'empty-state';
-    //     emptyState.innerHTML = `
-    //         <div class="empty-icon"><i class="bi bi-journal-text"></i></div>
-    //         <p>No notes yet. Create your first note!</p>
-    //     `;
-    //     container.appendChild(emptyState);
-    // }
-
     clearAllFilters() {
     this.resetAllFilters();
     this.searchQuery = '';
@@ -869,17 +785,12 @@ createNoteElement(note) {
     }
     this.applyFilters();
 }
-
     showEmptyState(container) {
     const emptyState = document.createElement('div');
     emptyState.className = 'empty-state';
-    
-    // Check if we have active filters or search
     const hasActiveSearch = this.searchQuery && this.searchQuery.trim() !== '';
     const hasActiveFilters = this.hasActiveFilters();
-    
     if (hasActiveSearch || hasActiveFilters) {
-        // Show search/filter empty state with clear button
         emptyState.classList.add('search-empty');
         emptyState.innerHTML = `
             <div class="empty-icon"><i class="bi bi-search"></i></div>
@@ -888,14 +799,11 @@ createNoteElement(note) {
                 Clear filters
             </button>
         `;
-        
-        // Add event listener for clear filters button
         const clearBtn = emptyState.querySelector('.btn-clear-filters');
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearAllFilters());
         }
     } else {
-        // Show default empty state
         emptyState.innerHTML = `
             <div class="empty-icon"><i class="bi bi-journal-text"></i></div>
             <p>No notes yet. Create your first note!</p>
@@ -1045,53 +953,24 @@ createNoteElement(note) {
     if (!container) return;
     
     container.innerHTML = '';
-    
-    // Sort notes (pinned first, then by last modified)
     filteredNotes.sort((a, b) => {
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
-
         const aTime = new Date(a.lastModified || a.timestamp);
         const bTime = new Date(b.lastModified || b.timestamp);
         return bTime - aTime;
     });
-    
-    // Display notes
     filteredNotes.forEach(note => {
         const noteElement = this.createNoteElement(note);
         container.appendChild(noteElement);
     });
-    
-    // Show empty state if no notes
     if (filteredNotes.length === 0) {
         this.showEmptyState(container);
     }
-    
-    // Update bulk controls if in bulk mode
     if (this.bulkMode) {
         this.updateBulkControls();
     }
 }
-    // displayFilteredNotes(filteredNotes) {
-    //     const container = document.getElementById('notesContainer');
-    //     if (!container) return;
-    //     container.innerHTML = '';
-    //     filteredNotes.sort((a, b) => {
-    //         if (a.pinned && !b.pinned) return -1;
-    //         if (!a.pinned && b.pinned) return 1;
-
-    //         const aTime = new Date(a.lastModified || a.timestamp);
-    //         const bTime = new Date(b.lastModified || b.timestamp);
-    //         return bTime - aTime;
-    //     });
-    //     filteredNotes.forEach(note => {
-    //         const noteElement = this.createNoteElement(note);
-    //         container.appendChild(noteElement);
-    //     });
-    //     if (filteredNotes.length === 0) {
-    //         this.showEmptyState(container);
-    //     }
-    // }
     getNotesByCategory(category) {
         return this.getNotes().filter(note => note.category === category);
     }
