@@ -26,7 +26,6 @@ function initialize() {
 
     requestNotificationPermission();
     setupNoteFilters();
-    setupSearchFunctionality();
     setupNoteActions();
     setupKeyboardShortcuts();
     setupExportImport();
@@ -53,94 +52,6 @@ function requestNotificationPermission() {
         });
     }
 }
-
-function setupNoteFilters() {
-    console.log('Setting up note filters...');
-    
-    // Filter buttons - delegate to NotesManager if it has a handleFilterClick method
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const filterType = button.getAttribute('data-filter');
-            
-            // Check if NotesManager has its own filter handler
-            if (noteManager && typeof noteManager.handleFilterClick === 'function') {
-                noteManager.handleFilterClick(button, filterType);
-            } else {
-                // Fallback to our own filter handling
-                setActiveFilter(button, filterType);
-                applyFilter(filterType);
-            }
-        });
-    });
-
-    console.log('✓ Note filters setup complete');
-}
-
-function setupSearchFunctionality() {
-    console.log('Setting up search functionality...');
-    
-    const searchInput = document.getElementById('note-search');
-    const clearSearchBtn = document.getElementById('clearSearch');
-    
-    if (searchInput) {
-        // Real-time search
-        searchInput.addEventListener('input', debounce(() => {
-            const query = searchInput.value.trim();
-            currentSearchQuery = query;
-            performSearch(query);
-        }, 300));
-        
-        // Search on enter
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const query = searchInput.value.trim();
-                currentSearchQuery = query;
-                performSearch(query);
-            }
-        });
-    }
-    
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            currentSearchQuery = '';
-            performSearch('');
-        });
-    }
-    
-    console.log('✓ Search functionality setup complete');
-}
-
-function setupNoteActions() {
-    console.log('Setting up note actions...');
-    
-    // Bulk selection
-    const selectAllBtn = document.getElementById('selectAll');
-    const deleteSelectedBtn = document.getElementById('deleteSelected');
-    const archiveSelectedBtn = document.getElementById('archiveSelected');
-    const clearSelectionBtn = document.getElementById('clearSelection');
-    
-    if (selectAllBtn) {
-        selectAllBtn.addEventListener('click', toggleSelectAll);
-    }
-    
-    if (deleteSelectedBtn) {
-        deleteSelectedBtn.addEventListener('click', deleteSelectedNotes);
-    }
-    
-    if (archiveSelectedBtn) {
-        archiveSelectedBtn.addEventListener('click', archiveSelectedNotes);
-    }
-    
-    if (clearSelectionBtn) {
-        clearSelectionBtn.addEventListener('click', clearSelection);
-    }
-    
-    console.log('✓ Note actions setup complete');
-}
-
 function setupKeyboardShortcuts() {
     console.log('Setting up keyboard shortcuts...');
     
@@ -235,18 +146,6 @@ function setupExportImport() {
     console.log('✓ Export/import setup complete');
 }
 
-function setupBulkActions() {
-    console.log('Setting up bulk actions...');
-    
-    // Listen for checkbox changes to update bulk toolbar
-    document.addEventListener('change', (e) => {
-        if (e.target.classList.contains('note-checkbox')) {
-            updateBulkToolbar();
-        }
-    });
-    
-    console.log('✓ Bulk actions setup complete');
-}
 
 function setupViewModeButtons() {
     console.log('Setting up view mode buttons...');
