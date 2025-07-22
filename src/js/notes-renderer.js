@@ -26,6 +26,7 @@ function initialize() {
 
     requestNotificationPermission();
     setupNoteFilters();
+    // setupSearchFunctionality();
     setupNoteActions();
     setupKeyboardShortcuts();
     setupExportImport();
@@ -35,10 +36,6 @@ function initialize() {
     // Initialize view mode from localStorage
     const savedViewMode = localStorage.getItem('noteViewMode') || 'grid';
     setViewMode(savedViewMode);
-    
-    // Update stats periodically
-    updateNoteStats();
-    setInterval(updateNoteStats, 30000); // Update every 30 seconds
 }
 
 function debugFunctions() {
@@ -52,6 +49,94 @@ function requestNotificationPermission() {
         });
     }
 }
+
+function setupNoteFilters() {
+    console.log('Setting up note filters...');
+    
+    // Filter buttons - delegate to NotesManager if it has a handleFilterClick method
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const filterType = button.getAttribute('data-filter');
+            
+            // Check if NotesManager has its own filter handler
+            if (noteManager && typeof noteManager.handleFilterClick === 'function') {
+                noteManager.handleFilterClick(button, filterType);
+            } else {
+                // Fallback to our own filter handling
+                setActiveFilter(button, filterType);
+                applyFilter(filterType);
+            }
+        });
+    });
+
+    console.log('✓ Note filters setup complete');
+}
+
+// function setupSearchFunctionality() {
+//     console.log('Setting up search functionality...');
+    
+//     const searchInput = document.getElementById('note-search');
+//     const clearSearchBtn = document.getElementById('clearSearch');
+    
+//     if (searchInput) {
+//         // Real-time search
+//         searchInput.addEventListener('input', debounce(() => {
+//             const query = searchInput.value.trim();
+//             currentSearchQuery = query;
+//             performSearch(query);
+//         }, 300));
+        
+//         // Search on enter
+//         searchInput.addEventListener('keypress', (e) => {
+//             if (e.key === 'Enter') {
+//                 e.preventDefault();
+//                 const query = searchInput.value.trim();
+//                 currentSearchQuery = query;
+//                 performSearch(query);
+//             }
+//         });
+//     }
+    
+//     if (clearSearchBtn) {
+//         clearSearchBtn.addEventListener('click', () => {
+//             searchInput.value = '';
+//             currentSearchQuery = '';
+//             performSearch('');
+//         });
+//     }
+    
+//     console.log('✓ Search functionality setup complete');
+// }
+
+function setupNoteActions() {
+    console.log('Setting up note actions...');
+    
+    // Bulk selection
+    const selectAllBtn = document.getElementById('selectAll');
+    const deleteSelectedBtn = document.getElementById('deleteSelected');
+    const archiveSelectedBtn = document.getElementById('archiveSelected');
+    const clearSelectionBtn = document.getElementById('clearSelection');
+    
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', toggleSelectAll);
+    }
+    
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', deleteSelectedNotes);
+    }
+    
+    if (archiveSelectedBtn) {
+        archiveSelectedBtn.addEventListener('click', archiveSelectedNotes);
+    }
+    
+    if (clearSelectionBtn) {
+        clearSelectionBtn.addEventListener('click', clearSelection);
+    }
+    
+    console.log('✓ Note actions setup complete');
+}
+
 function setupKeyboardShortcuts() {
     console.log('Setting up keyboard shortcuts...');
     
@@ -125,7 +210,6 @@ function setupExportImport() {
                         const success = noteManager.importNotes(event.target.result);
                         if (success) {
                             showNotification('Notes imported successfully!', 'success');
-                            updateNoteStats();
                         } else {
                             showNotification('Failed to import notes. Invalid format.', 'error');
                         }
@@ -146,6 +230,18 @@ function setupExportImport() {
     console.log('✓ Export/import setup complete');
 }
 
+function setupBulkActions() {
+    console.log('Setting up bulk actions...');
+    
+    // Listen for checkbox changes to update bulk toolbar
+    document.addEventListener('change', (e) => {
+        if (e.target.classList.contains('note-checkbox')) {
+            updateBulkToolbar();
+        }
+    });
+    
+    console.log('✓ Bulk actions setup complete');
+}
 
 function setupViewModeButtons() {
     console.log('Setting up view mode buttons...');
@@ -207,8 +303,6 @@ function applyFilter(filterType, filterValue = null) {
     } else {
         noteManager.displayNotes(filterFunction);
     }
-    
-    updateNoteStats();
 }
 
 function performSearch(query) {
@@ -222,7 +316,6 @@ function performSearch(query) {
     
     const searchResults = noteManager.searchNotes(query);
     noteManager.displayNotes((note) => searchResults.includes(note));
-    updateNoteStats();
     
     // Update search UI
     const clearSearchBtn = document.getElementById('clearSearch');
@@ -247,42 +340,6 @@ function setViewMode(mode) {
     // Save preference
     localStorage.setItem('noteViewMode', mode);
 }
-
-function updateNoteStats() {
-    if (!noteManager) return;
-    
-    const notes = noteManager.getNotes();
-    const pinnedNotes = noteManager.getPinnedNotes();
-    const archivedNotes = noteManager.getArchivedNotes();
-    
-    // Update stats display
-    const statsContainer = document.getElementById('noteStats');
-    
-    if (statsContainer) {
-        const totalWords = notes.reduce((sum, note) => sum + (note.wordCount || 0), 0);
-        
-        statsContainer.innerHTML = `
-            <div class="stat-item">
-                <span class="stat-value">${notes.length}</span>
-                <span class="stat-label">Total Notes</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">${pinnedNotes.length}</span>
-                <span class="stat-label">Pinned</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">${archivedNotes.length}</span>
-                <span class="stat-label">Archived</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">${totalWords}</span>
-                <span class="stat-label">Total Words</span>
-            </div>
-        `;
-    }
-}
-
-// Bulk action functions
 function toggleSelectAll() {
     const checkboxes = document.querySelectorAll('.note-checkbox');
     const allChecked = Array.from(checkboxes).every(cb => cb.checked);
@@ -403,10 +460,7 @@ if (document.readyState === 'loading') {
 // Listen for note updates from other modules
 document.addEventListener('noteUpdate', (event) => {
     console.log('Note update received:', event.detail);
-    updateNoteStats();
-    
-    // Show notification for certain events
-    const { type, note } = event.detail;
+        const { type, note } = event.detail;
     switch (type) {
         case 'note-added':
             showNotification('Note created successfully!', 'success');
@@ -431,7 +485,6 @@ window.noteRenderer = {
     applyFilter,
     performSearch,
     setViewMode,
-    updateNoteStats,
     showNotification
 };
 

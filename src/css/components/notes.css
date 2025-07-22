@@ -822,7 +822,7 @@
     background: #ffc107;
     color: var(--white);
 }
-.filter-btn-color {
+.filter-color-btn {
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -837,20 +837,17 @@
     overflow: visible; /* Override inherited overflow */
 }
 
-/* Remove the ::before pseudo-element completely for color buttons */
-.filter-btn-color::before {
-    display: none !important;
-}
+
 
 /* Override hover effects from parent class */
-.filter-btn-color:hover {
+.filter-color-btn:hover {
     transform: none !important;
     box-shadow: none !important;
     border-color: var(--border-color) !important;
     background: none !important;
 }
 
-.filter-btn-color:hover::before {
+.filter-color-btn:hover::before {
     content: '';
     position: absolute;
     top: -2px;
@@ -860,8 +857,9 @@
     /* border: 2px solid rgba(0, 0, 0, 0.1); */
     border-radius: 50%;
 }
-.filter-btn-color:active {
+.filter-color-btn:active {
     transform: scale(1.05);
+    border: rebeccapurple 2px solid;
 }
 
 /* Action Controls */
@@ -1480,18 +1478,20 @@
   background: var(--medium-purple);
 }
 .btn-clear-filters {
-    background: var(--accent-color);
-    color: white;
+    background: var(--dark-purple);
+    color: var(--white);
     border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: 10px 20px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-clear-filters:hover {
-    background: var(--accent-color-hover);
-}
+    background: var(--darker-blue);
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px var(--shadow-hover);}
 
 @media (max-width: 768px) {
   .filter-row {

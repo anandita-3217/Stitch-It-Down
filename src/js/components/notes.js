@@ -64,7 +64,6 @@ class NotesManager {
     }
     validateInput(inputElement, errorMessage = 'Please enter a valid value') {
         const value = inputElement.value.trim();
-        
         if (!value || value === '') {
             this.shakeInput(inputElement);
             return false;
@@ -84,7 +83,7 @@ class NotesManager {
         const noteInput = document.getElementById('noteInput');
         const bulkActionsBtn = document.getElementById('bulkActionsBtn');
         const notesContainer = document.getElementById('notesContainer');        
-        console.log('Setting up event listeners...');        
+        // console.log('Setting up event listeners...');        
         if (addNoteBtn) {
             addNoteBtn.addEventListener('click', () => this.handleAddNote());
         }
@@ -135,16 +134,16 @@ class NotesManager {
                     e.stopPropagation();
                     const noteId = parseInt(button.getAttribute('data-note-id'));
                     if (button.classList.contains('edit-note') || e.target.classList.contains('bi-pencil')) {
-                        console.log('Edit button clicked for note:', noteId);
+                        // console.log('Edit button clicked for note:', noteId);
                         this.editNote(noteId);
                     } else if (button.classList.contains('delete-note') || e.target.classList.contains('bi-trash')) {
-                        console.log('Delete button clicked for note:', noteId);
+                        // console.log('Delete button clicked for note:', noteId);
                         this.deleteNote(noteId);
                     } else if (button.classList.contains('pin-note') || e.target.classList.contains('bi-pin-angle')) {
-                        console.log('Pin button clicked for note:', noteId);
+                        // console.log('Pin button clicked for note:', noteId);
                         this.togglePinNote(noteId);
                     } else if (button.classList.contains('archive-note') || e.target.classList.contains('bi-archive')) {
-                        console.log('Archive button clicked for note:', noteId);
+                        // console.log('Archive button clicked for note:', noteId);
                         this.toggleArchiveNote(noteId);
                     }
                 }
@@ -349,120 +348,119 @@ showNoteModal(button) {
     this.showFullNoteModal(note);
     }
     setupModalEventListeners(modal, note) {
-    const closeBtn = modal.querySelector('.modal-close-btn');
-    const cancelBtn = modal.querySelector('.cancel-modal');
-    const closeModal = () => {
-        if (modal.parentNode) {
-            modal.parentNode.removeChild(modal);
-        }
-        this.restoreFocus();
-    };    
-    closeBtn?.addEventListener('click', closeModal);
-    cancelBtn?.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-    const escHandler = (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', escHandler);
-        }    };
-    document.addEventListener('keydown', escHandler);
-    const saveBtn = modal.querySelector('.save-modal-note');
-    saveBtn?.addEventListener('click', () => {
-        this.saveModalNote(note.id, modal);
-    });
-    const actionButtons = modal.querySelectorAll('.note-actions button');
-    actionButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const noteId = parseInt(button.getAttribute('data-note-id'));
-            if (button.classList.contains('pin-note')) {
-                this.togglePinNote(noteId);
-                closeModal();
-            } else if (button.classList.contains('archive-note')) {
-                this.toggleArchiveNote(noteId);
-                closeModal();
-            } else if (button.classList.contains('edit-note')) {
-                this.showEditModal(note);
-                closeModal();
-            } else if (button.classList.contains('delete-note')) {
-                this.deleteNote(noteId);
+        const closeBtn = modal.querySelector('.modal-close-btn');
+        const cancelBtn = modal.querySelector('.cancel-modal');
+        const closeModal = () => {
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+            this.restoreFocus();
+        };    
+        closeBtn?.addEventListener('click', closeModal);
+        cancelBtn?.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
                 closeModal();
             }
         });
-    });
-}
-escapeHtml(text) {
-    if (typeof text !== 'string') return '';
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;")
-        .replace(/\//g, "&#x2F;");;
-}
-showFullNoteModal(note) {
-    closeModal();
-    const modal = document.createElement('div');
-    modal.className = 'note-view-modal';
-    const escapedNoteText = this.escapeHtml(note.text);
-    modal.innerHTML = `
-        <div class="modal-content note-modal-content">
-            <div class="modal-header">
-                <h3>View/Edit Note</h3>
-                <button class="modal-close-btn" type="button">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="note-header-info">
-                    <span class="note-category">${note.category}</span>
-                    <span class="note-word-count">${note.wordCount} words</span>
-                    ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', escHandler);
+            }    };
+        document.addEventListener('keydown', escHandler);
+        const saveBtn = modal.querySelector('.save-modal-note');
+        saveBtn?.addEventListener('click', () => {
+            this.saveModalNote(note.id, modal);
+        });
+        const actionButtons = modal.querySelectorAll('.note-actions button');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const noteId = parseInt(button.getAttribute('data-note-id'));
+                if (button.classList.contains('pin-note')) {
+                    this.togglePinNote(noteId);
+                    closeModal();
+                } else if (button.classList.contains('archive-note')) {
+                    this.toggleArchiveNote(noteId);
+                    closeModal();
+                } else if (button.classList.contains('edit-note')) {
+                    this.showEditModal(note);
+                    closeModal();
+                } else if (button.classList.contains('delete-note')) {
+                    this.deleteNote(noteId);
+                    closeModal();
+                }
+            });
+        });
+    }
+    escapeHtml(text) {
+        if (typeof text !== 'string') return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\//g, "&#x2F;");;
+    }
+    showFullNoteModal(note) {
+        closeModal();
+        const modal = document.createElement('div');
+        modal.className = 'note-view-modal';
+        // const escapedNoteText = this.escapeHtml(note.text);
+        modal.innerHTML = `
+            <div class="modal-content note-modal-content">
+                <div class="modal-header">
+                    <h3>View/Edit Note</h3>
+                    <button class="modal-close-btn" type="button">&times;</button>
                 </div>
-                <div class="editable-note-content">
-                    <textarea id="modalNoteText" class="modal-note-textarea">${this.escapeHtml(note.text)}</textarea>
-
-                </div>
-                ${note.tags.length > 0 ? `
-                    <div class="note-tags">
-                        ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                <div class="modal-body">
+                    <div class="note-header-info">
+                        <span class="note-category">${note.category}</span>
+                        <span class="note-word-count">${note.wordCount} words</span>
+                        ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
                     </div>
-                ` : ''}
-                <div class="note-meta">
-                    <div class="note-timestamp">
-                        Created: ${formatTimestamp(note.timestamp)}
-                        ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+                    <div class="editable-note-content">
+                        <textarea id="modalNoteText" class="modal-note-textarea">${this.escapeHtml(note.text)}</textarea>    
+                    </div>
+                    ${note.tags.length > 0 ? `
+                        <div class="note-tags">
+                            ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="note-meta">
+                        <div class="note-timestamp">
+                            Created: ${formatTimestamp(note.timestamp)}
+                            ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="note-actions modal-actions">
+                        <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
+                            <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
+                        </button>
+                        <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
+                            <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
+                        </button>
+                        <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="modal-save-actions">
+                        <button class="save-modal-note" data-note-id="${note.id}" type="button">Save Changes</button>
+                        <button class="cancel-modal" type="button">Close</button>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <div class="note-actions modal-actions">
-                    <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
-                        <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
-                    </button>
-                    <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
-                        <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
-                    </button>
-                    <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-                <div class="modal-save-actions">
-                    <button class="save-modal-note" data-note-id="${note.id}" type="button">Save Changes</button>
-                    <button class="cancel-modal" type="button">Close</button>
-                </div>
-            </div>
-        </div>
-    `;    
-    document.body.appendChild(modal);
-    this.setupModalEventListeners(modal, note);
-}
+        `;    
+        document.body.appendChild(modal);
+        this.setupModalEventListeners(modal, note);
+    }
     safeTextWithLinks(text) {
     const escapeHtml = (unsafe) => {
         return unsafe
@@ -504,78 +502,73 @@ showFullNoteModal(note) {
     }
     this.applyFilters();
     }
-
-createNoteElement(note) {
-    const div = document.createElement('div');
-    div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
-    const isLongNote = note.text.length > 100;
-    const truncatedText = isLongNote ? note.text.substring(0, 100) + '...' : note.text;
-    // const fullTextSafe = this.safeTextWithLinks(note.text);
-    // const truncatedTextSafe = this.safeTextWithLinks(truncatedText);
-    // const safeDataAttribute = note.text.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+    createNoteElement(note) {
+        const div = document.createElement('div');
+        div.className = `note-item color-${note.color} ${note.pinned ? 'pinned' : ''} ${note.archived ? 'archived' : ''}`;
+        const isLongNote = note.text.length > 100;
+        const truncatedText = isLongNote ? note.text.substring(0, 100) + '...' : note.text;
         const fullTextSafe = this.safeTextWithLinks(note.text);
         const truncatedTextSafe = this.safeTextWithLinks(truncatedText);
-        // But for the data attribute, use escaped HTML only
-        const safeDataAttribute = this.escapeHtml(note.text);
-    div.innerHTML = `
-        ${this.bulkMode ? `
-            <div class="note-checkbox-container">
-                <input type="checkbox" class="note-checkbox" data-note-id="${note.id}" 
-                       ${this.selectedNotes.has(note.id) ? 'checked' : ''}>
-            </div>
-        ` : ''}
-        <div class="note-content">
-            <div class="note-header">
-                ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
-                <span class="note-category">${note.category}</span>
-                <span class="note-word-count">${note.wordCount} words</span>
-            </div>
-            <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
-                ${isLongNote ? truncatedTextSafe : fullTextSafe}
-                ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
-            </div>
-            ${note.tags.length > 0 ? `
-                <div class="note-tags">
-                    ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+        // const safeDataAttribute = this.escapeHtml(note.text);
+        div.innerHTML = `
+            ${this.bulkMode ? `
+                <div class="note-checkbox-container">
+                    <input type="checkbox" class="note-checkbox" data-note-id="${note.id}" 
+                           ${this.selectedNotes.has(note.id) ? 'checked' : ''}>
                 </div>
             ` : ''}
-        </div>
-        <div class="note-meta">
-            <div class="note-timestamp">
-                Created: ${formatTimestamp(note.timestamp)}
-                ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+            <div class="note-content">
+                <div class="note-header">
+                    ${note.pinned ? '<i class="bi bi-pin-angle-fill pinned-icon"></i>' : ''}
+                    <span class="note-category">${note.category}</span>
+                    <span class="note-word-count">${note.wordCount} words</span>
+                </div>
+                <div class="note-text ${isLongNote ? 'expandable' : ''}" data-full-text="${note.text.replace(/"/g, '&quot;')}">
+                    ${isLongNote ? truncatedTextSafe : fullTextSafe}
+                    ${isLongNote ? '<button class="expand-note-btn" type="button">Show more</button>' : ''}
+                </div>
+                ${note.tags.length > 0 ? `
+                    <div class="note-tags">
+                        ${note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
             </div>
-        </div>
-        <div class="note-actions">
-            <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
-                <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
-            </button>
-            <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
-                <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
-            </button>
-            <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
-                <i class="bi bi-pencil"></i>
-            </button>
-            <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
-                <i class="bi bi-trash"></i>
-            </button>
-        </div>
-    `;
-    
-    if (this.bulkMode) {
-        const checkbox = div.querySelector('.note-checkbox');
-        if (checkbox) {
-            checkbox.addEventListener('change', (e) => {
-                e.stopPropagation();
-                this.toggleNoteSelection(note.id);
-            });
+            <div class="note-meta">
+                <div class="note-timestamp">
+                    Created: ${formatTimestamp(note.timestamp)}
+                    ${note.lastModified !== note.timestamp ? `<br>Modified: ${formatTimestamp(note.lastModified)}` : ''}
+                </div>
+            </div>
+            <div class="note-actions">
+                <button class="pin-note ${note.pinned ? 'pinned' : ''}" data-note-id="${note.id}" title="${note.pinned ? 'Unpin' : 'Pin'}" type="button">
+                    <i class="bi ${note.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>
+                </button>
+                <button class="archive-note ${note.archived ? 'archived' : ''}" data-note-id="${note.id}" title="${note.archived ? 'Unarchive' : 'Archive'}" type="button">
+                    <i class="bi ${note.archived ? 'bi-archive-fill' : 'bi-archive'}"></i>
+                </button>
+                <button class="edit-note" data-note-id="${note.id}" title="Edit" type="button">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="delete-note" data-note-id="${note.id}" title="Delete" type="button">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+                
+        if (this.bulkMode) {
+            const checkbox = div.querySelector('.note-checkbox');
+            if (checkbox) {
+                checkbox.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    this.toggleNoteSelection(note.id);
+                });
+            }
         }
+
+        return div;
     }
-    
-    return div;
-}
     togglePinNote(noteId) {
-    console.log('togglePinNote called with ID:', noteId);        
+    // console.log('togglePinNote called with ID:', noteId);        
     if (!noteId || isNaN(noteId)) {
         console.error('Invalid note ID provided to togglePinNote:', noteId);
         return;
@@ -588,7 +581,7 @@ createNoteElement(note) {
             notes[noteIndex].pinned = !notes[noteIndex].pinned;
             notes[noteIndex].lastModified = new Date().toISOString();
             const newPinned = notes[noteIndex].pinned;                
-            console.log(`✓ Note ${noteId} pin toggled: ${oldPinned} → ${newPinned}`);                
+            // console.log(`✓ Note ${noteId} pin toggled: ${oldPinned} → ${newPinned}`);                
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
             this.displayNotes(false); 
             this.emitNoteUpdate('note-pinned', notes[noteIndex]);                
@@ -600,7 +593,7 @@ createNoteElement(note) {
     }
     }
     toggleArchiveNote(noteId) {
-        console.log('toggleArchiveNote called with ID:', noteId);        
+        // console.log('toggleArchiveNote called with ID:', noteId);        
         if (!noteId || isNaN(noteId)) {
             console.error('Invalid note ID provided to toggleArchiveNote:', noteId);
             return;
@@ -613,7 +606,7 @@ createNoteElement(note) {
                 notes[noteIndex].archived = !notes[noteIndex].archived;
                 notes[noteIndex].lastModified = new Date().toISOString();
                 const newArchived = notes[noteIndex].archived;                
-                console.log(`✓ Note ${noteId} archive toggled: ${oldArchived} → ${newArchived}`);                
+                // console.log(`✓ Note ${noteId} archive toggled: ${oldArchived} → ${newArchived}`);                
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
                 this.displayNotes(false); 
                 this.emitNoteUpdate('note-archived', notes[noteIndex]);                
@@ -625,7 +618,7 @@ createNoteElement(note) {
         }
     }
     deleteNote(noteId) {
-        console.log('deleteNote called with ID:', noteId);        
+        // console.log('deleteNote called with ID:', noteId);        
         if (!noteId || isNaN(noteId)) {
             console.error('Invalid note ID:', noteId);
             return;
@@ -636,20 +629,20 @@ createNoteElement(note) {
         }        
         try {
             let notes = this.getNotes();
-            console.log('Notes before delete:', notes.length);
+            // console.log('Notes before delete:', notes.length);
             const noteToDelete = notes.find(note => note.id === noteId);
-            console.log('Note to delete:', noteToDelete);            
+            // console.log('Note to delete:', noteToDelete);            
             if (!noteToDelete) {
                 console.error('Note not found with ID:', noteId);
                 this.restoreFocus();
                 return;
             }            
             notes = notes.filter(note => note.id !== noteId);
-            console.log('Notes after delete:', notes.length);            
+            // console.log('Notes after delete:', notes.length);            
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notes));
             this.displayNotes(false); 
             this.emitNoteUpdate('note-deleted', noteToDelete);            
-            console.log('Note deleted successfully');
+            // console.log('Note deleted successfully');
             this.restoreFocus();
         } catch (error) {
             console.error('Could not delete note:', error);
@@ -657,7 +650,7 @@ createNoteElement(note) {
         }
     }
     editNote(noteId) {
-        console.log('editNote called with ID:', noteId);        
+        // console.log('editNote called with ID:', noteId);        
         if (!noteId || isNaN(noteId)) {
             console.error('Invalid note ID:', noteId);
             return;
@@ -669,7 +662,7 @@ createNoteElement(note) {
             this.restoreFocus();
             return;
         }        
-        console.log('Editing note:', note);
+        // console.log('Editing note:', note);
         this.editingNote = note;
         this.showEditModal(note);
     }
@@ -838,18 +831,18 @@ createNoteElement(note) {
     setupFilterListeners() {
         const setupFilters = () => {
         const filterButtons = document.querySelectorAll('.filter-btn');
-        console.log('Found filter buttons:', filterButtons.length);
+        // console.log('Found filter buttons:', filterButtons.length);
         if (filterButtons.length === 0) {
             console.warn('No filter buttons found. Retrying in 100ms...');
             setTimeout(setupFilters, 100);
             return;
         }
         filterButtons.forEach((btn, index) => {
-            console.log(`Setting up filter button ${index}:`, btn.getAttribute('data-filter'), btn.getAttribute('data-value'));
+            // console.log(`Setting up filter button ${index}:`, btn.getAttribute('data-filter'), btn.getAttribute('data-value'));
             btn.addEventListener('click', (e) => this.handleNewFilterClick(e.target));
         });
         
-        console.log('✓ Filter listeners set up successfully');
+        // console.log('✓ Filter listeners set up successfully');
     };
         if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', setupFilters);
@@ -858,7 +851,7 @@ createNoteElement(note) {
     }
 }
     handleNewFilterClick(button) {
-        console.log('Filter clicked:', button.getAttribute('data-filter'), button.getAttribute('data-value'));        
+        // console.log('Filter clicked:', button.getAttribute('data-filter'), button.getAttribute('data-value'));        
         const filterType = button.getAttribute('data-filter');
         const filterValue = button.getAttribute('data-value');
         const filterGroup = button.closest('.filter-group');
@@ -866,19 +859,19 @@ createNoteElement(note) {
             this.resetAllFilters();
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-            console.log('All filters reset');
+            // console.log('All filters reset');
         } else {
             const currentValue = this.activeFilters[filterType];
             if (currentValue === filterValue) {
                 this.activeFilters[filterType] = null;
                 button.classList.remove('active');
-                console.log(`Filter ${filterType}:${filterValue} deactivated`);
+                // console.log(`Filter ${filterType}:${filterValue} deactivated`);
             } else {
                 const groupButtons = filterGroup.querySelectorAll('.filter-btn');
                 groupButtons.forEach(btn => btn.classList.remove('active'));
                 this.activeFilters[filterType] = filterValue;
                 button.classList.add('active');
-                console.log(`Filter ${filterType}:${filterValue} activated`);
+                // console.log(`Filter ${filterType}:${filterValue} activated`);
             }
             const allButton = document.querySelector('.filter-btn[data-value="all"]');
             if (allButton && this.hasActiveFilters()) {
@@ -890,7 +883,7 @@ createNoteElement(note) {
                 }
             }
         }
-        console.log('Active filters:', this.activeFilters);
+        // console.log('Active filters:', this.activeFilters);
         this.applyFilters();
     }
     resetAllFilters() {
@@ -971,20 +964,6 @@ createNoteElement(note) {
         this.updateBulkControls();
     }
 }
-    getNotesByCategory(category) {
-        return this.getNotes().filter(note => note.category === category);
-    }
-    getNotesByTag(tag) {
-        return this.getNotes().filter(note => 
-            note.tags.some(noteTag => noteTag.toLowerCase() === tag.toLowerCase())
-        );
-    }
-    getPinnedNotes() {
-        return this.getNotes().filter(note => note.pinned && !note.archived);
-    }
-    getArchivedNotes() {
-        return this.getNotes().filter(note => note.archived);
-    }
     exportNotes() {
         const notes = this.getNotes();
         const dataStr = JSON.stringify(notes, null, 2);
@@ -1105,7 +1084,7 @@ createNoteElement(note) {
             this.selectedNotes.clear();
             this.displayNotes(false);
             this.updateBulkControls();
-            console.log(`✓ Bulk deleted ${count} notes`);
+            // console.log(`✓ Bulk deleted ${count} notes`);
         } catch (error) {
             console.error('Error in bulk delete:', error);
         }
@@ -1127,7 +1106,7 @@ createNoteElement(note) {
             this.selectedNotes.clear();
             this.displayNotes(false);
             this.updateBulkControls();            
-            console.log(`✓ Bulk archived/unarchived ${modifiedCount} notes`);
+            // console.log(`✓ Bulk archived/unarchived ${modifiedCount} notes`);
         } catch (error) {
             console.error('Error in bulk archive:', error);
         }
@@ -1150,7 +1129,7 @@ createNoteElement(note) {
             this.displayNotes(false);
             this.updateBulkControls();
             
-            console.log(`✓ Bulk pinned/unpinned ${modifiedCount} notes`);
+            // console.log(`✓ Bulk pinned/unpinned ${modifiedCount} notes`);
         } catch (error) {
             console.error('Error in bulk pin:', error);
         }

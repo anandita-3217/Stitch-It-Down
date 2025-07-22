@@ -981,7 +981,7 @@
 
 .btn-clear-filters:hover {
     background: var(--darker-blue);
-    transform: translateY(-2px);
+    transform: scale(1.01);
     box-shadow: 0 4px 12px var(--shadow-hover);
 }
 

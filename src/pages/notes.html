@@ -117,18 +117,15 @@
 
                             <div class="filter-group">
                                 <label>Color:</label>
-                                <button class="filter-btn filter-btn-color color-default" data-filter="color" data-value="default"></button>
-                                <button class="filter-btn filter-btn-color color-yellow" data-filter="color" data-value="yellow"></button>
-                                <button class="filter-btn filter-btn-color color-blue" data-filter="color" data-value="blue"></button>
-                                <button class="filter-btn filter-btn-color color-green" data-filter="color" data-value="green"></button>
-                                <button class="filter-btn filter-btn-color color-pink" data-filter="color" data-value="pink"></button>
-                                <button class="filter-btn filter-btn-color color-purple" data-filter="color" data-value="purple"></button>
+                                <button class="filter-btn filter-color-btn color-default" data-filter="color" data-value="default"></button>
+                                <button class="filter-btn filter-color-btn color-yellow" data-filter="color" data-value="yellow"></button>
+                                <button class="filter-btn filter-color-btn color-blue" data-filter="color" data-value="blue"></button>
+                                <button class="filter-btn filter-color-btn color-green" data-filter="color" data-value="green"></button>
+                                <button class="filter-btn filter-color-btn color-pink" data-filter="color" data-value="pink"></button>
+                                <button class="filter-btn filter-color-btn color-purple" data-filter="color" data-value="purple"></button>
                             </div>
                         </div>
                     </div>
-                    </div>
-                    
-                    
                     <div class="action-controls">
                     
                         <div class="view-mode-group">
@@ -143,10 +140,10 @@
                     
                         <div class="import-export-group">
                             <button id="exportNotes" class="action-btn export-btn" title="Export notes">
-                                <i class="bi bi-download"></i> Export
+                                <i class="bi bi-upload"></i> Export
                             </button>
                             <button id="importNotes" class="action-btn import-btn" title="Import notes">
-                                <i class="bi bi-upload"></i> Import
+                                <i class="bi bi-download"></i> Import
                             </button>
                             <input type="file" id="importFile" accept=".json" style="display: none;">
                         </div>
@@ -192,7 +189,10 @@
                         </div>
                     </div>
                 </div>
-            <div class="notes-container view-grid" id="notesContainer">
+                    
+                    
+                </div>
+                <div class="notes-container view-grid" id="notesContainer">
                 
                 </div>
             </div>
