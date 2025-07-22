@@ -101,13 +101,18 @@ class NotesManager {
     }
 
     // ADD BULK CONTROL LISTENERS
-    this.setupBulkControlListeners();
+        this.setupBulkControlListeners();
         const searchInput = document.getElementById('note-search');
         const clearSearchBtn = document.getElementById('clearSearch');
         if (searchInput) {
+            let searchTimeout;
             searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
                 this.searchQuery = e.target.value.toLowerCase();
+                searchTimeout = setTimeout(() => {
                 this.applyFilters();
+            }, 300); 
+                
             });
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -390,10 +395,20 @@ showNoteModal(button) {
         });
     });
 }
+escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 showFullNoteModal(note) {
     closeModal();
     const modal = document.createElement('div');
     modal.className = 'note-view-modal';
+    const escapedNoteText = note.text.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
     modal.innerHTML = `
         <div class="modal-content note-modal-content">
             <div class="modal-header">
@@ -447,17 +462,23 @@ showFullNoteModal(note) {
     this.setupModalEventListeners(modal, note);
 }
     safeTextWithLinks(text) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = text;
-        const decodedText = tempDiv.textContent || tempDiv.innerText || '';
-        const escaped = decodedText
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-        return detectAndCreateLinks(escaped);
-    }
+    // First, properly escape ALL HTML characters
+    const escapeHtml = (unsafe) => {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\//g, "&#x2F;");
+    };
+    
+    // Escape the text first
+    const escapedText = escapeHtml(text);
+    
+    // Then apply link detection to the escaped text
+    return detectAndCreateLinks(escapedText);
+}
     getNotes() {
         try {
             const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -564,10 +585,12 @@ createNoteElement(note) {
     const isLongNote = note.text.length > 200;
     const truncatedText = isLongNote ? note.text.substring(0, 200) + '...' : note.text;
     
-    // FIX: Use the existing safeTextWithLinks method properly
+    // Use textContent for data attributes to prevent HTML injection
     const fullTextSafe = this.safeTextWithLinks(note.text);
     const truncatedTextSafe = this.safeTextWithLinks(truncatedText);
     
+    // Create a safe data attribute value
+    const safeDataAttribute = note.text.replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
     div.innerHTML = `
         ${this.bulkMode ? `
             <div class="note-checkbox-container">
