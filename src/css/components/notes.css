@@ -1491,7 +1491,20 @@
 .btn-clear-filters:hover {
     background: var(--darker-blue);
     transform: scale(1.01);
-    box-shadow: 0 4px 12px var(--shadow-hover);}
+    box-shadow: 0 4px 12px var(--shadow-hover);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake-animation {
+    animation: shake 0.6s ease-in-out;
+    border-color: var(--danger-color) !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
 
 @media (max-width: 768px) {
   .filter-row {
@@ -1502,15 +1515,6 @@
   .filter-group {
     justify-content: center;
   }
-  
-  .note-stats {
-    justify-content: center;
-  }
-  
-  .stat-item {
-    min-width: 100px;
-  }
-  
   .view-grid {
     grid-template-columns: 1fr;
   }

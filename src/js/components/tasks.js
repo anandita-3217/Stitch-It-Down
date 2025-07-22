@@ -45,43 +45,63 @@ class TaskManager {
         this.setupKeyboardShortcuts();
     }
     setupSearchFunctionality() {
-        const searchInput = document.getElementById('task-search');
-        const clearSearchBtn = document.getElementById('clear-search');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchTerm = e.target.value.trim().toLowerCase();
-                this.applyFiltersAndSearch();
-                console.log('Search term changed:', this.searchTerm);
-            });
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
+    const searchInput = document.getElementById('task-search');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+            if (searchInput) {
+            let searchTimeout;
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    const inputValue = e.target.value;
+                    if (inputValue.trim() === '') {
+                        if (this.searchQuery !== '') {
+                            this.searchQuery = '';
+                        }
+                        return;
+                    }
+                    this.searchQuery = inputValue.toLowerCase();
+                    searchTimeout = setTimeout(() => {
+                        
+                    }, 300);
+                });
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
                     e.preventDefault();
-                    this.clearSearch();
+                    const inputValue = e.target.value;
+            if (inputValue.trim() === '') {
+                this.shakeInput(searchInput);
+                return;
+            }
+            clearTimeout(searchTimeout);
+            this.searchQuery = inputValue.toLowerCase();
                 }
             });
+            searchInput.addEventListener('blur', (e) => {
+        const inputValue = e.target.value;
+        if (inputValue !== '' && inputValue.trim() === '') {
+            this.shakeInput(searchInput);
+            searchInput.value = '';
+            this.searchQuery = '';
         }
-        if (clearSearchBtn) {
-            clearSearchBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Clear search button clicked');
+    });
+        }
+
+    if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
                 this.clearSearch();
             });
-            clearSearchBtn.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-            });
         }
-        filterButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const filterType = e.target.dataset.filter;
-                const filterValue = e.target.dataset.value;
-                console.log('Filter clicked:', filterType, filterValue);
-                this.toggleFilter(filterType, filterValue, e.target);
-            });
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const filterType = e.target.dataset.filter;
+            const filterValue = e.target.dataset.value;
+            console.log('Filter clicked:', filterType, filterValue);
+            this.toggleFilter(filterType, filterValue, e.target);
         });
-    }   
+    });
+}
     clearSearch() {
     console.log('Clearing search...');
     const searchInput = document.getElementById('task-search');
@@ -292,31 +312,25 @@ class TaskManager {
                 if (e.key === 'Enter') this.handleAddTask();
             });
         }
-
         if (tasksContainer) {
             tasksContainer.addEventListener('click', (e) => {
-                const target = e.target;
-                
+                const target = e.target;                
                 if (target.type === 'checkbox' && target.classList.contains('task-checkbox')) {
                     console.log('Checkbox clicked:', target);
                     const taskId = parseInt(target.getAttribute('data-task-id'));
-                    console.log('Toggling task ID:', taskId);
-                    
+                    console.log('Toggling task ID:', taskId);                    
                     if (taskId && !isNaN(taskId)) {
                         setTimeout(() => {
                             this.toggleTask(taskId);
                         }, 10);
                     }
                     return;
-                }
-                
+                }                
                 const button = target.closest('button');
                 if (button) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const taskId = parseInt(button.getAttribute('data-task-id'));
-                    
+                    e.stopPropagation();                    
+                    const taskId = parseInt(button.getAttribute('data-task-id'));                    
                     if (button.classList.contains('edit-task') || target.classList.contains('bi-pencil')) {
                         console.log('Edit button clicked for task:', taskId);
                         this.editTask(taskId);
@@ -326,20 +340,16 @@ class TaskManager {
                     }
                 }
             });
-
             tasksContainer.addEventListener('change', (e) => {
-                console.log('Change event detected:', e.target);
-                
+                console.log('Change event detected:', e.target);                
                 if (e.target.type === 'checkbox' && e.target.classList.contains('task-checkbox')) {
                     const taskId = parseInt(e.target.getAttribute('data-task-id'));
-                    console.log('Change event - toggling task ID:', taskId, 'Checked:', e.target.checked);
-                    
+                    console.log('Change event - toggling task ID:', taskId, 'Checked:', e.target.checked);                    
                     if (taskId && !isNaN(taskId)) {
                         this.toggleTask(taskId);
                     }
                 }
             });
-
             console.log('✓ Task container listeners attached');
         }
     }

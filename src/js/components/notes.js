@@ -98,27 +98,59 @@ class NotesManager {
             if (bulkActionsBtn) {
         bulkActionsBtn.addEventListener('click', () => this.toggleBulkMode());
     }
-
     // ADD BULK CONTROL LISTENERS
         this.setupBulkControlListeners();
         const searchInput = document.getElementById('note-search');
         const clearSearchBtn = document.getElementById('clearSearch');
         if (searchInput) {
             let searchTimeout;
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                this.searchQuery = e.target.value.toLowerCase();
-                searchTimeout = setTimeout(() => {
-                this.applyFilters();
-            }, 300); 
-                
-            });
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    const inputValue = e.target.value;
+                    if (inputValue.trim() === '') {
+                        if (this.searchQuery !== '') {
+                            this.searchQuery = '';
+                            this.applyFilters();
+                        }
+                        return;
+                    }
+
+                    this.searchQuery = inputValue.toLowerCase();
+                    searchTimeout = setTimeout(() => {
+                        this.applyFilters();
+                    }, 300);
+                });
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
+                    const inputValue = e.target.value;
+            
+            // Check if input is empty or only whitespace
+            if (inputValue.trim() === '') {
+                this.shakeInput(searchInput);
+                return;
+            }
+            
+            // Clear any existing timeout
+            clearTimeout(searchTimeout);
+            this.searchQuery = inputValue.toLowerCase();
+            this.applyFilters();
                     this.applyFilters();
                 }
             });
+            // Optional: Add blur event to shake on empty input when user leaves the field
+            searchInput.addEventListener('blur', (e) => {
+        const inputValue = e.target.value;
+        
+        // Only shake if user tried to search with empty/whitespace input
+        if (inputValue !== '' && inputValue.trim() === '') {
+            this.shakeInput(searchInput);
+            // Clear the whitespace
+            searchInput.value = '';
+            this.searchQuery = '';
+            this.applyFilters();
+        }
+    });
         }
         if (clearSearchBtn) {
             clearSearchBtn.addEventListener('click', () => {

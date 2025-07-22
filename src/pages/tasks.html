@@ -121,12 +121,14 @@
                     <input class="addTask" id="taskInput" placeholder="Add a quick task">
                     <button type="submit" class="AddTask" id="addTaskBtn">+</button>
                 </div>
-<div class="search-section">
-    <div class="search-container">
-        <input type="text" id="task-search" placeholder="Search tasks..." class="search-input">
-        <button id="clear-search" class="clear-search-btn" title="Clear search">×</button>
-    </div>
-    
+            <div class="filter-search-container">
+            <div class="search-section">
+                <div class="search-input-group">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="task-search" placeholder="Search tasks..." class="search-input">
+                    <button id="clear-search" class="clear-search-btn" title="Clear search">×</button>
+                </div>
+            </div>
     <div class="filters-container">
         <div class="filter-group">
             <label>Priority:</label>
@@ -153,6 +155,7 @@
     </div>
     
     <div id="search-results-count" class="search-results-count" style="display: none;"></div>
+    </div>
 </div>
 
                 
