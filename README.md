@@ -294,7 +294,22 @@ Would you like wireframes or implementation suggestions for any of these?
  -->
 # Stitch It Down 🌺
 *"Ohana means family, and family means nobody gets left behind or forgotten."*
-A Lilo & Stitch inspired desktop productivity application built with Electron Forge and Webpack. 
+A Lilo & Stitch inspired desktop productivity application built with Electron Forge and Webpack.
+
+Welcome to a different kind of productivity app - one that puts **you** first, not your data. Stitch is built on the simple belief that your personal notes, tasks, and thoughts should stay exactly where they belong: with you. No sign-ups, no cloud uploads, no tracking, no interruptions. Just open the app and start being productive.
+
+In a world where every app wants your email, location, and life story, Stitch It Down offers something rare: **digital respite**. Your data lives safely on your device, your privacy remains intact, and your focus stays unbroken. Whether you're jotting down quick thoughts, organizing your day, or tracking your goals, Stitch is designed to get out of your way and let you work in peace.
+
+Like Lilo and Stitch's ohana, this app becomes part of your family - reliable, trustworthy, and always there when you need it, without any strings attached. Because sometimes the best technology is the kind that simply works, respects your space, and helps you be your most productive self. 💙
+
+## Features That Respect You
+<!-- - 🎨 **Stitch-Themed Interface** - Delightful and functional -->
+- 🔒 **100% Local Storage** - Your data never leaves your device
+- 🚫 **No Account Required** - Start using immediately
+- 🌙 **Works Offline** - No internet needed after initial load
+- ⚡ **Lightning Fast** - No server delays or loading screens
+- 🔄 **Auto-Save Everything** - Never lose your work -- need to work on this [ ]
+- 🎯 **Distraction-Free** - No notifications, ads, or upsells
 
 ## Features
 

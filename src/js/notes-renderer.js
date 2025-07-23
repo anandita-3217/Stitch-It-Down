@@ -21,16 +21,12 @@ function initialize() {
     // debugFunctions();
     initTheme();
     console.log('Initializing NotesManager...');
-    window.noteManager = new NotesManager(); // Make globally accessible
+    window.noteManager = new NotesManager(); 
     noteManager = window.noteManager;
 
     requestNotificationPermission();
-    setupNoteFilters();
-    // setupSearchFunctionality();
-    setupNoteActions();
     setupKeyboardShortcuts();
     setupExportImport();
-    setupBulkActions();
     setupViewModeButtons();
     
     // Initialize view mode from localStorage
@@ -49,94 +45,6 @@ function requestNotificationPermission() {
         });
     }
 }
-
-function setupNoteFilters() {
-    console.log('Setting up note filters...');
-    
-    // Filter buttons - delegate to NotesManager if it has a handleFilterClick method
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const filterType = button.getAttribute('data-filter');
-            
-            // Check if NotesManager has its own filter handler
-            if (noteManager && typeof noteManager.handleFilterClick === 'function') {
-                noteManager.handleFilterClick(button, filterType);
-            } else {
-                // Fallback to our own filter handling
-                setActiveFilter(button, filterType);
-                applyFilter(filterType);
-            }
-        });
-    });
-
-    console.log('✓ Note filters setup complete');
-}
-
-// function setupSearchFunctionality() {
-//     console.log('Setting up search functionality...');
-    
-//     const searchInput = document.getElementById('note-search');
-//     const clearSearchBtn = document.getElementById('clearSearch');
-    
-//     if (searchInput) {
-//         // Real-time search
-//         searchInput.addEventListener('input', debounce(() => {
-//             const query = searchInput.value.trim();
-//             currentSearchQuery = query;
-//             performSearch(query);
-//         }, 300));
-        
-//         // Search on enter
-//         searchInput.addEventListener('keypress', (e) => {
-//             if (e.key === 'Enter') {
-//                 e.preventDefault();
-//                 const query = searchInput.value.trim();
-//                 currentSearchQuery = query;
-//                 performSearch(query);
-//             }
-//         });
-//     }
-    
-//     if (clearSearchBtn) {
-//         clearSearchBtn.addEventListener('click', () => {
-//             searchInput.value = '';
-//             currentSearchQuery = '';
-//             performSearch('');
-//         });
-//     }
-    
-//     console.log('✓ Search functionality setup complete');
-// }
-
-function setupNoteActions() {
-    console.log('Setting up note actions...');
-    
-    // Bulk selection
-    const selectAllBtn = document.getElementById('selectAll');
-    const deleteSelectedBtn = document.getElementById('deleteSelected');
-    const archiveSelectedBtn = document.getElementById('archiveSelected');
-    const clearSelectionBtn = document.getElementById('clearSelection');
-    
-    if (selectAllBtn) {
-        selectAllBtn.addEventListener('click', toggleSelectAll);
-    }
-    
-    if (deleteSelectedBtn) {
-        deleteSelectedBtn.addEventListener('click', deleteSelectedNotes);
-    }
-    
-    if (archiveSelectedBtn) {
-        archiveSelectedBtn.addEventListener('click', archiveSelectedNotes);
-    }
-    
-    if (clearSelectionBtn) {
-        clearSelectionBtn.addEventListener('click', clearSelection);
-    }
-    
-    console.log('✓ Note actions setup complete');
-}
-
 function setupKeyboardShortcuts() {
     console.log('Setting up keyboard shortcuts...');
     
@@ -174,7 +82,7 @@ function setupKeyboardShortcuts() {
             if (searchInput && searchInput.value) {
                 searchInput.value = '';
                 currentSearchQuery = '';
-                performSearch('');
+                // performSearch('');
             }
         }
     });
@@ -230,19 +138,6 @@ function setupExportImport() {
     console.log('✓ Export/import setup complete');
 }
 
-function setupBulkActions() {
-    console.log('Setting up bulk actions...');
-    
-    // Listen for checkbox changes to update bulk toolbar
-    document.addEventListener('change', (e) => {
-        if (e.target.classList.contains('note-checkbox')) {
-            updateBulkToolbar();
-        }
-    });
-    
-    console.log('✓ Bulk actions setup complete');
-}
-
 function setupViewModeButtons() {
     console.log('Setting up view mode buttons...');
     
@@ -255,73 +150,6 @@ function setupViewModeButtons() {
     });
     
     console.log('✓ View mode buttons setup complete');
-}
-
-// Filter and search functions
-function setActiveFilter(button, filterType) {
-    // Remove active class from all filter buttons
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(btn => btn.classList.remove('active'));
-    
-    // Add active class to clicked button
-    button.classList.add('active');
-    currentFilter = filterType;
-}
-
-function applyFilter(filterType, filterValue = null) {
-    if (!noteManager) return;
-    
-    let filterFunction = null;
-    
-    switch (filterType) {
-        case 'all':
-            filterFunction = null; // Show all notes
-            break;
-        case 'pinned':
-            filterFunction = (note) => note.pinned && !note.archived;
-            break;
-        case 'archived':
-            filterFunction = (note) => note.archived;
-            break;
-        case 'recent':
-            const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-            filterFunction = (note) => new Date(note.timestamp) > twoDaysAgo && !note.archived;
-            break;
-        default:
-            filterFunction = null;
-    }
-    
-    // Apply search if there's a current search query
-    if (currentSearchQuery) {
-        const searchResults = noteManager.searchNotes(currentSearchQuery);
-        if (filterFunction) {
-            const filteredResults = searchResults.filter(filterFunction);
-            noteManager.displayNotes((note) => filteredResults.includes(note));
-        } else {
-            noteManager.displayNotes((note) => searchResults.includes(note));
-        }
-    } else {
-        noteManager.displayNotes(filterFunction);
-    }
-}
-
-function performSearch(query) {
-    if (!noteManager) return;
-    
-    if (!query) {
-        // No search query, apply current filter
-        applyFilter(currentFilter);
-        return;
-    }
-    
-    const searchResults = noteManager.searchNotes(query);
-    noteManager.displayNotes((note) => searchResults.includes(note));
-    
-    // Update search UI
-    const clearSearchBtn = document.getElementById('clearSearch');
-    if (clearSearchBtn) {
-        clearSearchBtn.style.display = query ? 'block' : 'none';
-    }
 }
 
 function setViewMode(mode) {
@@ -339,68 +167,6 @@ function setViewMode(mode) {
     
     // Save preference
     localStorage.setItem('noteViewMode', mode);
-}
-function toggleSelectAll() {
-    const checkboxes = document.querySelectorAll('.note-checkbox');
-    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-    
-    checkboxes.forEach(cb => {
-        cb.checked = !allChecked;
-    });
-    
-    updateBulkToolbar();
-}
-
-function deleteSelectedNotes() {
-    const selectedIds = getSelectedNoteIds();
-    if (selectedIds.length === 0) return;
-    
-    if (confirm(`Are you sure you want to delete ${selectedIds.length} note(s)?`)) {
-        selectedIds.forEach(id => {
-            noteManager.deleteNote(parseInt(id));
-        });
-        showNotification(`${selectedIds.length} note(s) deleted`, 'success');
-        updateBulkToolbar();
-    }
-}
-
-function archiveSelectedNotes() {
-    const selectedIds = getSelectedNoteIds();
-    if (selectedIds.length === 0) return;
-    
-    selectedIds.forEach(id => {
-        noteManager.toggleArchiveNote(parseInt(id));
-    });
-    
-    showNotification(`${selectedIds.length} note(s) archived`, 'success');
-    updateBulkToolbar();
-}
-
-function clearSelection() {
-    const checkboxes = document.querySelectorAll('.note-checkbox');
-    checkboxes.forEach(cb => {
-        cb.checked = false;
-    });
-    updateBulkToolbar();
-}
-
-function getSelectedNoteIds() {
-    const checkboxes = document.querySelectorAll('.note-checkbox:checked');
-    return Array.from(checkboxes).map(cb => cb.value);
-}
-
-function updateBulkToolbar() {
-    const selectedCount = getSelectedNoteIds().length;
-    const bulkToolbar = document.getElementById('bulkToolbar');
-    const selectionCount = document.querySelector('.selection-count');
-    
-    if (bulkToolbar) {
-        bulkToolbar.classList.toggle('hidden', selectedCount === 0);
-    }
-    
-    if (selectionCount) {
-        selectionCount.textContent = `${selectedCount} selected`;
-    }
 }
 
 // Utility functions
@@ -480,10 +246,7 @@ document.addEventListener('noteUpdate', (event) => {
     }
 });
 
-// Make functions available globally for debugging
 window.noteRenderer = {
-    applyFilter,
-    performSearch,
     setViewMode,
     showNotification
 };
