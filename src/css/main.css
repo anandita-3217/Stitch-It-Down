@@ -553,6 +553,45 @@ body {
     opacity: 0.3;
     font-family: serif;
 }
+
+#errorBoundary {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--darker-blue);
+    color: var(--white);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px var(--shadow);
+    border: 2px solid var(--border-color);
+    z-index: 9999;
+}
+
+#errorBoundary h2 {
+    margin-top: 0;
+    color: var(--white);
+}
+
+#errorBoundary button {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+#errorBoundary button:hover {
+    background: var(--primary-purple);
+    color: var(--white);
+}
+
+
 /* Responsive design for smaller screens */
 @media (max-width: 480px) {
     .modal-content {
