@@ -426,82 +426,99 @@ class ErrorHandler {
     }
 
     // Create Stitch-themed error boundary
-    ensureErrorBoundary() {
-        let errorBoundary = document.getElementById(this.errorBoundaryId);
+    // ensureErrorBoundary() {
+    //     let errorBoundary = document.getElementById(this.errorBoundaryId);
         
-        if (!errorBoundary) {
-            errorBoundary = document.createElement('div');
-            errorBoundary.id = this.errorBoundaryId;
-            errorBoundary.style.display = 'none';
-            errorBoundary.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.9);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 9999;
-                    color: white;
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                ">
-                    <div style="
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        padding: 2.5rem;
-                        border-radius: 15px;
-                        text-align: center;
-                        max-width: 450px;
-                        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-                        border: 2px solid rgba(255,255,255,0.1);
-                    ">
-                        <h2 style="margin-top: 0; color: #ff6b6b; font-size: 1.5rem;">Ohana Error Detected! 🏝️</h2>
-                        <p style="margin: 1rem 0; color: #e8e8e8; line-height: 1.5;">
-                            Something went wrong in our Stitch app! Don't worry, we'll get back to the fun stuff soon.
-                        </p>
-                        <div style="margin: 1.5rem 0;">
-                            <button onclick="location.reload()" style="
-                                background: linear-gradient(45deg, #4CAF50, #45a049);
-                                color: white;
-                                border: none;
-                                padding: 0.75rem 1.5rem;
-                                border-radius: 25px;
-                                cursor: pointer;
-                                font-size: 1rem;
-                                font-weight: bold;
-                                margin: 0 0.5rem;
-                                transition: transform 0.2s ease;
-                            " onmouseover="this.style.transform='scale(1.05)'" 
-                               onmouseout="this.style.transform='scale(1)'">
-                                🔄 Reload Page
-                            </button>
-                            <button onclick="document.getElementById('${this.errorBoundaryId}').style.display='none'" style="
-                                background: linear-gradient(45deg, #f44336, #da190b);
-                                color: white;
-                                border: none;
-                                padding: 0.75rem 1.5rem;
-                                border-radius: 25px;
-                                cursor: pointer;
-                                font-size: 1rem;
-                                font-weight: bold;
-                                margin: 0 0.5rem;
-                                transition: transform 0.2s ease;
-                            " onmouseover="this.style.transform='scale(1.05)'" 
-                               onmouseout="this.style.transform='scale(1)'">
-                                ❌ Close
-                            </button>
-                        </div>
-                        <p style="font-size: 0.8rem; color: #bbb; margin-top: 1rem;">
-                            Check the console for technical details
-                        </p>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(errorBoundary);
-        }
+    //     if (!errorBoundary) {
+    //         errorBoundary = document.createElement('div');
+    //         errorBoundary.id = this.errorBoundaryId;
+    //         errorBoundary.style.display = 'none';
+    //         errorBoundary.innerHTML = `
+    //             <div style="
+    //                 position: fixed;
+    //                 top: 0;
+    //                 left: 0;
+    //                 width: 100%;
+    //                 height: 100%;
+    //                 background: rgba(0,0,0,0.9);
+    //                 display: flex;
+    //                 align-items: center;
+    //                 justify-content: center;
+    //                 z-index: 9999;
+    //                 color: white;
+    //                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    //             ">
+    //                 <div style="
+    //                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    //                     padding: 2.5rem;
+    //                     border-radius: 15px;
+    //                     text-align: center;
+    //                     max-width: 450px;
+    //                     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    //                     border: 2px solid rgba(255,255,255,0.1);
+    //                 ">
+    //                     <h2 style="margin-top: 0; color: #ff6b6b; font-size: 1.5rem;">Ohana Error Detected! 🏝️</h2>
+    //                     <p style="margin: 1rem 0; color: #e8e8e8; line-height: 1.5;">
+    //                         Something went wrong in our Stitch app! Don't worry, we'll get back to the fun stuff soon.
+    //                     </p>
+    //                     <div style="margin: 1.5rem 0;">
+    //                         <button onclick="location.reload()" style="
+    //                             background: linear-gradient(45deg, #4CAF50, #45a049);
+    //                             color: white;
+    //                             border: none;
+    //                             padding: 0.75rem 1.5rem;
+    //                             border-radius: 25px;
+    //                             cursor: pointer;
+    //                             font-size: 1rem;
+    //                             font-weight: bold;
+    //                             margin: 0 0.5rem;
+    //                             transition: transform 0.2s ease;
+    //                         " onmouseover="this.style.transform='scale(1.05)'" 
+    //                            onmouseout="this.style.transform='scale(1)'">
+    //                             🔄 Reload Page
+    //                         </button>
+    //                         <button onclick="document.getElementById('${this.errorBoundaryId}').style.display='none'" style="
+    //                             background: linear-gradient(45deg, #f44336, #da190b);
+    //                             color: white;
+    //                             border: none;
+    //                             padding: 0.75rem 1.5rem;
+    //                             border-radius: 25px;
+    //                             cursor: pointer;
+    //                             font-size: 1rem;
+    //                             font-weight: bold;
+    //                             margin: 0 0.5rem;
+    //                             transition: transform 0.2s ease;
+    //                         " onmouseover="this.style.transform='scale(1.05)'" 
+    //                            onmouseout="this.style.transform='scale(1)'">
+    //                             ❌ Close
+    //                         </button>
+    //                     </div>
+    //                     <p style="font-size: 0.8rem; color: #bbb; margin-top: 1rem;">
+    //                         Check the console for technical details
+    //                     </p>
+    //                 </div>
+    //             </div>
+    //         `;
+    //         document.body.appendChild(errorBoundary);
+    //     }
+    // }
+    // Create simple error boundary that uses external CSS
+ensureErrorBoundary() {
+    let errorBoundary = document.getElementById(this.errorBoundaryId);
+    
+    if (!errorBoundary) {
+        errorBoundary = document.createElement('div');
+        errorBoundary.id = this.errorBoundaryId;
+        errorBoundary.style.display = 'none';
+        errorBoundary.innerHTML = `
+            <h2>Something went wrong</h2>
+            <p>The app encountered an error. Check the console for details.</p>
+            <button onclick="location.reload()"><i class="bi bi-arrow-repeat"></i> Reload Page</button>
+            <button onclick="document.getElementById('${this.errorBoundaryId}').style.display='none'">× Close</button>
+        `;
+        document.body.appendChild(errorBoundary);
     }
+}
 
     // Set up global error event listeners
     setupGlobalErrorHandlers() {

@@ -44,64 +44,64 @@ class TaskManager {
         });
         this.setupKeyboardShortcuts();
     }
-    setupSearchFunctionality() {
-    const searchInput = document.getElementById('task-search');
-    const clearSearchBtn = document.getElementById('clear-search');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-            if (searchInput) {
-            let searchTimeout;
-                searchInput.addEventListener('input', (e) => {
-                    clearTimeout(searchTimeout);
-                    const inputValue = e.target.value;
-                    if (inputValue.trim() === '') {
-                        if (this.searchQuery !== '') {
-                            this.searchQuery = '';
-                        }
-                        return;
-                    }
-                    this.searchQuery = inputValue.toLowerCase();
-                    searchTimeout = setTimeout(() => {
+//     setupSearchFunctionality() {
+//     const searchInput = document.getElementById('task-search');
+//     const clearSearchBtn = document.getElementById('clear-search');
+//     const filterButtons = document.querySelectorAll('.filter-btn');
+//             if (searchInput) {
+//             let searchTimeout;
+//                 searchInput.addEventListener('input', (e) => {
+//                     clearTimeout(searchTimeout);
+//                     const inputValue = e.target.value;
+//                     if (inputValue.trim() === '') {
+//                         if (this.searchQuery !== '') {
+//                             this.searchQuery = '';
+//                         }
+//                         return;
+//                     }
+//                     this.searchQuery = inputValue.toLowerCase();
+//                     searchTimeout = setTimeout(() => {
                         
-                    }, 300);
-                });
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const inputValue = e.target.value;
-            if (inputValue.trim() === '') {
-                this.shakeInput(searchInput);
-                return;
-            }
-            clearTimeout(searchTimeout);
-            this.searchQuery = inputValue.toLowerCase();
-                }
-            });
-            searchInput.addEventListener('blur', (e) => {
-        const inputValue = e.target.value;
-        if (inputValue !== '' && inputValue.trim() === '') {
-            this.shakeInput(searchInput);
-            searchInput.value = '';
-            this.searchQuery = '';
-        }
-    });
-        }
+//                     }, 300);
+//                 });
+//             searchInput.addEventListener('keypress', (e) => {
+//                 if (e.key === 'Enter') {
+//                     e.preventDefault();
+//                     const inputValue = e.target.value;
+//             if (inputValue.trim() === '') {
+//                 this.shakeInput(searchInput);
+//                 return;
+//             }
+//             clearTimeout(searchTimeout);
+//             this.searchQuery = inputValue.toLowerCase();
+//                 }
+//             });
+//             searchInput.addEventListener('blur', (e) => {
+//         const inputValue = e.target.value;
+//         if (inputValue !== '' && inputValue.trim() === '') {
+//             this.shakeInput(searchInput);
+//             searchInput.value = '';
+//             this.searchQuery = '';
+//         }
+//     });
+//         }
 
-    if (clearSearchBtn) {
-            clearSearchBtn.addEventListener('click', () => {
-                this.clearSearch();
-            });
-        }
+//     if (clearSearchBtn) {
+//             clearSearchBtn.addEventListener('click', () => {
+//                 this.clearSearch();
+//             });
+//         }
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const filterType = e.target.dataset.filter;
-            const filterValue = e.target.dataset.value;
-            console.log('Filter clicked:', filterType, filterValue);
-            this.toggleFilter(filterType, filterValue, e.target);
-        });
-    });
-}
+//     filterButtons.forEach(button => {
+//         button.addEventListener('click', (e) => {
+//             e.preventDefault();
+//             const filterType = e.target.dataset.filter;
+//             const filterValue = e.target.dataset.value;
+//             console.log('Filter clicked:', filterType, filterValue);
+//             this.toggleFilter(filterType, filterValue, e.target);
+//         });
+//     });
+// }
     clearSearch() {
     console.log('Clearing search...');
     const searchInput = document.getElementById('task-search');

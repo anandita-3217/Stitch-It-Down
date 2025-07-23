@@ -414,7 +414,7 @@
 
 
 
-#errorBoundary {
+/* #errorBoundary {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -449,7 +449,7 @@
 #errorBoundary button:hover {
     background: var(--primary-purple);
     color: var(--white);
-}
+} */
 
 .shortcuts-info {
     position: fixed;

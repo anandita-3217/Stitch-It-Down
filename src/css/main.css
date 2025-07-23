@@ -559,6 +559,79 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background: linear-gradient(var(--card-bg),#dc2626); /* Dark red-brown background */
+    color: #ffffff;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+    border: 2px solid #dc2626; /* Red border */
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 450px;
+}
+
+#errorBoundary h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #fca5a5; /* Light red for heading */
+    font-size: 1.5rem;
+}
+
+#errorBoundary p {
+    margin-bottom: 1.5rem;
+    color: #f3f4f6; /* Light gray text */
+    line-height: 1.5;
+}
+
+#errorBoundary button {
+    background: #7f1d1d; /* Dark red background */
+    border: 2px solid #dc2626; /* Red border */
+    color: #ffffff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 0.5rem 0.5rem 0;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+#errorBoundary button:hover {
+    background: #dc2626; /* Brighter red on hover */
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+#errorBoundary button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+/* For dark theme compatibility */
+/* [data-theme="dark"] #errorBoundary {
+    background: #1f1917;
+    border-color: #ef4444;
+
+[data-theme="dark"] #errorBoundary h2 {
+    color: #fecaca; 
+}
+
+[data-theme="dark"] #errorBoundary button {
+    background: #991b1b;
+    border-color: #ef4444;
+}
+
+[data-theme="dark"] #errorBoundary button:hover {
+    background: #ef4444;
+} */
+
+/* #errorBoundary {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: var(--darker-blue);
     color: var(--white);
     padding: 2rem;
@@ -589,7 +662,7 @@ body {
 #errorBoundary button:hover {
     background: var(--primary-purple);
     color: var(--white);
-}
+} */
 
 
 /* Responsive design for smaller screens */
