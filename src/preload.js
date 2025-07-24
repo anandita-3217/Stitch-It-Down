@@ -33,5 +33,43 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onWindowBlur: (callback) => ipcRenderer.on('window-blur', callback),
   
   // Remove listeners
-  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)
+  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
+  //   // Settings operations
+  // saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+  // loadSettings: () => ipcRenderer.invoke('load-settings'),
+  // resetSettings: () => ipcRenderer.invoke('reset-settings'),
+  
+  // // Audio settings
+  // setTimerVolume: (volume) => ipcRenderer.invoke('set-timer-volume', volume),
+  // setTimerSound: (soundPath) => ipcRenderer.invoke('set-timer-sound', soundPath),
+  // playTestSound: (soundPath) => ipcRenderer.invoke('play-test-sound', soundPath),
+  // getAvailableSounds: () => ipcRenderer.invoke('get-available-sounds'),
+  // selectCustomSound: () => ipcRenderer.invoke('select-custom-sound'),
+  
+  // // Window management
+  // closeWindow: () => ipcRenderer.invoke('close-window'),
+  // minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
+  
+  // // File operations
+  // selectFolder: () => ipcRenderer.invoke('select-folder'),
+  // exportData: () => ipcRenderer.invoke('export-data'),
+  // importData: () => ipcRenderer.invoke('import-data'),
+  
+  // // Cross-feature communication
+  // updateTimerSettings: (settings) => ipcRenderer.invoke('update-timer-settings', settings),
+  // updateTaskSettings: (settings) => ipcRenderer.invoke('update-task-settings', settings),
+  // updateNotesSettings: (settings) => ipcRenderer.invoke('update-notes-settings', settings),
+  // updateCalendarSettings: (settings) => ipcRenderer.invoke('update-calendar-settings', settings),
+  
+  // // Listen for settings updates from other windows
+  // onSettingsUpdated: (callback) => {
+  //   ipcRenderer.on('settings-updated', callback);
+  //   return () => ipcRenderer.removeListener('settings-updated', callback);
+  // },
+  
+  // // Listen for timer events
+  // onTimerEvent: (callback) => {
+  //   ipcRenderer.on('timer-event', callback);
+  //   return () => ipcRenderer.removeListener('timer-event', callback);
+  // },
 });

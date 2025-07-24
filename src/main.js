@@ -404,6 +404,363 @@ class WindowManager {
     }
 }
 
+const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron');
+const path = require('path');
+const fs = require('fs').promises;
+
+// Settings store
+// class SettingsStore {
+//   constructor() {
+//     this.settingsPath = path.join(app.getPath('userData'), 'settings.json');
+//     this.defaultSettings = {
+//       general: {
+//         launchOnStartup: false,
+//         defaultWindow: 'Dashboard',
+//         alwaysOnTop: false,
+//         minimizeToTray: true,
+//         autoSaveInterval: '1 minute'
+//       },
+//       timer: {
+//         workDuration: 25,
+//         shortBreak: 5,
+//         longBreak: 15,
+//         soundEnabled: true,
+//         volume: 0.8,
+//         soundType: 'bell',
+//         customSoundPath: null,
+//         doNotDisturb: false
+//       },
+//       tasks: {
+//         defaultPriority: 'medium',
+//         defaultSort: 'due-date',
+//         reminderDays: 3,
+//         dailyGoal: 5,
+//         timeEstimation: true,
+//         completionTracking: true
+//       },
+//       notes: {
+//         defaultFont: 'Inter',
+//         fontSize: 14,
+//         markdownEnabled: true,
+//         spellCheck: true,
+//         autoSave: true
+//       },
+//       calendar: {
+//         defaultView: 'month',
+//         weekStartsOn: 'monday',
+//         timeFormat: '12-hour',
+//         defaultEventDuration: '1 hour',
+//         defaultReminder: '15 minutes'
+//       },
+//       integration: {
+//         linkTasksToCalendar: true,
+//         timerIntegration: true,
+//         noteLinking: false
+//       },
+//       accessibility: {
+//         highContrast: false,
+//         fontScaling: 'medium',
+//         keyboardShortcuts: true
+//       },
+//       advanced: {
+//         hardwareAcceleration: true,
+//         memoryManagement: true,
+//         dataEncryption: false,
+//         analytics: true,
+//         crashReporting: true
+//       }
+//     };
+//     this.currentSettings = { ...this.defaultSettings };
+//     this.loadSettings();
+//   }
+
+//   async loadSettings() {
+//     try {
+//       const data = await fs.readFile(this.settingsPath, 'utf-8');
+//       this.currentSettings = { ...this.defaultSettings, ...JSON.parse(data) };
+//     } catch (error) {
+//       console.log('Using default settings');
+//       await this.saveSettings();
+//     }
+//   }
+
+//   async saveSettings(newSettings = null) {
+//     if (newSettings) {
+//       this.currentSettings = { ...this.currentSettings, ...newSettings };
+//     }
+    
+//     try {
+//       await fs.writeFile(this.settingsPath, JSON.stringify(this.currentSettings, null, 2));
+//       this.broadcastSettingsUpdate();
+//       return true;
+//     } catch (error) {
+//       console.error('Failed to save settings:', error);
+//       return false;
+//     }
+//   }
+
+//   getSettings() {
+//     return this.currentSettings;
+//   }
+
+//   resetSettings() {
+//     this.currentSettings = { ...this.defaultSettings };
+//     return this.saveSettings();
+//   }
+
+//   broadcastSettingsUpdate() {
+//     BrowserWindow.getAllWindows().forEach(window => {
+//       window.webContents.send('settings-updated', this.currentSettings);
+//     });
+//   }
+// }
+
+// // Audio manager for timer sounds
+// class AudioManager {
+//   constructor() {
+//     this.soundsPath = path.join(__dirname, 'assets', 'sounds');
+//     this.builtInSounds = {
+//       'bell': 'bell.wav',
+//       'chime': 'chime.wav',
+//       'tweet': 'tweet.wav',
+//       'gong': 'gong.wav'
+//     };
+//     this.currentVolume = 0.8;
+//     this.currentSound = 'bell';
+//   }
+
+//   async getAvailableSounds() {
+//     const sounds = [];
+    
+//     // Add built-in sounds
+//     for (const [name, file] of Object.entries(this.builtInSounds)) {
+//       sounds.push({
+//         name: name.charAt(0).toUpperCase() + name.slice(1),
+//         type: 'builtin',
+//         path: path.join(this.soundsPath, file),
+//         id: name
+//       });
+//     }
+    
+//     return sounds;
+//   }
+
+//   async selectCustomSound() {
+//     const result = await dialog.showOpenDialog({
+//       title: 'Select Custom Timer Sound',
+//       filters: [
+//         { name: 'Audio Files', extensions: ['wav', 'mp3', 'ogg', 'aac'] }
+//       ],
+//       properties: ['openFile']
+//     });
+
+//     if (!result.canceled && result.filePaths.length > 0) {
+//       return {
+//         name: path.basename(result.filePaths[0]),
+//         type: 'custom',
+//         path: result.filePaths[0],
+//         id: 'custom'
+//       };
+//     }
+    
+//     return null;
+//   }
+
+//   setVolume(volume) {
+//     this.currentVolume = Math.max(0, Math.min(1, volume));
+//   }
+
+//   setSound(soundId, customPath = null) {
+//     this.currentSound = soundId;
+//     if (soundId === 'custom' && customPath) {
+//       this.customSoundPath = customPath;
+//     }
+//   }
+
+//   async playTestSound(soundPath) {
+//     // In a real implementation, you'd use a library like node-wav or similar
+//     // For now, we'll just return success
+//     return true;
+//   }
+// }
+
+// // Initialize managers
+// const settingsStore = new SettingsStore();
+// const audioManager = new AudioManager();
+
+// // IPC Handlers
+// ipcMain.handle('save-settings', async (event, settings) => {
+//   return await settingsStore.saveSettings(settings);
+// });
+
+// ipcMain.handle('load-settings', async () => {
+//   return settingsStore.getSettings();
+// });
+
+// ipcMain.handle('reset-settings', async () => {
+//   return await settingsStore.resetSettings();
+// });
+
+// // Audio-related handlers
+// ipcMain.handle('set-timer-volume', async (event, volume) => {
+//   audioManager.setVolume(volume);
+//   const settings = settingsStore.getSettings();
+//   settings.timer.volume = volume;
+//   return await settingsStore.saveSettings(settings);
+// });
+
+// ipcMain.handle('set-timer-sound', async (event, soundData) => {
+//   audioManager.setSound(soundData.id, soundData.path);
+//   const settings = settingsStore.getSettings();
+//   settings.timer.soundType = soundData.id;
+//   if (soundData.path) {
+//     settings.timer.customSoundPath = soundData.path;
+//   }
+//   return await settingsStore.saveSettings(settings);
+// });
+
+// ipcMain.handle('play-test-sound', async (event, soundPath) => {
+//   return await audioManager.playTestSound(soundPath);
+// });
+
+// ipcMain.handle('get-available-sounds', async () => {
+//   return await audioManager.getAvailableSounds();
+// });
+
+// ipcMain.handle('select-custom-sound', async () => {
+//   return await audioManager.selectCustomSound();
+// });
+
+// // File operations
+// ipcMain.handle('select-folder', async () => {
+//   const result = await dialog.showOpenDialog({
+//     properties: ['openDirectory']
+//   });
+  
+//   if (!result.canceled && result.filePaths.length > 0) {
+//     return result.filePaths[0];
+//   }
+//   return null;
+// });
+
+// ipcMain.handle('export-data', async () => {
+//   const result = await dialog.showSaveDialog({
+//     title: 'Export Data',
+//     defaultPath: 'stitch-it-down-backup.json',
+//     filters: [
+//       { name: 'JSON Files', extensions: ['json'] }
+//     ]
+//   });
+
+//   if (!result.canceled) {
+//     try {
+//       const settings = settingsStore.getSettings();
+//       // In a real app, you'd also export tasks, notes, etc.
+//       const exportData = {
+//         settings,
+//         exportDate: new Date().toISOString(),
+//         version: '1.2.3'
+//       };
+      
+//       await fs.writeFile(result.filePath, JSON.stringify(exportData, null, 2));
+//       return { success: true, path: result.filePath };
+//     } catch (error) {
+//       return { success: false, error: error.message };
+//     }
+//   }
+  
+//   return { success: false, cancelled: true };
+// });
+
+// ipcMain.handle('import-data', async () => {
+//   const result = await dialog.showOpenDialog({
+//     title: 'Import Data',
+//     filters: [
+//       { name: 'JSON Files', extensions: ['json'] }
+//     ],
+//     properties: ['openFile']
+//   });
+
+//   if (!result.canceled && result.filePaths.length > 0) {
+//     try {
+//       const data = await fs.readFile(result.filePaths[0], 'utf-8');
+//       const importData = JSON.parse(data);
+      
+//       if (importData.settings) {
+//         await settingsStore.saveSettings(importData.settings);
+//         return { success: true };
+//       }
+      
+//       return { success: false, error: 'Invalid backup file' };
+//     } catch (error) {
+//       return { success: false, error: error.message };
+//     }
+//   }
+  
+//   return { success: false, cancelled: true };
+// });
+
+// // Cross-feature communication handlers
+// ipcMain.handle('update-timer-settings', async (event, settings) => {
+//   const currentSettings = settingsStore.getSettings();
+//   currentSettings.timer = { ...currentSettings.timer, ...settings };
+  
+//   // Broadcast to timer window specifically
+//   BrowserWindow.getAllWindows().forEach(window => {
+//     if (window.webContents.getURL().includes('timer.html')) {
+//       window.webContents.send('timer-settings-updated', currentSettings.timer);
+//     }
+//   });
+  
+//   return await settingsStore.saveSettings(currentSettings);
+// });
+
+// ipcMain.handle('update-task-settings', async (event, settings) => {
+//   const currentSettings = settingsStore.getSettings();
+//   currentSettings.tasks = { ...currentSettings.tasks, ...settings };
+//   return await settingsStore.saveSettings(currentSettings);
+// });
+
+// ipcMain.handle('update-notes-settings', async (event, settings) => {
+//   const currentSettings = settingsStore.getSettings();
+//   currentSettings.notes = { ...currentSettings.notes, ...settings };
+//   return await settingsStore.saveSettings(currentSettings);
+// });
+
+// ipcMain.handle('update-calendar-settings', async (event, settings) => {
+//   const currentSettings = settingsStore.getSettings();
+//   currentSettings.calendar = { ...currentSettings.calendar, ...settings };
+//   return await settingsStore.saveSettings(currentSettings);
+// });
+
+// // Window management
+// ipcMain.handle('close-window', async (event) => {
+//   const window = BrowserWindow.fromWebContents(event.sender);
+//   if (window) {
+//     window.close();
+//   }
+// });
+
+// ipcMain.handle('minimize-window', async (event) => {
+//   const window = BrowserWindow.fromWebContents(event.sender);
+//   if (window) {
+//     window.minimize();
+//   }
+// });
+
+// // Notifications
+// ipcMain.handle('show-notification', async (event, options) => {
+//   if (Notification.isSupported()) {
+//     const notification = new Notification(options);
+//     notification.show();
+//     return true;
+//   }
+//   return false;
+// });
+
+// // Export for use in main process
+// module.exports = { settingsStore, audioManager };
+
 // Initialize window manager
 const windowManager = new WindowManager();
 
