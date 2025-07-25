@@ -404,9 +404,9 @@ class WindowManager {
     }
 }
 
-const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron');
-const path = require('path');
-const fs = require('fs').promises;
+// const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron');
+// const path = require('path');
+// const fs = require('fs').promises;
 
 // Settings store
 // class SettingsStore {

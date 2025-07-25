@@ -141,7 +141,6 @@ class ProductivityCalendar {
             errors.push('Event date is required');
         } else {
             const eventDate = new Date(eventData.date);
-            // const now = new Date();
             if (!this.selectedEvent) {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -742,7 +741,6 @@ class ProductivityCalendar {
                 const element = document.getElementById(id);
                 if (element) {
                     element.checked = false;
-                    // element.dispatchEvent(new Event('change'));
                 }
             });
             const deleteBtn = document.getElementById('deleteEvent');
@@ -800,10 +798,10 @@ class ProductivityCalendar {
         const day = d.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
-    selectEvent(event) {
-        this.selectedEvent = event;
-        this.showEventModal(event.date, event);
-    }
+    // selectEvent(event) {
+    //     this.selectedEvent = event;
+    //     this.showEventModal(event.date, event);
+    // }
     saveEvent() {
         const eventData = {
             title: document.getElementById('eventTitle')?.value?.trim() || '',
@@ -1284,15 +1282,15 @@ class ProductivityCalendar {
         this.navigateToDate(eventDate);
         this.showSearchResultsCount(filteredEvents.length);
         }
-    resetSearch() {
-        const searchInput = document.getElementById('eventSearch');
-        if (searchInput) {
-            searchInput.value = '';
-        }
-        this.searchQuery = '';
-        this.isSearchActive = false;
-        this.hideSearchResultsCount();
-    }
+    // resetSearch() {
+    //     const searchInput = document.getElementById('eventSearch');
+    //     if (searchInput) {
+    //         searchInput.value = '';
+    //     }
+    //     this.searchQuery = '';
+    //     this.isSearchActive = false;
+    //     this.hideSearchResultsCount();
+    // }
         filterByCategory(category) {
             document.querySelectorAll('.category-filter').forEach(btn => {
                 btn.classList.remove('active');});
