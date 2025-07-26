@@ -485,6 +485,7 @@ import {
 } from '@components/utils.js';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
+
 class SettingsManager {
     constructor() {
         this.currentSettings = {};
@@ -494,6 +495,9 @@ class SettingsManager {
 
     async init() {
         try {
+            // Initialize theme and UI components first
+            await this.initializeUIComponents();
+            
             // Load current settings
             this.currentSettings = await window.electronAPI.loadSettings();
             this.originalSettings = JSON.parse(JSON.stringify(this.currentSettings));
@@ -507,6 +511,33 @@ class SettingsManager {
         } catch (error) {
             console.error('Failed to initialize settings:', error);
             this.showError('Failed to load settings');
+        }
+    }
+
+    async initializeUIComponents() {
+        try {
+            // Initialize theme system
+            initTheme();
+            
+            // Load all images for the UI
+            await loadAllImages();
+            
+            // Set daily quote if there's a quote container
+            setDailyQuote();
+            
+            // Start clock and date updates if elements exist
+            if (document.getElementById('current-time')) {
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+            
+            if (document.getElementById('current-date')) {
+                updateDate();
+                setInterval(updateDate, 60000); // Update every minute
+            }
+            
+        } catch (error) {
+            console.error('Failed to initialize UI components:', error);
         }
     }
 
@@ -558,6 +589,14 @@ class SettingsManager {
         if (volumeSlider) {
             volumeSlider.addEventListener('input', (e) => {
                 this.updateVolume(e.target.value);
+            });
+        }
+
+        // Theme toggle button (if exists)
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                toggleTheme();
             });
         }
 
@@ -912,6 +951,11 @@ class SettingsManager {
                 this.showMessage('Settings saved successfully!', 'success');
                 this.detectChanges();
                 
+                // Re-apply theme if it was changed
+                if (formData.general?.theme) {
+                    setTheme(formData.general.theme);
+                }
+                
                 // Send specific updates to relevant windows
                 await this.broadcastSettingsUpdates(formData);
             } else {
@@ -957,6 +1001,10 @@ class SettingsManager {
                     this.currentSettings = await window.electronAPI.loadSettings();
                     this.originalSettings = JSON.parse(JSON.stringify(this.currentSettings));
                     this.populateUI();
+                    
+                    // Re-initialize UI components after reset
+                    await this.initializeUIComponents();
+                    
                     this.showMessage('Settings reset to defaults', 'info');
                     this.detectChanges();
                 } else {
@@ -998,6 +1046,10 @@ class SettingsManager {
                     this.currentSettings = await window.electronAPI.loadSettings();
                     this.originalSettings = JSON.parse(JSON.stringify(this.currentSettings));
                     this.populateUI();
+                    
+                    // Re-initialize UI components after import
+                    await this.initializeUIComponents();
+                    
                     this.showMessage('Data imported successfully!', 'success');
                     this.detectChanges();
                 } else if (!result.cancelled) {
@@ -1047,7 +1099,7 @@ class SettingsManager {
 }
 
 // Initialize settings manager when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const settingsManager = new SettingsManager();
     
     // Handle window focus/blur events
