@@ -63,287 +63,570 @@
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="main-content">
 
-        <div class="settings-container app-container">
-        <header class="app-header">
-        <div class="logo-container">
-            <div class="sidebar-toggle" id="sidebarToggle">
-                    <span class="hamburger"></span>
-                    <span class="hamburger"></span>
-                    <span class="hamburger"></span>
-            </div>
-            <img id="icon-stitch" alt="icon-stitch" class="logo">
-            <h1 class="settings-title">Stitch It Down | Settings</h1>
-            <label class="switch">
-                    <input type="checkbox" id="themeToggle" />
-                    <span class="slider"></span>
-                    <span class="clouds_stars"></span>
-            </label>
+           <div class="settings-container">
+        <div class="settings-header">
+            <h1 class="settings-title">Settings</h1>
+            <span id="unsaved-indicator" class="unsaved-indicator">● Unsaved changes</span>
         </div>
-        </header>
-        
-        <div class="settings-content">
-            <div class="settings-tabs">
-                <button class="settings-tab active" data-tab="general">General</button>
-                <button class="settings-tab" data-tab="appearance">Appearance</button>
-                <button class="settings-tab" data-tab="notifications">Notifications</button>
-                <button class="settings-tab" data-tab="sync">Sync</button>
-                <button class="settings-tab" data-tab="advanced">Advanced</button>
-            </div>
-            
-            <div id="general" class="tab-content active">
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="general">General</button>
+            <button class="tab-button" data-tab="timer">Timer</button>
+            <button class="tab-button" data-tab="tasks">Tasks</button>
+            <button class="tab-button" data-tab="notes">Notes</button>
+            <button class="tab-button" data-tab="calendar">Calendar</button>
+            <button class="tab-button" data-tab="integration">Integration</button>
+            <button class="tab-button" data-tab="accessibility">Accessibility</button>
+            <button class="tab-button" data-tab="advanced">Advanced</button>
+        </div>
+
+        <form id="settings-form">
+            <!-- General Settings Tab -->
+            <div id="general-tab" class="tab-content active">
                 <div class="settings-section">
-                    <h3>General Settings</h3>
+                    <h2 class="section-title">General Settings</h2>
+                    
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Auto-save notes</strong><br>
-                            <small>Automatically save notes as you type</small>
+                        <div class="setting-label">
+                            <h4>Launch on Startup</h4>
+                            <p>Start the application when your computer boots up</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="auto-save"></div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="launch-on-startup">
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Start with system</strong><br>
-                            <small>Launch app when computer starts</small>
+                        <div class="setting-label">
+                            <h4>Default Window</h4>
+                            <p>Which window to open when the app starts</p>
                         </div>
-                        <div class="toggle-switch" data-setting="start-system"></div>
+                        <div class="setting-control">
+                            <select id="default-window">
+                                <option value="Dashboard">Dashboard</option>
+                                <option value="Timer">Timer</option>
+                                <option value="Tasks">Tasks</option>
+                                <option value="Notes">Notes</option>
+                                <option value="Calendar">Calendar</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Minimize to tray</strong><br>
-                            <small>Keep app running in system tray</small>
+                        <div class="setting-label">
+                            <h4>Always on Top</h4>
+                            <p>Keep the application window above other windows</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="minimize-tray"></div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="always-on-top">
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Default window size</strong><br>
-                            <small>Set the default size for new windows</small>
+                        <div class="setting-label">
+                            <h4>Minimize to Tray</h4>
+                            <p>Minimize to system tray instead of taskbar</p>
                         </div>
-                        <select class="settings-select">
-                            <option>800x600</option>
-                            <option selected>1024x768</option>
-                            <option>1200x900</option>
-                            <option>Maximized</option>
-                        </select>
+                        <div class="setting-control">
+                            <input type="checkbox" id="minimize-to-tray">
+                        </div>
                     </div>
-                </div>
-                
-                <div class="settings-section">
-                    <h3>Pomodoro Settings</h3>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Work duration</strong><br>
-                            <small>Length of focus sessions</small>
+                        <div class="setting-label">
+                            <h4>Auto-save Interval</h4>
+                            <p>How often to automatically save your work</p>
                         </div>
-                        <select class="settings-select">
-                            <option selected>25 minutes</option>
-                            <option>30 minutes</option>
-                            <option>45 minutes</option>
-                            <option>60 minutes</option>
-                        </select>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Short break</strong><br>
-                            <small>Length of short breaks</small>
+                        <div class="setting-control">
+                            <select id="auto-save-interval">
+                                <option value="30 seconds">30 seconds</option>
+                                <option value="1 minute">1 minute</option>
+                                <option value="5 minutes">5 minutes</option>
+                                <option value="10 minutes">10 minutes</option>
+                            </select>
                         </div>
-                        <select class="settings-select">
-                            <option selected>5 minutes</option>
-                            <option>10 minutes</option>
-                            <option>15 minutes</option>
-                        </select>
-                    </div>
-                    <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Long break</strong><br>
-                            <small>Length of long breaks</small>
-                        </div>
-                        <select class="settings-select">
-                            <option>15 minutes</option>
-                            <option>20 minutes</option>
-                            <option selected>30 minutes</option>
-                        </select>
                     </div>
                 </div>
             </div>
-            
-            <div id="appearance" class="tab-content">
+
+            <!-- Timer Settings Tab -->
+            <div id="timer-tab" class="tab-content">
                 <div class="settings-section">
-                    <h3>Theme Settings</h3>
+                    <h2 class="section-title">Timer Settings</h2>
+                    
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Theme</strong><br>
-                            <small>Choose your preferred color theme</small>
+                        <div class="setting-label">
+                            <h4>Work Duration</h4>
+                            <p>Length of work sessions in minutes</p>
                         </div>
-                        <select class="settings-select" id="theme-select">
-                            <option value="light" selected>Light</option>
-                            <option value="dark">Dark</option>
-                            <option value="auto">Auto (System)</option>
-                        </select>
+                        <div class="setting-control">
+                            <input type="number" id="work-duration" min="1" max="120" value="25">
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Font size</strong><br>
-                            <small>Adjust text size throughout the app</small>
+                        <div class="setting-label">
+                            <h4>Short Break</h4>
+                            <p>Length of short breaks in minutes</p>
                         </div>
-                        <select class="settings-select">
-                            <option>Small</option>
-                            <option selected>Medium</option>
-                            <option>Large</option>
-                            <option>Extra Large</option>
-                        </select>
+                        <div class="setting-control">
+                            <input type="number" id="short-break" min="1" max="30" value="5">
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Show Stitch animations</strong><br>
-                            <small>Display animated Stitch characters</small>
+                        <div class="setting-label">
+                            <h4>Long Break</h4>
+                            <p>Length of long breaks in minutes</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="stitch-animations"></div>
+                        <div class="setting-control">
+                            <input type="number" id="long-break" min="1" max="60" value="15">
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Sound Enabled</h4>
+                            <p>Play sound notifications when timer completes</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="sound-enabled" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Volume</h4>
+                            <p>Notification sound volume</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="range" id="timer-volume" min="0" max="1" step="0.1" value="0.8">
+                            <span id="volume-display" class="volume-display">80%</span>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Sound Type</h4>
+                            <p>Choose notification sound</p>
+                        </div>
+                        <div class="setting-control">
+                            <div class="sound-controls">
+                                <select id="sound-type">
+                                    <option value="bell">Bell</option>
+                                </select>
+                                <button type="button" id="test-sound" class="test-sound-btn">Test</button>
+                                <button type="button" id="select-custom-sound" class="btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;">Custom</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Do Not Disturb</h4>
+                            <p>Suppress notifications during work sessions</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="do-not-disturb">
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div id="notifications" class="tab-content">
+
+            <!-- Tasks Settings Tab -->
+            <div id="tasks-tab" class="tab-content">
                 <div class="settings-section">
-                    <h3>Notification Settings</h3>
+                    <h2 class="section-title">Task Settings</h2>
+                    
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Desktop notifications</strong><br>
-                            <small>Show system notifications</small>
+                        <div class="setting-label">
+                            <h4>Default Priority</h4>
+                            <p>Default priority for new tasks</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="desktop-notifications"></div>
+                        <div class="setting-control">
+                            <select id="default-priority">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Sound notifications</strong><br>
-                            <small>Play sounds for notifications</small>
+                        <div class="setting-label">
+                            <h4>Default Sort</h4>
+                            <p>How to sort tasks by default</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="sound-notifications"></div>
+                        <div class="setting-control">
+                            <select id="default-sort">
+                                <option value="due-date">Due Date</option>
+                                <option value="priority">Priority</option>
+                                <option value="created">Created Date</option>
+                                <option value="alphabetical">Alphabetical</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Task reminders</strong><br>
-                            <small>Remind me about upcoming tasks</small>
+                        <div class="setting-label">
+                            <h4>Reminder Days</h4>
+                            <p>Days before due date to show reminders</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="task-reminders"></div>
+                        <div class="setting-control">
+                            <input type="number" id="reminder-days" min="0" max="30" value="3">
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Break reminders</strong><br>
-                            <small>Remind me to take breaks</small>
+                        <div class="setting-label">
+                            <h4>Daily Goal</h4>
+                            <p>Target number of tasks to complete per day</p>
                         </div>
-                        <div class="toggle-switch" data-setting="break-reminders"></div>
+                        <div class="setting-control">
+                            <input type="number" id="daily-goal" min="1" max="50" value="5">
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Time Estimation</h4>
+                            <p>Enable time estimation for tasks</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="time-estimation" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Completion Tracking</h4>
+                            <p>Track time spent on completed tasks</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="completion-tracking" checked>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div id="sync" class="tab-content">
+
+            <!-- Notes Settings Tab -->
+            <div id="notes-tab" class="tab-content">
                 <div class="settings-section">
-                    <h3>Data Sync</h3>
+                    <h2 class="section-title">Notes Settings</h2>
+                    
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Cloud sync</strong><br>
-                            <small>Sync data across devices</small>
+                        <div class="setting-label">
+                            <h4>Default Font</h4>
+                            <p>Font family for notes</p>
                         </div>
-                        <div class="toggle-switch" data-setting="cloud-sync"></div>
+                        <div class="setting-control">
+                            <select id="default-font">
+                                <option value="Inter">Inter</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Georgia">Georgia</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Auto backup</strong><br>
-                            <small>Automatically backup data locally</small>
+                        <div class="setting-label">
+                            <h4>Font Size</h4>
+                            <p>Default font size for notes</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="auto-backup"></div>
+                        <div class="setting-control">
+                            <input type="number" id="font-size" min="8" max="24" value="14">
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Backup location</strong><br>
-                            <small>Choose where to store backups</small>
+                        <div class="setting-label">
+                            <h4>Markdown Enabled</h4>
+                            <p>Enable markdown formatting in notes</p>
                         </div>
-                        <button class="settings-button">Choose Folder</button>
+                        <div class="setting-control">
+                            <input type="checkbox" id="markdown-enabled" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Spell Check</h4>
+                            <p>Enable spell checking in notes</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="spell-check" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Auto Save</h4>
+                            <p>Automatically save notes as you type</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="auto-save" checked>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div id="advanced" class="tab-content">
+
+            <!-- Calendar Settings Tab -->
+            <div id="calendar-tab" class="tab-content">
                 <div class="settings-section">
-                    <h3>Advanced Settings</h3>
+                    <h2 class="section-title">Calendar Settings</h2>
+                    
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Debug mode</strong><br>
-                            <small>Enable debug logging</small>
+                        <div class="setting-label">
+                            <h4>Default View</h4>
+                            <p>Default calendar view when opening</p>
                         </div>
-                        <div class="toggle-switch" data-setting="debug-mode"></div>
+                        <div class="setting-control">
+                            <select id="default-view">
+                                <option value="month">Month</option>
+                                <option value="week">Week</option>
+                                <option value="day">Day</option>
+                                <option value="agenda">Agenda</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Hardware acceleration</strong><br>
-                            <small>Use GPU for better performance</small>
+                        <div class="setting-label">
+                            <h4>Week Starts On</h4>
+                            <p>First day of the week</p>
                         </div>
-                        <div class="toggle-switch active" data-setting="hardware-acceleration"></div>
+                        <div class="setting-control">
+                            <select id="week-starts-on">
+                                <option value="sunday">Sunday</option>
+                                <option value="monday">Monday</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="setting-item">
-                        <div class="setting-info">
-                            <strong>Reset all settings</strong><br>
-                            <small>Restore default settings</small>
+                        <div class="setting-label">
+                            <h4>Time Format</h4>
+                            <p>12-hour or 24-hour time format</p>
                         </div>
-                        <button class="settings-button danger-button">Reset Settings</button>
+                        <div class="setting-control">
+                            <select id="time-format">
+                                <option value="12-hour">12-hour</option>
+                                <option value="24-hour">24-hour</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default Event Duration</h4>
+                            <p>Default length for new events</p>
+                        </div>
+                        <div class="setting-control">
+                            <select id="default-event-duration">
+                                <option value="30 minutes">30 minutes</option>
+                                <option value="1 hour">1 hour</option>
+                                <option value="2 hours">2 hours</option>
+                                <option value="all day">All day</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Default Reminder</h4>
+                            <p>Default reminder time for new events</p>
+                        </div>
+                        <div class="setting-control">
+                            <select id="default-reminder">
+                                <option value="none">None</option>
+                                <option value="5 minutes">5 minutes</option>
+                                <option value="15 minutes">15 minutes</option>
+                                <option value="30 minutes">30 minutes</option>
+                                <option value="1 hour">1 hour</option>
+                                <option value="1 day">1 day</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Integration Settings Tab -->
+            <div id="integration-tab" class="tab-content">
+                <div class="settings-section">
+                    <h2 class="section-title">Integration Settings</h2>
+                    
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Link Tasks to Calendar</h4>
+                            <p>Automatically create calendar events for tasks with due dates</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="link-tasks-to-calendar" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Timer Integration</h4>
+                            <p>Track time spent on tasks using the timer</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="timer-integration" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Note Linking</h4>
+                            <p>Enable linking between notes, tasks, and calendar events</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="note-linking">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessibility Settings Tab -->
+            <div id="accessibility-tab" class="tab-content">
+                <div class="settings-section">
+                    <h2 class="section-title">Accessibility Settings</h2>
+                    
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>High Contrast</h4>
+                            <p>Use high contrast colors for better visibility</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="high-contrast">
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Font Scaling</h4>
+                            <p>Scale all fonts for better readability</p>
+                        </div>
+                        <div class="setting-control">
+                            <select id="font-scaling">
+                                <option value="small">Small</option>
+                                <option value="medium">Medium</option>
+                                <option value="large">Large</option>
+                                <option value="extra-large">Extra Large</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Keyboard Shortcuts</h4>
+                            <p>Enable keyboard shortcuts for navigation</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="keyboard-shortcuts" checked>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings Tab -->
+            <div id="advanced-tab" class="tab-content">
+                <div class="settings-section">
+                    <h2 class="section-title">Advanced Settings</h2>
+                    
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Hardware Acceleration</h4>
+                            <p>Use GPU acceleration for better performance</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="hardware-acceleration" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Memory Management</h4>
+                            <p>Optimize memory usage for better performance</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="memory-management" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Data Encryption</h4>
+                            <p>Encrypt stored data for security</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="data-encryption">
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Analytics</h4>
+                            <p>Send anonymous usage data to help improve the app</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="analytics" checked>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <h4>Crash Reporting</h4>
+                            <p>Send crash reports to help fix bugs</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="checkbox" id="crash-reporting" checked>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="section-title">Data Management</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <h4>Export Data</h4>
+                                <p>Export all your data as a backup file</p>
+                            </div>
+                            <div class="setting-control">
+                                <button type="button" id="export-data" class="btn btn-secondary">Export</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <h4>Import Data</h4>
+                                <p>Import data from a backup file</p>
+                            </div>
+                            <div class="setting-control">
+                                <button type="button" id="import-data" class="btn btn-secondary">Import</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="button-group">
+            <button type="button" id="save-settings" class="btn btn-primary" disabled>Save Changes</button>
+            <button type="button" id="cancel-settings" class="btn btn-secondary" disabled>Cancel</button>
+            <button type="button" id="reset-settings" class="btn btn-danger">Reset to Defaults</button>
         </div>
     </div>
 
+    <div id="message-container" class="message-container"></div>
+
             
         </div>
     </div>
 
     </div>
-
-    <script>
-        // Tab switching functionality
-        document.querySelectorAll('.settings-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and content
-                document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Show corresponding content
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        // Toggle switch functionality
-        document.querySelectorAll('.toggle-switch').forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                toggle.classList.toggle('active');
-            });
-        });
-
-        // Theme switching
-        document.getElementById('theme-select').addEventListener('change', (e) => {
-            document.documentElement.setAttribute('data-theme', e.target.value);
-        });
-
-        // Hide tab content except the first one
-        document.querySelectorAll('.tab-content').forEach((content, index) => {
-            if (index !== 0) {
-                content.style.display = 'none';
-            }
-        });
-
-        // Show/hide tab content
-        document.querySelectorAll('.settings-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(tabId).style.display = 'block';
-            });
-        });
-    </script>
 
 </body>
-</html>
+</html> 
