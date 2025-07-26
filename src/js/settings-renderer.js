@@ -728,31 +728,89 @@ class SettingsManager {
         }
     }
 
-    async loadAvailableSounds() {
-        try {
-            const sounds = await window.electronAPI.getAvailableSounds();
-            const soundSelect = document.getElementById('sound-type');
+    // async loadAvailableSounds() {
+    //     try {
+    //         const sounds = await window.electronAPI.getAvailableSounds();
+    //         const soundSelect = document.getElementById('sound-type');
             
-            if (soundSelect) {
-                // Clear existing options except the first one
-                while (soundSelect.children.length > 1) {
-                    soundSelect.removeChild(soundSelect.lastChild);
-                }
+    //         if (soundSelect) {
+    //             // Clear existing options except the first one
+    //             while (soundSelect.children.length > 1) {
+    //                 soundSelect.removeChild(soundSelect.lastChild);
+    //             }
                 
-                sounds.forEach(sound => {
-                    const option = document.createElement('option');
-                    option.value = sound.id;
-                    option.textContent = sound.name;
-                    soundSelect.appendChild(option);
-                });
+    //             sounds.forEach(sound => {
+    //                 const option = document.createElement('option');
+    //                 option.value = sound.id;
+    //                 option.textContent = sound.name;
+    //                 soundSelect.appendChild(option);
+    //             });
                 
-                // Set current selection
-                soundSelect.value = this.currentSettings.timer?.soundType || 'bell';
+    //             // Set current selection
+    //             soundSelect.value = this.currentSettings.timer?.soundType || 'bell';
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to load sounds:', error);
+    //     }
+    // }
+    async loadAvailableSounds() {
+    try {
+        console.log('Loading available sounds...');
+        
+        // Check if electronAPI exists
+        if (!window.electronAPI || !window.electronAPI.getAvailableSounds) {
+            throw new Error('electronAPI.getAvailableSounds is not available');
+        }
+        
+        const sounds = await window.electronAPI.getAvailableSounds();
+        console.log('Sounds loaded:', sounds);
+        
+        const soundSelect = document.getElementById('sound-type');
+        
+        if (!soundSelect) {
+            throw new Error('Sound select element not found');
+        }
+        
+        // Clear existing options except the first one (Bell)
+        while (soundSelect.children.length > 1) {
+            soundSelect.removeChild(soundSelect.lastChild);
+        }
+        
+        if (!sounds || !Array.isArray(sounds)) {
+            throw new Error('Invalid sounds data received');
+        }
+        
+        sounds.forEach((sound, index) => {
+            if (!sound || !sound.id || !sound.name) {
+                console.warn(`Invalid sound at index ${index}:`, sound);
+                return;
             }
-        } catch (error) {
-            console.error('Failed to load sounds:', error);
+            
+            const option = document.createElement('option');
+            option.value = sound.id;
+            option.textContent = sound.name;
+            soundSelect.appendChild(option);
+        });
+        
+        // Set the current value
+        soundSelect.value = this.currentSettings.timer?.soundType || 'bell';
+        
+        this.showMessage(`Loaded ${sounds.length} sounds successfully`, 'success');
+        
+    } catch (error) {
+        console.error('Failed to load sounds:', error);
+        this.showMessage(`Failed to load sounds: ${error.message}`, 'error');
+        
+        // Fallback: ensure at least the default option exists
+        const soundSelect = document.getElementById('sound-type');
+        if (soundSelect && soundSelect.children.length === 0) {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = 'bell';
+            defaultOption.textContent = 'Bell (Default)';
+            soundSelect.appendChild(defaultOption);
         }
     }
+}
 
     updateVolume(volume) {
         const volumeValue = parseFloat(volume);
@@ -780,30 +838,83 @@ class SettingsManager {
         }
     }
 
-    async testSound() {
-        try {
-            const soundType = document.getElementById('sound-type')?.value || 'bell';
-            const customPath = this.currentSettings.timer?.customSoundPath;
+    // async testSound() {
+    //     try {
+    //         const soundType = document.getElementById('sound-type')?.value || 'bell';
+    //         const customPath = this.currentSettings.timer?.customSoundPath;
             
-            let soundPath;
-            if (soundType === 'custom' && customPath) {
-                soundPath = customPath;
-            } else {
-                const sounds = await window.electronAPI.getAvailableSounds();
-                const sound = sounds.find(s => s.id === soundType);
-                soundPath = sound?.path;
-            }
+    //         let soundPath;
+    //         if (soundType === 'custom' && customPath) {
+    //             soundPath = customPath;
+    //         } else {
+    //             const sounds = await window.electronAPI.getAvailableSounds();
+    //             const sound = sounds.find(s => s.id === soundType);
+    //             soundPath = sound?.path;
+    //         }
             
-            if (soundPath) {
-                await window.electronAPI.playTestSound(soundPath);
-                this.showMessage('Playing test sound...', 'info');
-            }
-        } catch (error) {
-            console.error('Failed to test sound:', error);
-            this.showError('Failed to play test sound');
-        }
-    }
+    //         if (soundPath) {
+    //             await window.electronAPI.playTestSound(soundPath);
+    //             this.showMessage('Playing test sound...', 'info');
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to test sound:', error);
+    //         this.showError('Failed to play test sound');
+    //     }
+    // }
 
+    async testSound() {
+    try {
+        console.log('Testing sound...');
+        
+        const soundSelect = document.getElementById('sound-type');
+        if (!soundSelect) {
+            throw new Error('Sound selection element not found');
+        }
+        
+        const soundType = soundSelect.value || 'bell';
+        console.log('Selected sound type:', soundType);
+        
+        const customPath = this.currentSettings.timer?.customSoundPath;
+        let soundPath;
+        
+        if (soundType === 'custom' && customPath) {
+            soundPath = customPath;
+            console.log('Using custom sound path:', soundPath);
+        } else {
+            if (!window.electronAPI || !window.electronAPI.getAvailableSounds) {
+                throw new Error('electronAPI.getAvailableSounds is not available');
+            }
+            
+            const sounds = await window.electronAPI.getAvailableSounds();
+            if (!sounds || !Array.isArray(sounds)) {
+                throw new Error('No sounds available');
+            }
+            
+            const sound = sounds.find(s => s.id === soundType);
+            if (!sound) {
+                throw new Error(`Sound with ID "${soundType}" not found`);
+            }
+            
+            soundPath = sound.path;
+            console.log('Using sound path:', soundPath);
+        }
+        
+        if (!soundPath) {
+            throw new Error('No sound path available');
+        }
+        
+        if (!window.electronAPI || !window.electronAPI.playTestSound) {
+            throw new Error('electronAPI.playTestSound is not available');
+        }
+        
+        this.showMessage('Playing test sound...', 'info');
+        await window.electronAPI.playTestSound(soundPath);
+        
+    } catch (error) {
+        console.error('Failed to test sound:', error);
+        this.showMessage(`Failed to play test sound: ${error.message}`, 'error');
+    }
+}
     async selectCustomSound() {
         try {
             const sound = await window.electronAPI.selectCustomSound();
@@ -1062,23 +1173,175 @@ class SettingsManager {
         }
     }
 
+    // showMessage(message, type = 'info') {
+    //     const messageContainer = document.getElementById('message-container');
+    //     if (!messageContainer) return;
+
+    //     const messageElement = document.createElement('div');
+    //     messageElement.className = `message message-${type}`;
+    //     messageElement.textContent = message;
+
+    //     messageContainer.appendChild(messageElement);
+
+    //     // Auto-remove after 5 seconds
+    //     setTimeout(() => {
+    //         if (messageElement.parentNode) {
+    //             messageElement.parentNode.removeChild(messageElement);
+    //         }
+    //     }, 5000);
+    // }
     showMessage(message, type = 'info') {
-        const messageContainer = document.getElementById('message-container');
-        if (!messageContainer) return;
-
-        const messageElement = document.createElement('div');
-        messageElement.className = `message message-${type}`;
-        messageElement.textContent = message;
-
-        messageContainer.appendChild(messageElement);
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (messageElement.parentNode) {
-                messageElement.parentNode.removeChild(messageElement);
-            }
-        }, 5000);
+    console.log(`[${type.toUpperCase()}] ${message}`); // Always log to console for debugging
+    
+    let messageContainer = document.getElementById('message-container');
+    
+    // Create message container if it doesn't exist
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.id = 'message-container';
+        messageContainer.className = 'message-container';
+        document.body.appendChild(messageContainer);
     }
+    
+    // Remove any existing messages of the same type to prevent spam
+    const existingMessages = messageContainer.querySelectorAll(`.message-${type}`);
+    existingMessages.forEach(msg => msg.remove());
+    
+    const messageElement = document.createElement('div');
+    messageElement.className = `message message-${type}`;
+    
+    // Add icon based on message type
+    const icons = {
+        error: '❌',
+        success: '✅',
+        info: 'ℹ️',
+        warning: '⚠️'
+    };
+    
+    messageElement.innerHTML = `
+        <span class="message-icon">${icons[type] || 'ℹ️'}</span>
+        <span class="message-text">${message}</span>
+        <button class="message-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    
+    // Add enhanced styling
+    messageElement.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 300px;
+        max-width: 500px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        animation: slideIn 0.3s ease-out;
+        margin-bottom: 8px;
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+    `;
+    
+    // Set colors based on message type
+    const colors = {
+        error: {
+            bg: 'rgba(239, 68, 68, 0.95)',
+            text: 'white',
+            border: 'rgba(239, 68, 68, 1)'
+        },
+        success: {
+            bg: 'rgba(34, 197, 94, 0.95)',
+            text: 'white',
+            border: 'rgba(34, 197, 94, 1)'
+        },
+        info: {
+            bg: 'rgba(59, 130, 246, 0.95)',
+            text: 'white',
+            border: 'rgba(59, 130, 246, 1)'
+        },
+        warning: {
+            bg: 'rgba(245, 158, 11, 0.95)',
+            text: 'white',
+            border: 'rgba(245, 158, 11, 1)'
+        }
+    };
+    
+    const colorScheme = colors[type] || colors.info;
+    messageElement.style.backgroundColor = colorScheme.bg;
+    messageElement.style.color = colorScheme.text;
+    messageElement.style.borderColor = colorScheme.border;
+    
+    // Style the close button
+    const closeButton = messageElement.querySelector('.message-close');
+    closeButton.style.cssText = `
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0;
+        margin-left: auto;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    `;
+    
+    closeButton.onmouseover = () => closeButton.style.opacity = '1';
+    closeButton.onmouseout = () => closeButton.style.opacity = '0.8';
+    
+    // Add CSS animation if not already added
+    if (!document.querySelector('#message-animations')) {
+        const style = document.createElement('style');
+        style.id = 'message-animations';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            
+            .message-slide-out {
+                animation: slideOut 0.3s ease-in forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    messageContainer.appendChild(messageElement);
+    
+    // Auto-remove after delay with slide-out animation
+    setTimeout(() => {
+        if (messageElement.parentNode) {
+            messageElement.classList.add('message-slide-out');
+            setTimeout(() => {
+                if (messageElement.parentNode) {
+                    messageElement.parentNode.removeChild(messageElement);
+                }
+            }, 300);
+        }
+    }, 5000);
+}
 
     showError(message) {
         this.showMessage(message, 'error');
