@@ -849,18 +849,33 @@
 /* Reset any inherited hover styles first */
 .filter-color-btn:hover {
     border-radius: 50% !important;
-    /* Don't override background - keep the color */
     color: inherit !important;
     box-shadow: none !important;
     transform: scale(1.05) !important;
-    border: 2px solid rebeccapurple !important;
-    /* Override any inherited properties */
+    border: 2px solid var(--border-color) !important;
     left: auto !important;
     top: auto !important;
     width: 25px !important;
     height: 25px !important;
 }
-
+.filter-color-btn[data-value="default"]:hover{
+  background: var(--light-bg);
+}
+.filter-color-btn[data-value="yellow"]:hover{
+  background: #ffc107;
+}
+.filter-color-btn[data-value="blue"]:hover{
+  background: #007bff ;
+}
+.filter-color-btn[data-value="green"]:hover{
+  background: #28a745;
+}
+.filter-color-btn[data-value="pink"]:hover{
+  background: #e83e8c;
+}
+.filter-color-btn[data-value="purple"]:hover{
+  background: #6f42c1;
+}
 .filter-color-btn:active {
     border-radius: 50% !important;
     /* Don't override background - keep the color */
