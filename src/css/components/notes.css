@@ -858,32 +858,32 @@
     width: 25px !important;
     height: 25px !important;
 }
-.filter-color-btn[data-value="default"]:hover{
+.filter-color-btn[data-value="default"]:hover,.filter-color-btn[data-value="default"]:active{
   background: var(--light-bg);
 }
-.filter-color-btn[data-value="yellow"]:hover{
+.filter-color-btn[data-value="yellow"]:hover, .filter-color-btn[data-value="yellow"]:active{
   background: #ffc107;
 }
-.filter-color-btn[data-value="blue"]:hover{
+.filter-color-btn[data-value="blue"]:hover, .filter-color-btn[data-value="blue"]:active{
   background: #007bff ;
 }
-.filter-color-btn[data-value="green"]:hover{
+.filter-color-btn[data-value="green"]:hover, .filter-color-btn[data-value="green"]:active{
   background: #28a745;
 }
-.filter-color-btn[data-value="pink"]:hover{
+.filter-color-btn[data-value="pink"]:hover, .filter-color-btn[data-value="pink"]:active{
   background: #e83e8c;
 }
-.filter-color-btn[data-value="purple"]:hover{
+.filter-color-btn[data-value="purple"]:hover, .filter-color-btn[data-value="purple"]:active{
   background: #6f42c1;
 }
 .filter-color-btn:active {
     border-radius: 50% !important;
-    /* Don't override background - keep the color */
-    color: inherit !important;
+    /* Don't override background - keep the color  */
+     color: inherit !important;
     box-shadow: none !important;
     transform: scale(1.05) !important;
     border: 2px solid rebeccapurple !important;
-    /* Override any inherited properties */
+    
     left: auto !important;
     top: auto !important;
     width: 25px !important;
@@ -924,10 +924,10 @@
     border: 2px solid var(--border-color);
 }
 
-.filter-group .filter-color-btn:active {
+/* .filter-group .filter-color-btn:active {
     transform: scale(1.05);
     border: 2px solid var(--border-color);
-}
+} */
 /* Action Controls */
 .action-controls {
     display: flex;

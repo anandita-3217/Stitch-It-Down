@@ -1359,6 +1359,297 @@ class SettingsManager {
             // Optionally auto-save or warn user
         }
     }
+    // Enhanced audio debugging methods - add these to your SettingsManager class
+
+// Test browser audio capabilities
+async testBrowserAudio() {
+    try {
+        console.log('Testing browser audio capabilities...');
+        
+        // Check if Web Audio API is supported
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) {
+            throw new Error('Web Audio API not supported');
+        }
+        
+        // Create audio context
+        const audioContext = new AudioContext();
+        console.log('Audio context created:', audioContext.state);
+        
+        // Resume audio context if suspended (required by modern browsers)
+        if (audioContext.state === 'suspended') {
+            console.log('Resuming suspended audio context...');
+            await audioContext.resume();
+        }
+        
+        // Create a simple test tone
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.2); // Play for 200ms
+        
+        this.showMessage('Browser audio test successful - you should hear a beep', 'success');
+        console.log('Browser audio test completed successfully');
+        
+        return true;
+    } catch (error) {
+        console.error('Browser audio test failed:', error);
+        this.showMessage(`Browser audio test failed: ${error.message}`, 'error');
+        return false;
+    }
+}
+
+// Test HTML5 Audio with different methods
+async testHTML5Audio() {
+    try {
+        console.log('Testing HTML5 Audio...');
+        
+        // Test with a data URL (simple beep)
+        const beepDataUrl = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEZBkOW2u/CbyMFl2+z7O2vUxkLyRaJXjrlfNn2zOTK7vGrbvqFa3OWmfrLyAw9KGcrdOdmyf6vL5X+q7F8QyWTsOmnPi9O5YrXQglhIaJ6yb9VPF9a5vK8zz4P0PVOXgBhMwkXSjO8FGGd5FDvCKQQWRXB1uP0+HE6lNKbQ0QqFq8nKEHi9xoYEaHT3M5EQU1JaOLh0t4cGQdMiTQzOz8y3A';
+        
+        const audio = new Audio(beepDataUrl);
+        audio.volume = this.currentSettings.timer?.volume || 0.8;
+        
+        console.log('HTML5 Audio object created:', audio);
+        console.log('Audio volume set to:', audio.volume);
+        
+        // Add event listeners for debugging
+        audio.addEventListener('loadstart', () => console.log('Audio: loadstart'));
+        audio.addEventListener('loadeddata', () => console.log('Audio: loadeddata'));
+        audio.addEventListener('canplay', () => console.log('Audio: canplay'));
+        audio.addEventListener('play', () => console.log('Audio: play event'));
+        audio.addEventListener('ended', () => console.log('Audio: ended'));
+        audio.addEventListener('error', (e) => console.error('Audio error:', e));
+        
+        // Wait for audio to be ready
+        await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Audio load timeout')), 5000);
+            
+            audio.addEventListener('canplay', () => {
+                clearTimeout(timeout);
+                resolve();
+            });
+            
+            audio.addEventListener('error', (e) => {
+                clearTimeout(timeout);
+                reject(new Error(`Audio load error: ${e.message}`));
+            });
+        });
+        
+        console.log('Playing HTML5 audio...');
+        await audio.play();
+        
+        this.showMessage('HTML5 Audio test successful - you should hear a beep', 'success');
+        return true;
+        
+    } catch (error) {
+        console.error('HTML5 Audio test failed:', error);
+        this.showMessage(`HTML5 Audio test failed: ${error.message}`, 'error');
+        return false;
+    }
+}
+
+// Enhanced test sound method with multiple fallbacks
+async testSound() {
+    try {
+        console.log('=== SOUND TEST STARTING ===');
+        
+        // First, test browser audio capabilities
+        console.log('Step 1: Testing browser audio...');
+        const browserAudioWorks = await this.testBrowserAudio();
+        
+        // Wait a moment between tests
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Test HTML5 Audio
+        console.log('Step 2: Testing HTML5 audio...');
+        const html5AudioWorks = await this.testHTML5Audio();
+        
+        // Wait a moment between tests
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Now test the actual sound system
+        console.log('Step 3: Testing actual sound system...');
+        
+        const soundSelect = document.getElementById('sound-type');
+        if (!soundSelect) {
+            throw new Error('Sound selection element not found');
+        }
+        
+        const soundType = soundSelect.value || 'bell';
+        console.log('Selected sound type:', soundType);
+        
+        // Check volume settings
+        const volumeSlider = document.getElementById('timer-volume');
+        const currentVolume = volumeSlider ? parseFloat(volumeSlider.value) : 0.8;
+        console.log('Current volume setting:', currentVolume);
+        
+        if (currentVolume === 0) {
+            this.showMessage('Volume is set to 0! Please increase the volume.', 'warning');
+            return;
+        }
+        
+        // Check if sound is enabled
+        const soundEnabled = document.getElementById('sound-enabled');
+        if (soundEnabled && !soundEnabled.checked) {
+            this.showMessage('Sound is disabled! Please enable sound notifications.', 'warning');
+            return;
+        }
+        
+        const customPath = this.currentSettings.timer?.customSoundPath;
+        let soundPath;
+        
+        if (soundType === 'custom' && customPath) {
+            soundPath = customPath;
+            console.log('Using custom sound path:', soundPath);
+        } else {
+            if (!window.electronAPI || !window.electronAPI.getAvailableSounds) {
+                throw new Error('electronAPI.getAvailableSounds is not available');
+            }
+            
+            const sounds = await window.electronAPI.getAvailableSounds();
+            console.log('Available sounds:', sounds);
+            
+            if (!sounds || !Array.isArray(sounds)) {
+                throw new Error('No sounds available');
+            }
+            
+            const sound = sounds.find(s => s.id === soundType);
+            if (!sound) {
+                throw new Error(`Sound with ID "${soundType}" not found`);
+            }
+            
+            soundPath = sound.path;
+            console.log('Using sound path:', soundPath);
+        }
+        
+        if (!soundPath) {
+            throw new Error('No sound path available');
+        }
+        
+        // Check if the electronAPI method exists
+        if (!window.electronAPI || !window.electronAPI.playTestSound) {
+            throw new Error('electronAPI.playTestSound is not available - trying alternative methods');
+        }
+        
+        console.log('Calling electronAPI.playTestSound with path:', soundPath);
+        this.showMessage('Attempting to play sound via Electron...', 'info');
+        
+        // Try to play via Electron
+        try {
+            await window.electronAPI.playTestSound(soundPath);
+            console.log('electronAPI.playTestSound completed');
+            this.showMessage('Sound played via Electron API', 'success');
+        } catch (electronError) {
+            console.error('Electron sound playback failed:', electronError);
+            this.showMessage(`Electron sound failed: ${electronError.message}`, 'error');
+            
+            // Fallback: try to play as web audio if it's a web-accessible path
+            console.log('Trying fallback web audio...');
+            try {
+                const audio = new Audio(soundPath);
+                audio.volume = currentVolume;
+                await audio.play();
+                this.showMessage('Sound played via web audio fallback', 'success');
+            } catch (webError) {
+                console.error('Web audio fallback failed:', webError);
+                throw new Error(`Both Electron and web audio failed. Electron: ${electronError.message}, Web: ${webError.message}`);
+            }
+        }
+        
+        console.log('=== SOUND TEST COMPLETED ===');
+        
+    } catch (error) {
+        console.error('=== SOUND TEST FAILED ===');
+        console.error('Final error:', error);
+        this.showMessage(`Sound test failed: ${error.message}`, 'error');
+        
+        // Provide helpful suggestions
+        this.showMessage('Check: 1) Volume settings 2) System audio 3) Browser permissions 4) Electron audio setup', 'info');
+    }
+}
+
+// Method to check system audio settings
+checkSystemAudio() {
+    console.log('=== SYSTEM AUDIO CHECK ===');
+    
+    // Check browser audio permissions
+    if (navigator.permissions) {
+        navigator.permissions.query({name: 'microphone'}).then(result => {
+            console.log('Microphone permission:', result.state);
+        }).catch(e => console.log('Could not check microphone permission:', e.message));
+    }
+    
+    // Check if audio context is allowed
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+        const testContext = new AudioContext();
+        console.log('Audio context state:', testContext.state);
+        console.log('Audio context sample rate:', testContext.sampleRate);
+        console.log('Audio context destination:', testContext.destination);
+        testContext.close();
+    }
+    
+    // Check current volume setting
+    const volumeSlider = document.getElementById('timer-volume');
+    const volumeDisplay = document.getElementById('volume-display');
+    
+    console.log('Volume slider value:', volumeSlider?.value);
+    console.log('Volume display text:', volumeDisplay?.textContent);
+    
+    // Check sound enabled setting
+    const soundEnabled = document.getElementById('sound-enabled');
+    console.log('Sound enabled:', soundEnabled?.checked);
+    
+    this.showMessage('System audio check completed - see console for details', 'info');
+}
+
+// Add this method to test different audio formats
+async testMultipleAudioFormats() {
+    const testSounds = [
+        {
+            name: 'Data URL Beep',
+            url: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEZBkOW2u/CbyMF'
+        }
+    ];
+    
+    for (const testSound of testSounds) {
+        try {
+            console.log(`Testing ${testSound.name}...`);
+            const audio = new Audio(testSound.url);
+            audio.volume = 0.5;
+            
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => reject(new Error('Timeout')), 3000);
+                audio.oncanplay = () => {
+                    clearTimeout(timeout);
+                    resolve();
+                };
+                audio.onerror = (e) => {
+                    clearTimeout(timeout);
+                    reject(e);
+                };
+            });
+            
+            await audio.play();
+            this.showMessage(`${testSound.name} played successfully`, 'success');
+            
+            // Wait between tests
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+        } catch (error) {
+            console.error(`${testSound.name} failed:`, error);
+            this.showMessage(`${testSound.name} failed: ${error.message}`, 'error');
+        }
+    }
+}
 }
 
 // Initialize settings manager when DOM is loaded

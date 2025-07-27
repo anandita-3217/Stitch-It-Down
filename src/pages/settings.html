@@ -246,6 +246,203 @@
                         </div>
                     </div>
                 </div>
+                <!-- Add this debug panel to your settings HTML, preferably in the Timer tab -->
+<div class="settings-section" style="border: 2px solid #ff6b6b; background: #fff5f5; padding: 16px; margin: 16px 0; border-radius: 8px;">
+    <h3 class="section-title" style="color: #c92a2a;">🔧 Audio Debug Panel</h3>
+    <p style="color: #666; font-size: 14px; margin-bottom: 16px;">
+        Use these tools to diagnose audio issues. Check the console (F12) for detailed logs.
+    </p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <button type="button" id="test-browser-audio" class="btn btn-secondary" style="padding: 8px 12px;">
+            Test Browser Audio
+        </button>
+        
+        <button type="button" id="test-html5-audio" class="btn btn-secondary" style="padding: 8px 12px;">
+            Test HTML5 Audio
+        </button>
+        
+        <button type="button" id="check-system-audio" class="btn btn-secondary" style="padding: 8px 12px;">
+            Check System Audio
+        </button>
+        
+        <button type="button" id="test-multiple-formats" class="btn btn-secondary" style="padding: 8px 12px;">
+            Test Audio Formats
+        </button>
+        
+        <button type="button" id="test-volume-levels" class="btn btn-secondary" style="padding: 8px 12px;">
+            Test Volume Levels
+        </button>
+        
+        <button type="button" id="reset-audio-context" class="btn btn-secondary" style="padding: 8px 12px;">
+            Reset Audio Context
+        </button>
+    </div>
+    
+    <div style="margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: 4px; font-family: monospace; font-size: 12px; color: #666;">
+        <strong>Quick Checklist:</strong><br>
+        • Is system volume up? <span id="system-volume-check">❓</span><br>
+        • Is app volume > 0? <span id="app-volume-check">❓</span><br>
+        • Is sound enabled? <span id="sound-enabled-check">❓</span><br>
+        • Browser audio working? <span id="browser-audio-check">❓</span><br>
+        • Electron API available? <span id="electron-api-check">❓</span>
+    </div>
+</div>
+
+<script>
+// Add these event listeners to your setupEventListeners method
+document.addEventListener('DOMContentLoaded', () => {
+    // Test browser audio
+    const testBrowserAudioBtn = document.getElementById('test-browser-audio');
+    if (testBrowserAudioBtn) {
+        testBrowserAudioBtn.addEventListener('click', () => {
+            if (window.settingsManager) {
+                window.settingsManager.testBrowserAudio();
+            }
+        });
+    }
+    
+    // Test HTML5 audio
+    const testHTML5AudioBtn = document.getElementById('test-html5-audio');
+    if (testHTML5AudioBtn) {
+        testHTML5AudioBtn.addEventListener('click', () => {
+            if (window.settingsManager) {
+                window.settingsManager.testHTML5Audio();
+            }
+        });
+    }
+    
+    // Check system audio
+    const checkSystemAudioBtn = document.getElementById('check-system-audio');
+    if (checkSystemAudioBtn) {
+        checkSystemAudioBtn.addEventListener('click', () => {
+            if (window.settingsManager) {
+                window.settingsManager.checkSystemAudio();
+                updateQuickChecklist();
+            }
+        });
+    }
+    
+    // Test multiple formats
+    const testMultipleFormatsBtn = document.getElementById('test-multiple-formats');
+    if (testMultipleFormatsBtn) {
+        testMultipleFormatsBtn.addEventListener('click', () => {
+            if (window.settingsManager) {
+                window.settingsManager.testMultipleAudioFormats();
+            }
+        });
+    }
+    
+    // Test volume levels
+    const testVolumeLevelsBtn = document.getElementById('test-volume-levels');
+    if (testVolumeLevelsBtn) {
+        testVolumeLevelsBtn.addEventListener('click', async () => {
+            const volumes = [0.1, 0.3, 0.5, 0.8, 1.0];
+            for (const vol of volumes) {
+                try {
+                    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEZBkOW2u/CbyMF');
+                    audio.volume = vol;
+                    await audio.play();
+                    console.log(`Volume ${vol} test played`);
+                    if (window.settingsManager) {
+                        window.settingsManager.showMessage(`Testing volume: ${Math.round(vol * 100)}%`, 'info');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                } catch (error) {
+                    console.error(`Volume ${vol} test failed:`, error);
+                }
+            }
+        });
+    }
+    
+    // Reset audio context
+    const resetAudioContextBtn = document.getElementById('reset-audio-context');
+    if (resetAudioContextBtn) {
+        resetAudioContextBtn.addEventListener('click', async () => {
+            try {
+                // Close existing audio context if any
+                if (window.audioContext) {
+                    await window.audioContext.close();
+                }
+                
+                // Create new audio context
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                window.audioContext = new AudioContext();
+                
+                if (window.audioContext.state === 'suspended') {
+                    await window.audioContext.resume();
+                }
+                
+                console.log('Audio context reset successfully');
+                if (window.settingsManager) {
+                    window.settingsManager.showMessage('Audio context reset successfully', 'success');
+                }
+                
+                updateQuickChecklist();
+            } catch (error) {
+                console.error('Failed to reset audio context:', error);
+                if (window.settingsManager) {
+                    window.settingsManager.showMessage(`Failed to reset audio context: ${error.message}`, 'error');
+                }
+            }
+        });
+    }
+    
+    // Update quick checklist
+    function updateQuickChecklist() {
+        // Check app volume
+        const volumeSlider = document.getElementById('timer-volume');
+        const appVolumeCheck = document.getElementById('app-volume-check');
+        if (appVolumeCheck) {
+            const volume = volumeSlider ? parseFloat(volumeSlider.value) : 0;
+            appVolumeCheck.textContent = volume > 0 ? '✅' : '❌';
+            appVolumeCheck.title = `App volume: ${Math.round(volume * 100)}%`;
+        }
+        
+        // Check sound enabled
+        const soundEnabled = document.getElementById('sound-enabled');
+        const soundEnabledCheck = document.getElementById('sound-enabled-check');
+        if (soundEnabledCheck) {
+            const enabled = soundEnabled ? soundEnabled.checked : false;
+            soundEnabledCheck.textContent = enabled ? '✅' : '❌';
+            soundEnabledCheck.title = `Sound enabled: ${enabled}`;
+        }
+        
+        // Check Electron API
+        const electronApiCheck = document.getElementById('electron-api-check');
+        if (electronApiCheck) {
+            const available = window.electronAPI && window.electronAPI.playTestSound;
+            electronApiCheck.textContent = available ? '✅' : '❌';
+            electronApiCheck.title = `Electron API available: ${available}`;
+        }
+        
+        // Check browser audio (simplified)
+        const browserAudioCheck = document.getElementById('browser-audio-check');
+        if (browserAudioCheck) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const available = !!AudioContext;
+            browserAudioCheck.textContent = available ? '✅' : '❌';
+            browserAudioCheck.title = `Web Audio API available: ${available}`;
+        }
+        
+        // System volume check (can't actually check, so just remind user)
+        const systemVolumeCheck = document.getElementById('system-volume-check');
+        if (systemVolumeCheck) {
+            systemVolumeCheck.textContent = '❓';
+            systemVolumeCheck.title = 'Please check your system volume manually';
+        }
+    }
+    
+    // Initial checklist update
+    updateQuickChecklist();
+    
+    // Update checklist when settings change
+    const form = document.getElementById('settings-form');
+    if (form) {
+        form.addEventListener('change', updateQuickChecklist);
+    }
+});
+</script>
             </div>
 
             <!-- Tasks Settings Tab -->
