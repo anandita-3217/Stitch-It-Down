@@ -17,7 +17,8 @@ rules.push({
 });
 
 rules.push({
-  test: /\.(mp3|wav|ogg|m4a)$/i,
+  // test: /\.(mp3|wav|ogg|m4a)$/i,
+  test: /\.(wav|mp3|ogg|flac|aac)$/i,
   type: 'asset/resource',
   generator: {
     filename: 'assets/sounds/[name][ext]'
