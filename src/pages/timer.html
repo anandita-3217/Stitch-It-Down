@@ -174,17 +174,21 @@
                 <input type="range" id="longBreakDuration" min="5" max="60" value="15">
                 <span id="longBreakValue">15</span> min
             </div>
-                <div class="setting-group">
-                    <label>
-                       <input type="checkbox" id="autoStart"> Auto-start breaks and sessions
-                    </label>
-                </div>
-                
-                <div class="setting-group">
-                    <label>
-                        <input type="checkbox" id="soundNotifications" checked> Sound notifications
-                    </label>
-                </div>
+            <div class="setting-group">
+                <label for="autoStart">Auto-start breaks and sessions</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoStart">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="setting-group">
+                <label for="soundNotifications">Sound notifications</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="soundNotifications" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
             </div>
         </div>
         
@@ -217,24 +221,5 @@
         </div>
     </div>
     
-    <!-- Error boundary for development -->
-    <div id="errorBoundary" style="display: none;">
-        <h2>Something went wrong</h2>
-        <p>The timer encountered an error. Check the console for details.</p>
-        <button onclick="location.reload()">Reload Page</button>
-    </div>
-    
-    <!-- Load the timer renderer script -->
-    <script>
-        // Global error handler
-        window.addEventListener('error', (e) => {
-            console.error('Global error:', e.error);
-            document.getElementById('errorBoundary').style.display = 'block';
-        });
-        
-        window.addEventListener('unhandledrejection', (e) => {
-            console.error('Unhandled promise rejection:', e.reason);
-        });
-    </script>
 </body>
 </html>

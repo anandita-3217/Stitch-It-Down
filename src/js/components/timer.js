@@ -41,6 +41,7 @@ class PomodoroTimer {
             this.setDefaultSession();
             this.updateDisplay();
             this.updateStats();
+            this.addToggleEnhancements();
             console.log('PomodoroTimer initialized successfully');
         } catch (error) {
             console.error('Error initializing PomodoroTimer:', error);
@@ -100,7 +101,31 @@ class PomodoroTimer {
             timerContainer: !!this.timerContainer
         });
     }
-    
+    addToggleEnhancements() {
+        // Find all toggle switches
+        const toggles = document.querySelectorAll('.toggle-switch input[type="checkbox"]');
+        
+        toggles.forEach(toggle => {
+            // Add click animation
+            toggle.addEventListener('change', function() {
+                const slider = this.nextElementSibling;
+
+                // Add a brief animation class
+                slider.classList.add('toggle-active');
+
+                // Remove the animation class after animation completes
+                setTimeout(() => {
+                    slider.classList.remove('toggle-active');
+                }, 300);
+
+                // Optional: Add haptic feedback on mobile devices
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+            });
+        });
+    }
+
     setDefaultSession() {
         // Ensure we start with a work session as default
         this.currentSession = 'work';
