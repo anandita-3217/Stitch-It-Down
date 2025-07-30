@@ -1,5 +1,5 @@
-import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 // js/components/settings.js - Core Settings Logic
+import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 import bellSound from '@assets/sounds/bell.wav';
 import chimeSound from '@assets/sounds/chime.wav';
 import gongSound from '@assets/sounds/gong.wav';
@@ -364,8 +364,6 @@ export class SettingsCore {
             return { success: false, error: error.message };
         }
     }
-
-    // System diagnostics
     checkSystemAudio() {
         const diagnostics = {
             timestamp: new Date().toISOString(),
@@ -373,8 +371,6 @@ export class SettingsCore {
             audioContext: {},
             currentSettings: {}
         };
-
-        // Check permissions
         if (navigator.permissions) {
             navigator.permissions.query({name: 'microphone'}).then(result => {
                 diagnostics.permissions.microphone = result.state;
@@ -382,8 +378,6 @@ export class SettingsCore {
                 diagnostics.permissions.microphone = 'unavailable';
             });
         }
-
-        // Check audio context
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (AudioContext) {
             try {
@@ -398,27 +392,21 @@ export class SettingsCore {
                 diagnostics.audioContext.error = e.message;
             }
         }
-
-        // Current settings
         diagnostics.currentSettings = {
             volume: this.currentSettings.timer?.volume,
             soundEnabled: this.currentSettings.timer?.soundEnabled,
             soundType: this.currentSettings.timer?.soundType
         };
-
         this.emit('systemAudioCheck', diagnostics);
         return diagnostics;
     }
-
     // Getters for current state
     getCurrentSettings() {
         return { ...this.currentSettings };
     }
-
     getOriginalSettings() {
         return { ...this.originalSettings };
     }
-
     // Settings change listeners
     setupRealTimeListeners() {
         if (window.electronAPI?.onSettingsUpdated) {

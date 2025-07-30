@@ -6,13 +6,11 @@ import '@components/sidebar.js';
 import { SettingsCore, SOUND_REGISTRY } from '@components/settings.js';
 import { setImage, setDailyQuote, setRandomGif, loadAllImages, initTheme, setTheme, toggleTheme, updateDate, updateClock } from '@components/utils.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
 class SettingsRenderer {
     constructor() {
         this.settingsCore = new SettingsCore();
         this.setupCoreEventListeners();
     }
-
     async init() {
         try {
             await this.initializeUIComponents();
