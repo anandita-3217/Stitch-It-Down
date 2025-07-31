@@ -559,7 +559,7 @@ switchSessionProgrammatically(sessionType) {
         
         if (this.stitchImg && gifKey && this.images.gifs[gifKey]) {
             this.stitchImg.src = this.images.gifs[gifKey];
-            console.log(`Updated Stitch GIF to: ${gifKey}`, this.images.gifs[gifKey]);
+            // console.log(`Updated Stitch GIF to: ${gifKey}`, this.images.gifs[gifKey]);
         }
     } else {
         console.warn('Image registry not available, Stitch GIF will not update');
