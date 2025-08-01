@@ -507,6 +507,35 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+/* Spinner loader */
+.loader {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid rgb(255,255,255,.2);
+    border-top-color: transparent;
+    animation: rot1 1.2s linear infinite;
+    margin: 0 auto; /* Center the spinner in the button */
+}
+
+@keyframes rot1 {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Optional: Style the button when loading */
+.feature-button.loading {
+    pointer-events: none; /* Prevent clicks during loading */
+    opacity: 0.8; /* Slightly fade the button */
+}
+
+/* If you want the spinner to be centered vertically in taller buttons */
+.feature-button.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .daily-quote-section {
     max-width: 800px;
     margin: 0 auto 30px auto;

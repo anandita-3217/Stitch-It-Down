@@ -92,6 +92,55 @@ function setupNavigationListeners() {
     });
 }
 
+// async function handleFeatureButtonClick(event) {
+//     // Prevent default behavior and stop propagation
+//     event.preventDefault();
+//     event.stopPropagation();
+    
+//     // Prevent multiple rapid clicks with shorter timeout
+//     if (isNavigating) {
+//         return;
+//     }
+    
+//     const button = event.currentTarget;
+//     const pageName = button.getAttribute('data-page');
+    
+//     if (!pageName) {
+//         console.error('No page name found on button');
+//         return;
+//     }
+    
+//     console.log(`Feature button clicked: ${pageName}`);
+    
+//     // Set navigation state
+//     isNavigating = true;
+    
+//     // Add loading state
+//     button.classList.add('loading');
+    
+//     try {
+//         const result = await window.electronAPI.navigateTo(pageName);
+        
+//         if (result && result.success) {
+//             console.log(`Successfully navigated to ${pageName}`);
+//         } else {
+//             console.error(`Failed to navigate to ${pageName}:`, result?.message || 'Unknown error');
+//         }
+//     } catch (error) {
+//         console.error(`Navigation error for ${pageName}:`, error);
+//     } finally {
+//         // Reset button state immediately
+//         button.classList.remove('loading');
+        
+//         // Reset navigation state after shorter delay
+//         if (navigationTimeout) {
+//             clearTimeout(navigationTimeout);
+//         }
+//         navigationTimeout = setTimeout(() => {
+//             isNavigating = false;
+//         }, 200);
+//     }
+// }
 async function handleFeatureButtonClick(event) {
     // Prevent default behavior and stop propagation
     event.preventDefault();
@@ -115,8 +164,14 @@ async function handleFeatureButtonClick(event) {
     // Set navigation state
     isNavigating = true;
     
-    // Add loading state
+    // Add loading state with spinner
     button.classList.add('loading');
+    
+    // Store original content and add spinner
+    const originalHTML = button.innerHTML;
+    button.setAttribute('data-original-html', originalHTML);
+    button.innerHTML = '<div class="loader"></div>';
+    button.disabled = true;
     
     try {
         const result = await window.electronAPI.navigateTo(pageName);
@@ -129,8 +184,16 @@ async function handleFeatureButtonClick(event) {
     } catch (error) {
         console.error(`Navigation error for ${pageName}:`, error);
     } finally {
-        // Reset button state immediately
+        // Reset button state
         button.classList.remove('loading');
+        button.disabled = false;
+        
+        // Restore original content
+        const storedHTML = button.getAttribute('data-original-html');
+        if (storedHTML) {
+            button.innerHTML = storedHTML;
+            button.removeAttribute('data-original-html');
+        }
         
         // Reset navigation state after shorter delay
         if (navigationTimeout) {
