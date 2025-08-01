@@ -23,6 +23,9 @@ class PomodoroTimer {
     complete: ["Great job!","You did amazing!","Proud of you!","Mission accomplished!","You're the best!"]
     };
         this.initializeWhenReady();
+        this.currentTimerSettings = null;
+        this.initializeSettingsListener();
+        this.loadInitialSettings();
     }
     
     initializeWhenReady() {
@@ -118,14 +121,36 @@ class PomodoroTimer {
                     slider.classList.remove('toggle-active');
                 }, 300);
 
-                // Optional: Add haptic feedback on mobile devices
-                if ('vibrate' in navigator) {
-                    navigator.vibrate(50);
-                }
+                // // Optional: Add haptic feedback on mobile devices
+                // if ('vibrate' in navigator) {
+                //     navigator.vibrate(50);
+                // }
             });
         });
     }
-
+        async initializeSettingsListener() {
+        // Listen for settings updates from main process
+        window.electronAPI.onTimerSettingsUpdated((newSettings) => {
+            console.log('Timer settings updated:', newSettings);
+            this.currentTimerSettings = newSettings;
+        });
+    }
+    
+    async loadInitialSettings() {
+        try {
+            this.currentTimerSettings = await window.electronAPI.getTimerSettings();
+            console.log('Initial timer settings loaded:', this.currentTimerSettings);
+        } catch (error) {
+            console.error('Failed to load initial timer settings:', error);
+            // Use fallback settings
+            this.currentTimerSettings = {
+                soundEnabled: true,
+                soundType: 'bell',
+                volume: 0.8,
+                customSoundPath: null
+            };
+        }
+    }
     setDefaultSession() {
         // Ensure we start with a work session as default
         this.currentSession = 'work';
@@ -655,33 +680,80 @@ getStitchGifKey(state) {
         const soundNotificationsInput = document.getElementById('soundNotifications');
         if (soundNotificationsInput) soundNotificationsInput.checked = this.settings.soundNotifications;
     }
-    playNotificationSound() {
+    async playNotificationSound() {
+        try {
+            if (!this.currentTimerSettings?.soundEnabled) {
+                console.log('Timer sound is disabled');
+                return;
+            }
+            const result = await window.electronAPI.playTimerSound(this.currentTimerSettings);
+            
+            if (result.success && result.playInRenderer) {
+                // Main process wants us to play the sound in renderer
+                await this.playAudioFile(result.soundPath, result.volume);
+            } else if (!result.success) {
+                console.error('Failed to play timer sound:', result.error);
+                // Fallback to the beep sound
+                this.playFallbackSound();
+            }
+            
+        } catch (error) {
+            console.error('Error in playNotificationSound:', error);
+            // Fallback to the beep sound
+            this.playFallbackSound();
+        }
+    }
+    
+    // Method to play audio files
+    async playAudioFile(soundPath, volume) {
+        try {
+            const audio = new Audio(soundPath);
+            audio.volume = volume || 0.8;
+            
+            return new Promise((resolve, reject) => {
+                audio.onended = () => resolve();
+                audio.onerror = (error) => reject(error);
+                audio.play().catch(reject);
+            });
+        } catch (error) {
+            console.error('Error playing audio file:', error);
+            throw error;
+        }
+    }
+    playFallbackSound() {
         try {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
+            
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
+            
             oscillator.frequency.value = 800;
             oscillator.type = 'sine';
+            
             gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.5);
         } catch (error) {
-            console.error('Error playing notification sound:', error);
+            console.error('Error playing fallback sound:', error);
         }
     }
     destroy() {
-    if (this.interval) {
-        clearInterval(this.interval);
-        this.interval = null;
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+        this.isRunning = false;
+        if (this.timerContainer) {
+            this.timerContainer.classList.remove('work', 'break', 'shortbreak', 'longbreak', 'running');
+        }
+        if (window.electronAPI && window.electronAPI.removeTimerSettingsListener) {
+                window.electronAPI.removeTimerSettingsListener();
+        }
     }
-    this.isRunning = false;
-    if (this.timerContainer) {
-        this.timerContainer.classList.remove('work', 'break', 'shortbreak', 'longbreak', 'running');
-    }
-}
 }
 
 export default PomodoroTimer;

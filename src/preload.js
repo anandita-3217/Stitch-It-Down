@@ -1,78 +1,3 @@
-// // preload.js
-// const { contextBridge, ipcRenderer } = require('electron');
-
-// // Expose protected methods that allow the renderer process to use
-// // the ipcRenderer without exposing the entire object
-// contextBridge.exposeInMainWorld('electronAPI', {
-//   // Navigation functions
-//   navigateTo: (pageName) => ipcRenderer.invoke('navigate-to-page', pageName),
-//   closeWindow: (pageName) => ipcRenderer.invoke('close-page-window', pageName),
-//   getOpenWindows: () => ipcRenderer.invoke('get-open-windows'),
-  
-//   // Window control functions
-//   minimize: () => ipcRenderer.invoke('window-minimize'),
-//   maximize: () => ipcRenderer.invoke('window-maximize'),
-//   close: () => ipcRenderer.invoke('window-close'),
-  
-//   // App information
-//   getVersion: () => ipcRenderer.invoke('get-app-version'),
-  
-//   // File system operations (if needed)
-//   readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
-//   writeFile: (filePath, data) => ipcRenderer.invoke('write-file', filePath, data),
-  
-//   // Notifications
-//   showNotification: (title, body) => ipcRenderer.invoke('show-notification', { title, body }),
-  
-//   // Settings
-//   getSetting: (key) => ipcRenderer.invoke('get-setting', key),
-//   setSetting: (key, value) => ipcRenderer.invoke('set-setting', key, value),
-  
-//   // Event listeners for renderer to main communication
-//   onWindowFocus: (callback) => ipcRenderer.on('window-focus', callback),
-//   onWindowBlur: (callback) => ipcRenderer.on('window-blur', callback),
-  
-//   // Remove listeners
-//   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
-//   //   // Settings operations
-//   // saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
-//   // loadSettings: () => ipcRenderer.invoke('load-settings'),
-//   // resetSettings: () => ipcRenderer.invoke('reset-settings'),
-  
-//   // // Audio settings
-//   // setTimerVolume: (volume) => ipcRenderer.invoke('set-timer-volume', volume),
-//   // setTimerSound: (soundPath) => ipcRenderer.invoke('set-timer-sound', soundPath),
-//   // playTestSound: (soundPath) => ipcRenderer.invoke('play-test-sound', soundPath),
-//   // getAvailableSounds: () => ipcRenderer.invoke('get-available-sounds'),
-//   // selectCustomSound: () => ipcRenderer.invoke('select-custom-sound'),
-  
-//   // // Window management
-//   // closeWindow: () => ipcRenderer.invoke('close-window'),
-//   // minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
-  
-//   // // File operations
-//   // selectFolder: () => ipcRenderer.invoke('select-folder'),
-//   // exportData: () => ipcRenderer.invoke('export-data'),
-//   // importData: () => ipcRenderer.invoke('import-data'),
-  
-//   // // Cross-feature communication
-//   // updateTimerSettings: (settings) => ipcRenderer.invoke('update-timer-settings', settings),
-//   // updateTaskSettings: (settings) => ipcRenderer.invoke('update-task-settings', settings),
-//   // updateNotesSettings: (settings) => ipcRenderer.invoke('update-notes-settings', settings),
-//   // updateCalendarSettings: (settings) => ipcRenderer.invoke('update-calendar-settings', settings),
-  
-//   // // Listen for settings updates from other windows
-//   // onSettingsUpdated: (callback) => {
-//   //   ipcRenderer.on('settings-updated', callback);
-//   //   return () => ipcRenderer.removeListener('settings-updated', callback);
-//   // },
-  
-//   // // Listen for timer events
-//   // onTimerEvent: (callback) => {
-//   //   ipcRenderer.on('timer-event', callback);
-//   //   return () => ipcRenderer.removeListener('timer-event', callback);
-//   // },
-// });
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -142,6 +67,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onTimerEvent: (callback) => {
         ipcRenderer.on('timer-event', callback);
         return () => ipcRenderer.removeListener('timer-event', callback);
+    },
+        // Add these timer-specific methods
+    getTimerSettings: () => ipcRenderer.invoke('get-timer-settings'),
+    playTimerSound: (settings) => ipcRenderer.invoke('play-timer-sound', settings),
+    
+    // Listen for settings updates
+    onTimerSettingsUpdated: (callback) => {
+        ipcRenderer.on('timer-settings-updated', (event, settings) => callback(settings));
+    },
+    
+    // Remove listener
+    removeTimerSettingsListener: () => {
+        ipcRenderer.removeAllListeners('timer-settings-updated');
     },
     
     // Broadcast events to all windows

@@ -902,6 +902,18 @@
     color: var(--white)
 }
 
+.time-field-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.time-field-container input[type="time"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
 
 .event-item.new {
     animation: fadeIn 0.4s ease;
