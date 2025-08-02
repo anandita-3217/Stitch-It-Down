@@ -1,4 +1,4 @@
-// js/components/settings.js - Core Settings Logic
+// settings.js - Core Settings Logic
 import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
 import bellSound from '@assets/sounds/bell.wav';
 import chimeSound from '@assets/sounds/chime.wav';

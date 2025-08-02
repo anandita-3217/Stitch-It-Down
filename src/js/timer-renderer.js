@@ -128,3 +128,22 @@ if (process.env.NODE_ENV === 'development') {
         loadAllImages: loadAllImages
     };
 }
+// In your timer page HTML or initialization script
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for settings to be available
+    let attempts = 0;
+    while (!window.settingsCore && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
+    if (window.settingsCore) {
+        console.log('Settings core found, initializing timer...');
+    } else {
+        console.warn('Settings core not found after waiting, timer will use localStorage settings');
+    }
+    
+    // Now initialize timer
+    const timer = new PomodoroTimer();
+    window.pomodoroTimer = timer;
+});

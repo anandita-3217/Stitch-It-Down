@@ -1,3 +1,33 @@
+// timer.js
+import bellSound from '@assets/sounds/bell.wav';
+import chimeSound from '@assets/sounds/chime.wav';
+import gongSound from '@assets/sounds/gong.wav';
+import tweetSound from '@assets/sounds/tweet.wav';
+
+// Add the SOUND_REGISTRY constant
+const SOUND_REGISTRY = {
+    bell: {
+        id: 'bell',
+        name: 'Bell',
+        path: bellSound 
+    },
+    chime: {
+        id: 'chime',
+        name: 'Chime',
+        path: chimeSound
+    },
+    gong: {
+        id: 'gong',
+        name: 'Gong',
+        path: gongSound
+    },
+    tweet: {
+        id: 'tweet',
+        name: 'Tweet',
+        path: tweetSound
+    }
+};
+
 class PomodoroTimer {
     constructor(imageRegistry = null) {
         this.images = imageRegistry;
@@ -120,11 +150,6 @@ class PomodoroTimer {
                 setTimeout(() => {
                     slider.classList.remove('toggle-active');
                 }, 300);
-
-                // // Optional: Add haptic feedback on mobile devices
-                // if ('vibrate' in navigator) {
-                //     navigator.vibrate(50);
-                // }
             });
         });
     }
@@ -681,66 +706,107 @@ getStitchGifKey(state) {
         if (soundNotificationsInput) soundNotificationsInput.checked = this.settings.soundNotifications;
     }
     async playNotificationSound() {
+        console.log('=== ATTEMPTING TO PLAY SOUND ===');
+
+        // First check if sound is enabled from timer's own settings
+        if (this.settings && this.settings.soundNotifications === false) {
+            console.log('Timer sound is disabled in timer settings');
+            return;
+        }
+
+        // Get sound settings - try multiple sources
+        let soundType = 'bell';
+        let volume = 0.8;
+        let soundEnabled = true;
+        let customSoundPath = null;
+
+        // Try to get from settingsCore first
+        if (window.settingsCore) {
+            const settings = window.settingsCore.getCurrentSettings();
+            if (settings.timer) {
+                soundType = settings.timer.soundType || 'bell';
+                volume = settings.timer.volume || 0.8;
+                soundEnabled = settings.timer.soundEnabled !== false;
+                customSoundPath = settings.timer.customSoundPath;
+            }
+            console.log('Using settings from settingsCore:', { soundType, volume, soundEnabled });
+        } else if (this.currentTimerSettings) {
+            // Try the Electron API settings
+            soundType = this.currentTimerSettings.soundType || 'bell';
+            volume = this.currentTimerSettings.volume || 0.8;
+            soundEnabled = this.currentTimerSettings.soundEnabled !== false;
+            customSoundPath = this.currentTimerSettings.customSoundPath;
+            console.log('Using currentTimerSettings:', { soundType, volume, soundEnabled });
+        } else {
+            // Fallback to timer's own settings
+            soundEnabled = this.settings ? this.settings.soundNotifications : true;
+            console.log('Using timer local settings, sound enabled:', soundEnabled);
+        }
+
+        if (!soundEnabled) {
+            console.log('Sound notifications are disabled');
+            return;
+        }
+
         try {
-            if (!this.currentTimerSettings?.soundEnabled) {
-                console.log('Timer sound is disabled');
+            // First try: Use the local SOUND_REGISTRY (imported at the top)
+            if (SOUND_REGISTRY && SOUND_REGISTRY[soundType]) {
+                console.log(`Playing sound from local SOUND_REGISTRY: ${soundType}`);
+                const sound = SOUND_REGISTRY[soundType];
+                const audio = new Audio(sound.path);
+                audio.volume = volume;
+                await audio.play();
+                console.log('Successfully played sound from local SOUND_REGISTRY');
                 return;
             }
-            const result = await window.electronAPI.playTimerSound(this.currentTimerSettings);
-            
-            if (result.success && result.playInRenderer) {
-                // Main process wants us to play the sound in renderer
-                await this.playAudioFile(result.soundPath, result.volume);
-            } else if (!result.success) {
-                console.error('Failed to play timer sound:', result.error);
-                // Fallback to the beep sound
-                this.playFallbackSound();
+
+            if (soundFile) {
+                console.log(`Playing ${soundType} from direct import:`, soundFile);
+                const audio = new Audio(soundFile);
+                audio.volume = volume;
+                await audio.play();
+                console.log(`Successfully played ${soundType} from direct import`);
+                return;
             }
-            
+
+            // Fallback to generated beep
+            console.log('No sound file found, using fallback beep sound');
+            await this.playBeepSound(volume);
+
         } catch (error) {
-            console.error('Error in playNotificationSound:', error);
-            // Fallback to the beep sound
-            this.playFallbackSound();
+            console.error('Error playing notification sound:', error);
+            // Final fallback
+            try {
+                await this.playBeepSound(volume);
+                console.log('Played fallback beep sound');
+            } catch (beepError) {
+                console.error('Even fallback beep failed:', beepError);
+            }
         }
     }
+// Add this helper method for the beep fallback
+async playBeepSound(volume = 0.8) {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
     
-    // Method to play audio files
-    async playAudioFile(soundPath, volume) {
-        try {
-            const audio = new Audio(soundPath);
-            audio.volume = volume || 0.8;
-            
-            return new Promise((resolve, reject) => {
-                audio.onended = () => resolve();
-                audio.onerror = (error) => reject(error);
-                audio.play().catch(reject);
-            });
-        } catch (error) {
-            console.error('Error playing audio file:', error);
-            throw error;
-        }
-    }
-    playFallbackSound() {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-        } catch (error) {
-            console.error('Error playing fallback sound:', error);
-        }
-    }
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(volume * 0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+    
+    // Return a promise that resolves when the sound ends
+    return new Promise(resolve => {
+        setTimeout(resolve, 600);
+    });
+}
     destroy() {
         if (this.interval) {
             clearInterval(this.interval);
