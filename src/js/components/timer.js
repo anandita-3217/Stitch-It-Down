@@ -222,6 +222,13 @@ class PomodoroTimer {
         this.settingsPanel = document.getElementById('settingsPanel');
         this.settingsToggle = document.getElementById('settingsToggle');
         this.closeSettings = document.getElementById('closeSettings');
+
+        console.log('🔍 Settings elements found:');
+        console.log('  settingsPanel:', !!this.settingsPanel, this.settingsPanel);
+        console.log('  settingsToggle:', !!this.settingsToggle, this.settingsToggle);
+        console.log('  closeSettings:', !!this.closeSettings, this.closeSettings);
+    
+
         
         // Stats
         this.todayPomodoros = document.getElementById('todayPomodoros');
@@ -305,8 +312,6 @@ class PomodoroTimer {
                 workBtn.classList.add('active');
             }
         }
-        
-        // Update theme and display
         this.updateTheme();
         this.updateProgress();
         this.updateStitchState('ready');
@@ -328,13 +333,28 @@ class PomodoroTimer {
                 btn.addEventListener('click', (e) => this.switchSession(e));
             });
         }
-        
-        if (this.settingsToggle) {
-            this.settingsToggle.addEventListener('click', () => this.toggleSettings());
-        }
-        if (this.closeSettings) {
-            this.closeSettings.addEventListener('click', () => this.toggleSettings());
-        }
+        // if (this.closeSettings) {
+        //     this.closeSettings.addEventListener('click', () => this.toggleSettings());
+        // }
+            if (this.settingsToggle) {
+        console.log('✅ Binding click event to settings toggle');
+        this.settingsToggle.addEventListener('click', () => {
+            console.log('🖱️ Settings toggle clicked!');
+            this.toggleSettings();
+        });
+    } else {
+        console.log('❌ Settings toggle button not found, cannot bind events');
+    }
+    
+    if (this.closeSettings) {
+        console.log('✅ Binding click event to close settings');
+        this.closeSettings.addEventListener('click', () => {
+            console.log('🖱️ Close settings clicked!');
+            this.toggleSettings();
+        });
+    } else {
+        console.log('❌ Close settings button not found, cannot bind events');
+    }
         
         // Work duration settings
         const workDurationInput = document.getElementById('workDuration');
@@ -780,11 +800,175 @@ getStitchGifKey(state) {
         };
         return keyMap[this.currentSession] || 'work';
     }
-    toggleSettings() {
-        if (this.settingsPanel) {
-            this.settingsPanel.classList.toggle('open');
+    // toggleSettings() {
+    //     if (this.settingsPanel) {
+    //         this.settingsPanel.classList.toggle('open');
+    //     }
+        
+    // }
+    // Add this to your toggleSettings method to debug CSS conflicts
+// toggleSettings() {
+//     console.log('🔧 toggleSettings() called');
+    
+//     if (this.settingsPanel) {
+//         console.log('Before toggle - classes:', this.settingsPanel.classList.toString());
+//         this.settingsPanel.classList.toggle('open');
+//         console.log('After toggle - classes:', this.settingsPanel.classList.toString());
+        
+//         // Debug CSS conflicts
+//         if (this.settingsPanel.classList.contains('open')) {
+//             console.log('=== CSS DEBUG INFO ===');
+            
+//             // Get all applied styles
+//             const computedStyle = window.getComputedStyle(this.settingsPanel);
+//             console.log('Computed right:', computedStyle.right);
+//             console.log('Computed position:', computedStyle.position);
+//             console.log('Computed z-index:', computedStyle.zIndex);
+            
+//             // Check if our CSS rule exists
+//             const sheets = Array.from(document.styleSheets);
+//             let foundOpenRule = false;
+            
+//             try {
+//                 sheets.forEach(sheet => {
+//                     if (sheet.href && sheet.href.includes('timer.css')) {
+//                         console.log('Found timer.css stylesheet:', sheet.href);
+//                         try {
+//                             Array.from(sheet.cssRules).forEach(rule => {
+//                                 if (rule.selectorText && rule.selectorText.includes('.settings-panel.open')) {
+//                                     console.log('Found .settings-panel.open rule:', rule.cssText);
+//                                     foundOpenRule = true;
+//                                 }
+//                             });
+//                         } catch (e) {
+//                             console.log('Cannot read CSS rules (CORS):', e.message);
+//                         }
+//                     }
+//                 });
+//             } catch (error) {
+//                 console.log('Error checking stylesheets:', error);
+//             }
+            
+//             if (!foundOpenRule) {
+//                 console.log('❌ .settings-panel.open CSS rule not found!');
+//             }
+            
+//             // Force the style as a test
+//             console.log('🧪 Testing forced style...');
+//             this.settingsPanel.style.right = '0px';
+//             setTimeout(() => {
+//                 console.log('After forced style - computed right:', window.getComputedStyle(this.settingsPanel).right);
+//             }, 100);
+//         }
+//     }
+// }
+toggleSettings() {
+    console.log('🔧 toggleSettings() called');
+    
+    if (this.settingsPanel) {
+        const isCurrentlyOpen = this.settingsPanel.classList.contains('open');
+        console.log('Current state - isOpen:', isCurrentlyOpen);
+        
+        if (isCurrentlyOpen) {
+            // Close the panel
+            console.log('🔄 Closing panel...');
+            this.settingsPanel.classList.remove('open');
+            this.closeSettingsPanel();
+        } else {
+            // Open the panel
+            console.log('🔄 Opening panel...');
+            this.settingsPanel.classList.add('open');
+            this.openSettingsPanel();
         }
     }
+}
+
+// Separate method to open panel with multiple fallbacks
+openSettingsPanel() {
+    if (!this.settingsPanel) return;
+    
+    console.log('📖 Opening settings panel...');
+    
+    // Method 1: Use CSS transform instead of right position
+    this.settingsPanel.style.transform = 'translateX(0)';
+    this.settingsPanel.style.right = '0px';
+    this.settingsPanel.style.display = 'block';
+    this.settingsPanel.style.visibility = 'visible';
+    
+    // Method 2: Force with !important via CSS text
+    this.settingsPanel.style.cssText += 'right: 0px !important; transform: translateX(0) !important;';
+    
+    // Method 3: Use requestAnimationFrame to ensure it sticks
+    requestAnimationFrame(() => {
+        this.settingsPanel.style.right = '0px';
+        this.settingsPanel.style.transform = 'translateX(0)';
+        
+        // Double-check after a brief delay
+        setTimeout(() => {
+            const computedRight = window.getComputedStyle(this.settingsPanel).right;
+            console.log('Final computed right after opening:', computedRight);
+            
+            if (computedRight !== '0px') {
+                console.log('🚨 Style was overridden, forcing again...');
+                this.settingsPanel.style.cssText += 'right: 0px !important; position: fixed !important; z-index: 9999 !important;';
+            }
+        }, 50);
+    });
+}
+
+// Separate method to close panel
+closeSettingsPanel() {
+    if (!this.settingsPanel) return;
+    
+    console.log('📕 Closing settings panel...');
+    
+    // Remove the forced styles and let CSS take over
+    this.settingsPanel.style.transform = 'translateX(100%)';
+    this.settingsPanel.style.right = '-400px';
+    
+    // Use CSS text for !important
+    this.settingsPanel.style.cssText += 'right: -400px !important; transform: translateX(100%) !important;';
+    
+    // Clean up after animation
+    setTimeout(() => {
+        if (!this.settingsPanel.classList.contains('open')) {
+            this.settingsPanel.style.display = 'block'; // Keep block but hidden
+        }
+    }, 300);
+}
+// Add this as a temporary method to your PomodoroTimer class for testing
+testPanelManually() {
+    console.log('🧪 Testing panel manually...');
+    const panel = document.getElementById('settingsPanel');
+    
+    if (panel) {
+        console.log('Panel found, forcing it to show...');
+        
+        // Remove any existing styles that might interfere
+        panel.style.position = 'fixed';
+        panel.style.top = '0';
+        panel.style.right = '0px';
+        panel.style.width = '350px';
+        panel.style.height = '100vh';
+        panel.style.backgroundColor = 'white';
+        panel.style.zIndex = '9999';
+        panel.style.border = '2px solid red'; // Make it obvious
+        panel.style.transition = 'right 0.3s ease';
+        
+        console.log('Panel should now be visible with red border');
+        
+        // Test closing after 3 seconds
+        setTimeout(() => {
+            console.log('Now hiding panel...');
+            panel.style.right = '-400px';
+        }, 3000);
+        
+    } else {
+        console.log('❌ Panel not found in DOM');
+    }
+}
+
+// Call this from console: window.pomodoroTimer.testPanelManually()
     loadSettings() {
         try {
             const saved = JSON.parse(localStorage.getItem('pomodoroSettings') || '{}');

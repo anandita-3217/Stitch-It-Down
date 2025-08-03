@@ -40,9 +40,19 @@
     border-left: 2px solid var(--border-color);
 }
 
-.settings-panel.open {
+/* .settings-panel.open {
     right: 0;
+    z-index: 9999 !important;
+} */
+
+.settings-panel.panel-open {
+    --panel-position: 0px;
 }
+
+.settings-panel.panel-closed {
+    --panel-position: -400px;
+}
+
 
 .settings-header {
     display: flex;
