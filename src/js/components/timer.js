@@ -70,11 +70,7 @@ class PomodoroTimer {
     
     async init() {
         try {
-            console.log('🔄 Timer initializing...');
-            
-            // Wait for settings to be ready
             await this.waitForSettings();
-            
             this.bindElements();
             this.bindEvents();
             this.loadSettings();
@@ -88,8 +84,6 @@ class PomodoroTimer {
         }
     }
         async waitForSettings() {
-        console.log('🔄 Waiting for settings...');
-        
         // Method 1: Check if settingsCore is available and initialized
         if (window.settingsCore) {
             console.log('📡 Found settingsCore, waiting for initialization...');
@@ -101,16 +95,12 @@ class PomodoroTimer {
                 return;
             }
         }
-
         // Method 2: Wait for settings from Electron main process
         await this.waitForElectronSettings();
     }
-
     async waitForElectronSettings() {
         return new Promise((resolve) => {
             let resolved = false;
-            
-            // Listen for settings from main process
             const settingsReadyHandler = (settings) => {
                 if (!resolved) {
                     resolved = true;
@@ -121,24 +111,17 @@ class PomodoroTimer {
                     resolve();
                 }
             };
-
-            // Multiple ways settings might arrive
             if (window.electronAPI?.onTimerSettingsReady) {
                 window.electronAPI.onTimerSettingsReady(settingsReadyHandler);
             }
-
-            // Listen for DOM events too
             window.addEventListener('timer-settings-ready', (event) => {
                 settingsReadyHandler(event.detail);
             });
-
             window.addEventListener('app-settings-ready', (event) => {
                 if (event.detail && event.detail.settings && event.detail.settings.timer) {
                     settingsReadyHandler(event.detail.settings.timer);
                 }
             });
-
-            // Try to get settings immediately
             if (window.electronAPI?.getTimerSettings) {
                 window.electronAPI.getTimerSettings().then(settings => {
                     if (settings && !resolved) {
@@ -146,43 +129,33 @@ class PomodoroTimer {
                     }
                 }).catch(console.error);
             }
-
-            // Timeout fallback
             setTimeout(() => {
                 if (!resolved) {
                     resolved = true;
-                    console.warn('⚠️ Settings timeout, using defaults');
                     this.setupDefaultSettings();
                     resolve();
                 }
             }, 5000);
         });
     }
-
     setupSettingsCoreIntegration() {
         const currentSettings = window.settingsCore.getCurrentSettings();
         if (currentSettings.timer) {
             this.currentTimerSettings = currentSettings.timer;
         }
-
-        // Listen for changes
-        window.settingsCore.on('settingsUpdated', (settings) => {
+    window.settingsCore.on('settingsUpdated', (settings) => {
             if (settings.timer) {
                 this.currentTimerSettings = settings.timer;
-                console.log('📡 Timer settings updated via settingsCore');
             }
         });
     }
-
     setupElectronSettingsListeners() {
         if (window.electronAPI?.onTimerSettingsUpdated) {
             window.electronAPI.onTimerSettingsUpdated((newSettings) => {
                 this.currentTimerSettings = newSettings;
-                console.log('📡 Timer settings updated via Electron');
             });
         }
     }
-
     setupDefaultSettings() {
         this.currentTimerSettings = {
             soundEnabled: true,
@@ -193,78 +166,36 @@ class PomodoroTimer {
         this.settingsReady = true;
     }
     bindElements() {
-        // Timer elements - these should exist in your timer page
         this.timeDisplay = document.getElementById('timeDisplay');
         this.sessionType = document.getElementById('sessionType');
-        this.motivationText = document.getElementById('motivationText');
         this.sessionCountEl = document.getElementById('sessionCount');
-        
-        // Progress ring
         this.progressRing = document.querySelector('.progress-ring-progress');
         if (this.progressRing) {
             this.circumference = 2 * Math.PI * 130;
             this.progressRing.style.strokeDasharray = this.circumference;
         }
-        
-        // Controls
         this.startPauseBtn = document.getElementById('startPauseBtn');
         this.resetBtn = document.getElementById('resetBtn');
         this.skipBtn = document.getElementById('skipBtn');
-        
-        // Session buttons
         this.sessionBtns = document.querySelectorAll('.session-btn');
-        
-        // Stitch elements
         this.stitchImg = document.getElementById('stitchTimer');
         this.stitchSpeech = document.getElementById('stitchSpeech');
-        
-        // Settings
         this.settingsPanel = document.getElementById('settingsPanel');
         this.settingsToggle = document.getElementById('settingsToggle');
         this.closeSettings = document.getElementById('closeSettings');
-
-        console.log('🔍 Settings elements found:');
-        console.log('  settingsPanel:', !!this.settingsPanel, this.settingsPanel);
-        console.log('  settingsToggle:', !!this.settingsToggle, this.settingsToggle);
-        console.log('  closeSettings:', !!this.closeSettings, this.closeSettings);
-    
-
-        
-        // Stats
         this.todayPomodoros = document.getElementById('todayPomodoros');
         this.totalTimeEl = document.getElementById('totalTime');
-        this.streak = document.getElementById('streak');
-        
-        // Timer container - use a fallback if not found
         this.timerContainer = document.querySelector('.timer-container') || document.querySelector('.main-content') || document.body;
-        
-        // Check if essential elements exist
         if (!this.timeDisplay || !this.startPauseBtn) {
             console.warn('Some timer elements not found in DOM. Timer may have limited functionality.');
         }
-        
-        // Log what elements were found for debugging
-        console.log('Timer elements bound:', {
-            timeDisplay: !!this.timeDisplay,
-            startPauseBtn: !!this.startPauseBtn,
-            sessionBtns: this.sessionBtns.length,
-            stitchImg: !!this.stitchImg,
-            timerContainer: !!this.timerContainer
-        });
     }
     addToggleEnhancements() {
-        // Find all toggle switches
         const toggles = document.querySelectorAll('.toggle-switch input[type="checkbox"]');
-        
         toggles.forEach(toggle => {
-            // Add click animation
             toggle.addEventListener('change', function() {
                 const slider = this.nextElementSibling;
-
-                // Add a brief animation class
                 slider.classList.add('toggle-active');
-
-                // Remove the animation class after animation completes
                 setTimeout(() => {
                     slider.classList.remove('toggle-active');
                 }, 300);
@@ -272,7 +203,6 @@ class PomodoroTimer {
         });
     }
         async initializeSettingsListener() {
-        // Listen for settings updates from main process
         window.electronAPI.onTimerSettingsUpdated((newSettings) => {
             console.log('Timer settings updated:', newSettings);
             this.currentTimerSettings = newSettings;
@@ -285,7 +215,6 @@ class PomodoroTimer {
             console.log('Initial timer settings loaded:', this.currentTimerSettings);
         } catch (error) {
             console.error('Failed to load initial timer settings:', error);
-            // Use fallback settings
             this.currentTimerSettings = {
                 soundEnabled: true,
                 soundType: 'bell',
@@ -295,16 +224,11 @@ class PomodoroTimer {
         }
     }
     setDefaultSession() {
-        // Ensure we start with a work session as default
         this.currentSession = 'work';
         this.currentTime = this.settings.work * 60;
         this.totalTime = this.currentTime;
-        
-        // Set the work button as active by default
         if (this.sessionBtns && this.sessionBtns.length > 0) {
             this.sessionBtns.forEach(btn => btn.classList.remove('active'));
-            
-            // Find and activate the work session button
             const workBtn = Array.from(this.sessionBtns).find(btn => 
                 btn.dataset.type === 'work'
             );
@@ -316,116 +240,108 @@ class PomodoroTimer {
         this.updateProgress();
         this.updateStitchState('ready');
     }
-    
     bindEvents() {
-        if (this.startPauseBtn) {
-            this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
-        }
-        if (this.resetBtn) {
-            this.resetBtn.addEventListener('click', () => this.resetTimer());
-        }
-        if (this.skipBtn) {
-            this.skipBtn.addEventListener('click', () => this.skipSession());
-        }
-        
-        if (this.sessionBtns && this.sessionBtns.length > 0) {
-            this.sessionBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => this.switchSession(e));
-            });
-        }
-        // if (this.closeSettings) {
-        //     this.closeSettings.addEventListener('click', () => this.toggleSettings());
-        // }
-            if (this.settingsToggle) {
-        console.log('✅ Binding click event to settings toggle');
-        this.settingsToggle.addEventListener('click', () => {
-            console.log('🖱️ Settings toggle clicked!');
-            this.toggleSettings();
+    if (this.startPauseBtn) {
+        this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
+    }
+    if (this.resetBtn) {
+        this.resetBtn.addEventListener('click', () => this.resetTimer());
+    }
+    if (this.skipBtn) {
+        this.skipBtn.addEventListener('click', () => this.skipSession());
+    }
+    if (this.sessionBtns && this.sessionBtns.length > 0) {
+        this.sessionBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => this.switchSession(e));
+        });
+    }
+    if (this.settingsToggle) {
+        this.settingsToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.openSettings(); 
         });
     } else {
-        console.log('❌ Settings toggle button not found, cannot bind events');
+        console.log('❌ Settings toggle button not found');
     }
     
     if (this.closeSettings) {
-        console.log('✅ Binding click event to close settings');
-        this.closeSettings.addEventListener('click', () => {
-            console.log('🖱️ Close settings clicked!');
-            this.toggleSettings();
+        this.closeSettings.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.closeSettingsPanel(); 
         });
     } else {
-        console.log('❌ Close settings button not found, cannot bind events');
+        console.log('❌ Close settings button not found');
     }
-        
-        // Work duration settings
-        const workDurationInput = document.getElementById('workDuration');
-        if (workDurationInput) {
-            workDurationInput.addEventListener('input', (e) => {
-                this.settings.work = parseInt(e.target.value);
-                const workValue = document.getElementById('workValue');
-                if (workValue) {
-                    workValue.textContent = e.target.value;
-                }
-                this.updateSessionButtonDuration('work', e.target.value);
-                if (this.currentSession === 'work') this.resetTimer();
-            });
-        }
-        
-        // Short break duration settings
-        const shortBreakDurationInput = document.getElementById('shortBreakDuration');
-        if (shortBreakDurationInput) {
-            shortBreakDurationInput.addEventListener('input', (e) => {
-                this.settings.shortBreak = parseInt(e.target.value);
-                const shortBreakValue = document.getElementById('shortBreakValue');
-                if (shortBreakValue) {
-                    shortBreakValue.textContent = e.target.value;
-                }
-                this.updateSessionButtonDuration('short', e.target.value);
-                if (this.currentSession === 'short') this.resetTimer();
-            });
-        }
-        
-        // Long break duration settings
-        const longBreakDurationInput = document.getElementById('longBreakDuration');
-        if (longBreakDurationInput) {
-            longBreakDurationInput.addEventListener('input', (e) => {
-                this.settings.longBreak = parseInt(e.target.value);
-                const longBreakValue = document.getElementById('longBreakValue');
-                if (longBreakValue) {
-                    longBreakValue.textContent = e.target.value;
-                }
-                this.updateSessionButtonDuration('long', e.target.value);
-                if (this.currentSession === 'long') this.resetTimer();
-            });
-        }
-        
-        // Auto-start setting
-        const autoStartInput = document.getElementById('autoStart');
-        if (autoStartInput) {
-            autoStartInput.addEventListener('change', (e) => {
-                this.settings.autoStart = e.target.checked;
-                this.saveSettings();
-            });
-        }
-        
-        // Sound notifications setting
-        const soundNotificationsInput = document.getElementById('soundNotifications');
-        if (soundNotificationsInput) {
-            soundNotificationsInput.addEventListener('change', (e) => {
-                this.settings.soundNotifications = e.target.checked;
-                this.saveSettings();
-            });
-        }
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !e.target.matches('input')) {
-                e.preventDefault();
-                this.toggleTimer();
+    document.addEventListener('click', (e) => {
+        if (this.settingsPanel && this.settingsPanel.classList.contains('open')) {
+            if (!this.settingsPanel.contains(e.target) && 
+                !this.settingsToggle.contains(e.target)) {
+                this.closeSettingsPanel(); 
             }
+        }
+    });
+    const workDurationInput = document.getElementById('workDuration');
+    if (workDurationInput) {
+        workDurationInput.addEventListener('input', (e) => {
+            this.settings.work = parseInt(e.target.value);
+            const workValue = document.getElementById('workValue');
+            if (workValue) {
+                workValue.textContent = e.target.value;
+            }
+            this.updateSessionButtonDuration('work', e.target.value);
+            if (this.currentSession === 'work') this.resetTimer();
         });
     }
-    
-    // New method to update session button duration
+    const shortBreakDurationInput = document.getElementById('shortBreakDuration');
+    if (shortBreakDurationInput) {
+        shortBreakDurationInput.addEventListener('input', (e) => {
+            this.settings.shortBreak = parseInt(e.target.value);
+            const shortBreakValue = document.getElementById('shortBreakValue');
+            if (shortBreakValue) {
+                shortBreakValue.textContent = e.target.value;
+            }
+            this.updateSessionButtonDuration('short', e.target.value);
+            if (this.currentSession === 'short') this.resetTimer();
+        });
+    }
+    const longBreakDurationInput = document.getElementById('longBreakDuration');
+    if (longBreakDurationInput) {
+        longBreakDurationInput.addEventListener('input', (e) => {
+            this.settings.longBreak = parseInt(e.target.value);
+            const longBreakValue = document.getElementById('longBreakValue');
+            if (longBreakValue) {
+                longBreakValue.textContent = e.target.value;
+            }
+            this.updateSessionButtonDuration('long', e.target.value);
+            if (this.currentSession === 'long') this.resetTimer();
+        });
+    }
+    const autoStartInput = document.getElementById('autoStart');
+    if (autoStartInput) {
+        autoStartInput.addEventListener('change', (e) => {
+            this.settings.autoStart = e.target.checked;
+            this.saveSettings();
+        });
+    }
+    const soundNotificationsInput = document.getElementById('soundNotifications');
+    if (soundNotificationsInput) {
+        soundNotificationsInput.addEventListener('change', (e) => {
+            this.settings.soundNotifications = e.target.checked;
+            this.saveSettings();
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !e.target.matches('input')) {
+            e.preventDefault();
+            this.toggleTimer();
+        }
+        if (e.key === 'Escape' && this.settingsPanel && this.settingsPanel.classList.contains('open')) {
+            this.closeSettingsPanel();
+        }
+    });
+    }
     updateSessionButtonDuration(sessionType, duration) {
         if (this.sessionBtns && this.sessionBtns.length > 0) {
             const sessionBtn = Array.from(this.sessionBtns).find(btn => 
@@ -433,7 +349,6 @@ class PomodoroTimer {
             );
             if (sessionBtn) {
                 sessionBtn.dataset.duration = duration;
-                // Update the button text if it shows duration
                 const durationText = sessionBtn.querySelector('.duration-text');
                 if (durationText) {
                     durationText.textContent = `${duration}m`;
@@ -441,16 +356,13 @@ class PomodoroTimer {
             }
         }
     }
-    
-    // New method to save settings
     saveSettings() {
         try {
             localStorage.setItem('pomodoroSettings', JSON.stringify(this.settings));
         } catch (error) {
             console.warn('Could not save settings to localStorage:', error);
         }
-    }
-    
+    }    
     toggleTimer() {
         if (this.isRunning) {
             this.pauseTimer();
@@ -458,7 +370,6 @@ class PomodoroTimer {
             this.startTimer();
         }
     }
-    
     startTimer() {
         this.isRunning = true;
         if (this.timerContainer) {
@@ -550,121 +461,93 @@ class PomodoroTimer {
     let clickedButton;
     let type;
     let duration;
-    
-    // Handle real DOM events (user clicks)
     if (e && e.target && typeof e.target.closest === 'function') {
         clickedButton = e.target.closest('.session-btn');
-        
-        // If the clicked button is already active, don't allow deactivation
         if (clickedButton && clickedButton.classList.contains('active')) {
             return;
         }
-        
         type = clickedButton.dataset.type;
         duration = parseInt(clickedButton.dataset.duration);
     } 
-    // Handle programmatic calls (from switchToNextSession)
     else if (e && e.target && e.target.dataset) {
         type = e.target.dataset.type;
         duration = parseInt(e.target.dataset.duration);
-        
-        // Find the corresponding button in the DOM
         if (this.sessionBtns && this.sessionBtns.length > 0) {
             clickedButton = Array.from(this.sessionBtns).find(btn => 
                 btn.dataset.type === type
             );
         }
     }
-    // Handle direct calls with type and duration
     else if (typeof e === 'string') {
         type = e;
         duration = this.settings[this.getSessionKey(type)] * 60;
-        
-        // Find the corresponding button in the DOM
         if (this.sessionBtns && this.sessionBtns.length > 0) {
             clickedButton = Array.from(this.sessionBtns).find(btn => 
                 btn.dataset.type === type
             );
         }
     }
-    
-    // Validate inputs
     if (!type || !duration) {
         console.error('Invalid session type or duration');
         return;
     }
-    
     this.currentSession = type;
     this.currentTime = duration * 60;
     this.totalTime = this.currentTime;
-    
-    // Update active button
     if (this.sessionBtns && this.sessionBtns.length > 0) {
         this.sessionBtns.forEach(btn => btn.classList.remove('active'));
         if (clickedButton && clickedButton.classList) {
             clickedButton.classList.add('active');
         }
     }
-    
-    // Update UI theme
     this.updateTheme();
     this.updateDisplay();
     this.updateProgress();
     this.updateStitchState('ready');
-    
     if (this.isRunning) {
         this.pauseTimer();
     }
 }
-getSessionKey(sessionType = null) {
-    const type = sessionType || this.currentSession;
-    const keyMap = {
-        work: 'work',
-        short: 'shortBreak',
-        long: 'longBreak'
-    };
-    return keyMap[type] || 'work';
-}
-switchSessionProgrammatically(sessionType) {
-    const sessionSettings = {
-        work: this.settings.work,
-        short: this.settings.shortBreak,
-        long: this.settings.longBreak
-    };
-    
-    const duration = sessionSettings[sessionType];
-    if (!duration) {
-        console.error('Invalid session type:', sessionType);
-        return;
+    getSessionKey(sessionType = null) {
+        const type = sessionType || this.currentSession;
+        const keyMap = {
+            work: 'work',
+            short: 'shortBreak',
+            long: 'longBreak'
+        };
+        return keyMap[type] || 'work';
     }
-    
-    this.currentSession = sessionType;
-    this.currentTime = duration * 60;
-    this.totalTime = this.currentTime;
-    
-    // Update active button
-    if (this.sessionBtns && this.sessionBtns.length > 0) {
-        this.sessionBtns.forEach(btn => btn.classList.remove('active'));
-        
-        const targetButton = Array.from(this.sessionBtns).find(btn => 
-            btn.dataset.type === sessionType
-        );
-        if (targetButton) {
-            targetButton.classList.add('active');
+    switchSessionProgrammatically(sessionType) {
+        const sessionSettings = {
+            work: this.settings.work,
+            short: this.settings.shortBreak,
+            long: this.settings.longBreak
+        };
+        const duration = sessionSettings[sessionType];
+        if (!duration) {
+            console.error('Invalid session type:', sessionType);
+            return;
+        }
+        this.currentSession = sessionType;
+        this.currentTime = duration * 60;
+        this.totalTime = this.currentTime;
+        if (this.sessionBtns && this.sessionBtns.length > 0) {
+            this.sessionBtns.forEach(btn => btn.classList.remove('active'));
+            const targetButton = Array.from(this.sessionBtns).find(btn => 
+                btn.dataset.type === sessionType
+            );
+            if (targetButton) {
+                targetButton.classList.add('active');
+            }
+        }    
+        this.updateTheme();
+        this.updateDisplay();
+        this.updateProgress();
+        this.updateStitchState('ready');    
+        if (this.isRunning) {
+            this.pauseTimer();
         }
     }
-    
-    // Update UI theme
-    this.updateTheme();
-    this.updateDisplay();
-    this.updateProgress();
-    this.updateStitchState('ready');
-    
-    if (this.isRunning) {
-        this.pauseTimer();
-    }
-}
-    
     updateDisplay() {
         const minutes = Math.floor(this.currentTime / 60);
         const seconds = this.currentTime % 60;
@@ -672,18 +555,15 @@ switchSessionProgrammatically(sessionType) {
         
         if (this.timeDisplay) {
             this.timeDisplay.textContent = formattedTime;
-        }
-        
+        }        
         const sessionTypes = {
             work: 'Focus Time',
             short: 'Short Break',
             long: 'Long Break'
-        };
-        
+        };        
         if (this.sessionType) {
             this.sessionType.textContent = sessionTypes[this.currentSession] || 'Focus Time';
-        }
-        
+        }        
         if (this.sessionCountEl) {
             const displayCount = this.sessionCount && this.sessionCount > 0 ? this.sessionCount : 1;
             this.sessionCountEl.textContent = displayCount;
@@ -697,7 +577,6 @@ switchSessionProgrammatically(sessionType) {
             this.progressRing.style.strokeDashoffset = offset;
         }
     }
-    
     updateTheme() {
         if (this.timerContainer) {
             this.timerContainer.classList.remove('work', 'break','short','long');
@@ -792,183 +671,26 @@ getStitchGifKey(state) {
             console.error('Error updating stats:', error);
         }
     }
-    getSessionKey() {
-        const keyMap = {
-            work: 'work',
-            short: 'shortBreak',
-            long: 'longBreak'
-        };
-        return keyMap[this.currentSession] || 'work';
+    // Replace your existing toggleSettings method with these cleaner methods:
+    openSettings() {   
+        if (!this.settingsPanel) return;
+        this.settingsPanel.classList.add('open');
+        this.settingsPanel.style.display = 'block';
+        this.settingsPanel.style.visibility = 'visible';
     }
-    // toggleSettings() {
-    //     if (this.settingsPanel) {
-    //         this.settingsPanel.classList.toggle('open');
-    //     }
-        
-    // }
-    // Add this to your toggleSettings method to debug CSS conflicts
-// toggleSettings() {
-//     console.log('🔧 toggleSettings() called');
-    
-//     if (this.settingsPanel) {
-//         console.log('Before toggle - classes:', this.settingsPanel.classList.toString());
-//         this.settingsPanel.classList.toggle('open');
-//         console.log('After toggle - classes:', this.settingsPanel.classList.toString());
-        
-//         // Debug CSS conflicts
-//         if (this.settingsPanel.classList.contains('open')) {
-//             console.log('=== CSS DEBUG INFO ===');
-            
-//             // Get all applied styles
-//             const computedStyle = window.getComputedStyle(this.settingsPanel);
-//             console.log('Computed right:', computedStyle.right);
-//             console.log('Computed position:', computedStyle.position);
-//             console.log('Computed z-index:', computedStyle.zIndex);
-            
-//             // Check if our CSS rule exists
-//             const sheets = Array.from(document.styleSheets);
-//             let foundOpenRule = false;
-            
-//             try {
-//                 sheets.forEach(sheet => {
-//                     if (sheet.href && sheet.href.includes('timer.css')) {
-//                         console.log('Found timer.css stylesheet:', sheet.href);
-//                         try {
-//                             Array.from(sheet.cssRules).forEach(rule => {
-//                                 if (rule.selectorText && rule.selectorText.includes('.settings-panel.open')) {
-//                                     console.log('Found .settings-panel.open rule:', rule.cssText);
-//                                     foundOpenRule = true;
-//                                 }
-//                             });
-//                         } catch (e) {
-//                             console.log('Cannot read CSS rules (CORS):', e.message);
-//                         }
-//                     }
-//                 });
-//             } catch (error) {
-//                 console.log('Error checking stylesheets:', error);
-//             }
-            
-//             if (!foundOpenRule) {
-//                 console.log('❌ .settings-panel.open CSS rule not found!');
-//             }
-            
-//             // Force the style as a test
-//             console.log('🧪 Testing forced style...');
-//             this.settingsPanel.style.right = '0px';
-//             setTimeout(() => {
-//                 console.log('After forced style - computed right:', window.getComputedStyle(this.settingsPanel).right);
-//             }, 100);
-//         }
-//     }
-// }
-toggleSettings() {
-    console.log('🔧 toggleSettings() called');
-    
-    if (this.settingsPanel) {
-        const isCurrentlyOpen = this.settingsPanel.classList.contains('open');
-        console.log('Current state - isOpen:', isCurrentlyOpen);
-        
-        if (isCurrentlyOpen) {
-            // Close the panel
-            console.log('🔄 Closing panel...');
-            this.settingsPanel.classList.remove('open');
+    closeSettingsPanel() {
+        if (!this.settingsPanel) return;
+        this.settingsPanel.classList.remove('open');
+    }
+    toggleSettings() {
+        if (!this.settingsPanel) return;
+        const isOpen = this.settingsPanel.classList.contains('open');
+        if (isOpen) {
             this.closeSettingsPanel();
         } else {
-            // Open the panel
-            console.log('🔄 Opening panel...');
-            this.settingsPanel.classList.add('open');
-            this.openSettingsPanel();
+            this.openSettings();
         }
     }
-}
-
-// Separate method to open panel with multiple fallbacks
-openSettingsPanel() {
-    if (!this.settingsPanel) return;
-    
-    console.log('📖 Opening settings panel...');
-    
-    // Method 1: Use CSS transform instead of right position
-    this.settingsPanel.style.transform = 'translateX(0)';
-    this.settingsPanel.style.right = '0px';
-    this.settingsPanel.style.display = 'block';
-    this.settingsPanel.style.visibility = 'visible';
-    
-    // Method 2: Force with !important via CSS text
-    this.settingsPanel.style.cssText += 'right: 0px !important; transform: translateX(0) !important;';
-    
-    // Method 3: Use requestAnimationFrame to ensure it sticks
-    requestAnimationFrame(() => {
-        this.settingsPanel.style.right = '0px';
-        this.settingsPanel.style.transform = 'translateX(0)';
-        
-        // Double-check after a brief delay
-        setTimeout(() => {
-            const computedRight = window.getComputedStyle(this.settingsPanel).right;
-            console.log('Final computed right after opening:', computedRight);
-            
-            if (computedRight !== '0px') {
-                console.log('🚨 Style was overridden, forcing again...');
-                this.settingsPanel.style.cssText += 'right: 0px !important; position: fixed !important; z-index: 9999 !important;';
-            }
-        }, 50);
-    });
-}
-
-// Separate method to close panel
-closeSettingsPanel() {
-    if (!this.settingsPanel) return;
-    
-    console.log('📕 Closing settings panel...');
-    
-    // Remove the forced styles and let CSS take over
-    this.settingsPanel.style.transform = 'translateX(100%)';
-    this.settingsPanel.style.right = '-400px';
-    
-    // Use CSS text for !important
-    this.settingsPanel.style.cssText += 'right: -400px !important; transform: translateX(100%) !important;';
-    
-    // Clean up after animation
-    setTimeout(() => {
-        if (!this.settingsPanel.classList.contains('open')) {
-            this.settingsPanel.style.display = 'block'; // Keep block but hidden
-        }
-    }, 300);
-}
-// Add this as a temporary method to your PomodoroTimer class for testing
-testPanelManually() {
-    console.log('🧪 Testing panel manually...');
-    const panel = document.getElementById('settingsPanel');
-    
-    if (panel) {
-        console.log('Panel found, forcing it to show...');
-        
-        // Remove any existing styles that might interfere
-        panel.style.position = 'fixed';
-        panel.style.top = '0';
-        panel.style.right = '0px';
-        panel.style.width = '350px';
-        panel.style.height = '100vh';
-        panel.style.backgroundColor = 'white';
-        panel.style.zIndex = '9999';
-        panel.style.border = '2px solid red'; // Make it obvious
-        panel.style.transition = 'right 0.3s ease';
-        
-        console.log('Panel should now be visible with red border');
-        
-        // Test closing after 3 seconds
-        setTimeout(() => {
-            console.log('Now hiding panel...');
-            panel.style.right = '-400px';
-        }, 3000);
-        
-    } else {
-        console.log('❌ Panel not found in DOM');
-    }
-}
-
-// Call this from console: window.pomodoroTimer.testPanelManually()
     loadSettings() {
         try {
             const saved = JSON.parse(localStorage.getItem('pomodoroSettings') || '{}');
@@ -1001,27 +723,17 @@ testPanelManually() {
         if (soundNotificationsInput) soundNotificationsInput.checked = this.settings.soundNotifications;
     }
     async playNotificationSound() {
-        console.log('=== ATTEMPTING TO PLAY SOUND ===');
-
         if (!this.settingsReady) {
-            console.log('⚠️ Settings not ready, using defaults');
             await this.playBeepSound(0.8);
             return;
         }
-
-        // First check if sound is enabled from timer's own settings
         if (this.settings && this.settings.soundNotifications === false) {
-            console.log('Timer sound is disabled in timer settings');
             return;
         }
-
-        // Get sound settings - try multiple sources
         let soundType = 'bell';
         let volume = 0.8;
         let soundEnabled = true;
         let customSoundPath = null;
-
-        // Try to get from settingsCore first
         if (window.settingsCore && window.settingsCore.isInitialized) {
             const settings = window.settingsCore.getCurrentSettings();
             if (settings.timer) {
@@ -1060,26 +772,17 @@ testPanelManually() {
                 const audio = new Audio(sound.path);
                 audio.volume = volume;
                 await audio.play();
-                console.log('Successfully played sound from local SOUND_REGISTRY');
                 return;
             }
-
             if (soundFile) {
-                console.log(`Playing ${soundType} from direct import:`, soundFile);
                 const audio = new Audio(soundFile);
                 audio.volume = volume;
                 await audio.play();
-                console.log(`Successfully played ${soundType} from direct import`);
                 return;
             }
-
-            // Fallback to generated beep
-            console.log('No sound file found, using fallback beep sound');
             await this.playBeepSound(volume);
-
         } catch (error) {
             console.error('Error playing notification sound:', error);
-            // Final fallback
             try {
                 await this.playBeepSound(volume);
                 console.log('Played fallback beep sound');

@@ -40,10 +40,10 @@
     border-left: 2px solid var(--border-color);
 }
 
-/* .settings-panel.open {
+.settings-panel.open {
     right: 0;
     z-index: 9999 !important;
-} */
+}
 
 .settings-panel.panel-open {
     --panel-position: 0px;
@@ -186,19 +186,6 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Session-specific colors for timer states */
-.timer-container.work .toggle-switch input:checked + .toggle-slider {
-    background-color: var(--dark-purple);
-}
-
-.timer-container.short .toggle-switch input:checked + .toggle-slider {
-    background-color: var(--medium-purple);
-}
-
-.timer-container.long .toggle-switch input:checked + .toggle-slider {
-    background-color: var(--primary-purple);
-}
-
 /* Enhanced theme support using data-theme attribute */
 :root[data-theme="dark"] .toggle-slider {
     background-color: var(--text-secondary);
@@ -258,19 +245,6 @@
     overflow: hidden;
     transition: background 0.3s ease;
 }
-
-/* .timer-container.work .progress-ring-progress {
-    stroke: linear-gradient(135deg, var(--primary-purple) 0%, var(--medium-purple) 100%);
-    background: var(--card-bg); 
-}*/
-
-
-/* .timer-container.break {
-    background: linear-gradient(135deg, var(--dark-blue) 0%, var(--darker-blue) 100%);
-    border: 2px solid var(--border-color);
-    color: var(--white);
-} */
-
 .timer-container.running {
     animation: pulse 4s ease-in-out infinite;
 }
