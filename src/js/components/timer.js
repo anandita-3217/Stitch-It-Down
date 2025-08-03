@@ -52,10 +52,12 @@ class PomodoroTimer {
     longBreak: ["Time for a real break!","Go get some fresh air!","You've earned this!","Take your time!","Recharge completely!","Maybe grab a snack?","Walk around a bit!"],
     complete: ["Great job!","You did amazing!","Proud of you!","Mission accomplished!","You're the best!"]
     };
-        this.initializeWhenReady();
-        this.currentTimerSettings = null;
-        this.initializeSettingsListener();
-        this.loadInitialSettings();
+    this.currentTimerSettings = null;
+    this.initializeSettingsListener();
+    this.settingsReady = false;
+    this.loadInitialSettings();
+    this.initializeWhenReady();
+    
     }
     
     initializeWhenReady() {
@@ -66,8 +68,13 @@ class PomodoroTimer {
         }
     }
     
-    init() {
+    async init() {
         try {
+            console.log('🔄 Timer initializing...');
+            
+            // Wait for settings to be ready
+            await this.waitForSettings();
+            
             this.bindElements();
             this.bindEvents();
             this.loadSettings();
@@ -80,7 +87,111 @@ class PomodoroTimer {
             console.error('Error initializing PomodoroTimer:', error);
         }
     }
-    
+        async waitForSettings() {
+        console.log('🔄 Waiting for settings...');
+        
+        // Method 1: Check if settingsCore is available and initialized
+        if (window.settingsCore) {
+            console.log('📡 Found settingsCore, waiting for initialization...');
+            const ready = await window.settingsCore.waitForInitialization();
+            if (ready) {
+                this.settingsReady = true;
+                this.setupSettingsCoreIntegration();
+                console.log('✅ Settings ready via settingsCore');
+                return;
+            }
+        }
+
+        // Method 2: Wait for settings from Electron main process
+        await this.waitForElectronSettings();
+    }
+
+    async waitForElectronSettings() {
+        return new Promise((resolve) => {
+            let resolved = false;
+            
+            // Listen for settings from main process
+            const settingsReadyHandler = (settings) => {
+                if (!resolved) {
+                    resolved = true;
+                    this.currentTimerSettings = settings;
+                    this.settingsReady = true;
+                    this.setupElectronSettingsListeners();
+                    console.log('✅ Settings ready via Electron:', settings);
+                    resolve();
+                }
+            };
+
+            // Multiple ways settings might arrive
+            if (window.electronAPI?.onTimerSettingsReady) {
+                window.electronAPI.onTimerSettingsReady(settingsReadyHandler);
+            }
+
+            // Listen for DOM events too
+            window.addEventListener('timer-settings-ready', (event) => {
+                settingsReadyHandler(event.detail);
+            });
+
+            window.addEventListener('app-settings-ready', (event) => {
+                if (event.detail && event.detail.settings && event.detail.settings.timer) {
+                    settingsReadyHandler(event.detail.settings.timer);
+                }
+            });
+
+            // Try to get settings immediately
+            if (window.electronAPI?.getTimerSettings) {
+                window.electronAPI.getTimerSettings().then(settings => {
+                    if (settings && !resolved) {
+                        settingsReadyHandler(settings);
+                    }
+                }).catch(console.error);
+            }
+
+            // Timeout fallback
+            setTimeout(() => {
+                if (!resolved) {
+                    resolved = true;
+                    console.warn('⚠️ Settings timeout, using defaults');
+                    this.setupDefaultSettings();
+                    resolve();
+                }
+            }, 5000);
+        });
+    }
+
+    setupSettingsCoreIntegration() {
+        const currentSettings = window.settingsCore.getCurrentSettings();
+        if (currentSettings.timer) {
+            this.currentTimerSettings = currentSettings.timer;
+        }
+
+        // Listen for changes
+        window.settingsCore.on('settingsUpdated', (settings) => {
+            if (settings.timer) {
+                this.currentTimerSettings = settings.timer;
+                console.log('📡 Timer settings updated via settingsCore');
+            }
+        });
+    }
+
+    setupElectronSettingsListeners() {
+        if (window.electronAPI?.onTimerSettingsUpdated) {
+            window.electronAPI.onTimerSettingsUpdated((newSettings) => {
+                this.currentTimerSettings = newSettings;
+                console.log('📡 Timer settings updated via Electron');
+            });
+        }
+    }
+
+    setupDefaultSettings() {
+        this.currentTimerSettings = {
+            soundEnabled: true,
+            soundType: 'bell',
+            volume: 0.8,
+            customSoundPath: null
+        };
+        this.settingsReady = true;
+    }
     bindElements() {
         // Timer elements - these should exist in your timer page
         this.timeDisplay = document.getElementById('timeDisplay');
@@ -708,6 +819,12 @@ getStitchGifKey(state) {
     async playNotificationSound() {
         console.log('=== ATTEMPTING TO PLAY SOUND ===');
 
+        if (!this.settingsReady) {
+            console.log('⚠️ Settings not ready, using defaults');
+            await this.playBeepSound(0.8);
+            return;
+        }
+
         // First check if sound is enabled from timer's own settings
         if (this.settings && this.settings.soundNotifications === false) {
             console.log('Timer sound is disabled in timer settings');
@@ -721,30 +838,33 @@ getStitchGifKey(state) {
         let customSoundPath = null;
 
         // Try to get from settingsCore first
-        if (window.settingsCore) {
+        if (window.settingsCore && window.settingsCore.isInitialized) {
             const settings = window.settingsCore.getCurrentSettings();
             if (settings.timer) {
                 soundType = settings.timer.soundType || 'bell';
                 volume = settings.timer.volume || 0.8;
                 soundEnabled = settings.timer.soundEnabled !== false;
                 customSoundPath = settings.timer.customSoundPath;
+                console.log('🎵 Using settings from settingsCore:', { soundType, volume, soundEnabled });
             }
-            console.log('Using settings from settingsCore:', { soundType, volume, soundEnabled });
-        } else if (this.currentTimerSettings) {
-            // Try the Electron API settings
+        }
+        // Priority 2: currentTimerSettings
+        else if (this.currentTimerSettings) {
             soundType = this.currentTimerSettings.soundType || 'bell';
             volume = this.currentTimerSettings.volume || 0.8;
             soundEnabled = this.currentTimerSettings.soundEnabled !== false;
             customSoundPath = this.currentTimerSettings.customSoundPath;
-            console.log('Using currentTimerSettings:', { soundType, volume, soundEnabled });
-        } else {
+            console.log('🎵 Using currentTimerSettings:', { soundType, volume, soundEnabled });
+        }
+
+        else {
             // Fallback to timer's own settings
             soundEnabled = this.settings ? this.settings.soundNotifications : true;
             console.log('Using timer local settings, sound enabled:', soundEnabled);
         }
 
         if (!soundEnabled) {
-            console.log('Sound notifications are disabled');
+            console.log('🔇Sound notifications are disabled');
             return;
         }
 

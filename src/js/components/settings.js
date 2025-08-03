@@ -33,6 +33,12 @@ export class SettingsCore {
         this.currentSettings = {};
         this.originalSettings = {};
         this.eventCallbacks = new Map();
+        this.isInitialized = false;
+        this.initPromise = null
+        // Make globally available immediately
+        if (typeof window !== 'undefined') {
+            window.settingsCore = this;
+        }
     }
 
     // Event system for communication with renderer
@@ -48,21 +54,117 @@ export class SettingsCore {
             this.eventCallbacks.get(event).forEach(callback => callback(data));
         }
     }
+        async init() {
+        if (this.initPromise) {
+            return this.initPromise;
+        }
 
-    async init() {
+        this.initPromise = this._doInit();
+        return this.initPromise;
+    }
+
+    async _doInit() {
         try {
-            this.currentSettings = await window.electronAPI.loadSettings();
+            console.log('🔄 Initializing SettingsCore...');
+            
+            // Try to get settings from Electron first
+            if (window.electronAPI?.loadSettings) {
+                this.currentSettings = await window.electronAPI.loadSettings();
+            } else {
+                // Fallback to localStorage or defaults
+                this.currentSettings = this.getDefaultSettings();
+            }
+            
             this.originalSettings = JSON.parse(JSON.stringify(this.currentSettings));
+            this.isInitialized = true;
+            
+            // Set up listeners for real-time updates
+            this.setupRealTimeListeners();
             
             this.emit('settingsLoaded', this.currentSettings);
-            console.log('Settings loaded:', this.currentSettings);
+            console.log('✅ SettingsCore initialized with settings:', this.currentSettings);
+            
+            // Broadcast ready state
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('settings-core-ready', {
+                    detail: { settings: this.currentSettings }
+                }));
+            }
+            
             return true;
         } catch (error) {
-            console.error('Failed to initialize settings:', error);
+            console.error('❌ Failed to initialize SettingsCore:', error);
             this.emit('error', 'Failed to load settings');
             return false;
         }
     }
+    getDefaultSettings() {
+        return {
+            general: {
+                launchOnStartup: false,
+                defaultWindow: 'Dashboard',
+                alwaysOnTop: false,
+                minimizeToTray: true,
+                autoSaveInterval: '1 minute'
+            },
+            timer: {
+                workDuration: 25,
+                shortBreak: 5,
+                longBreak: 15,
+                soundEnabled: true,
+                volume: 0.8,
+                soundType: 'bell',
+                customSoundPath: null,
+                doNotDisturb: false
+            },
+            // ... other default settings
+        };
+    }
+        // NEW: Wait for initialization
+    async waitForInitialization(timeout = 10000) {
+        if (this.isInitialized) {
+            return true;
+        }
+
+        if (this.initPromise) {
+            try {
+                await this.initPromise;
+                return this.isInitialized;
+            } catch (error) {
+                console.error('Settings initialization failed:', error);
+                return false;
+            }
+        }
+
+        // Wait for initialization to complete
+        return new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+                if (this.isInitialized) {
+                    clearInterval(checkInterval);
+                    resolve(true);
+                }
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                resolve(false);
+            }, timeout);
+        });
+    }
+    // async init() {
+    //     try {
+    //         this.currentSettings = await window.electronAPI.loadSettings();
+    //         this.originalSettings = JSON.parse(JSON.stringify(this.currentSettings));
+            
+    //         this.emit('settingsLoaded', this.currentSettings);
+    //         console.log('Settings loaded:', this.currentSettings);
+    //         return true;
+    //     } catch (error) {
+    //         console.error('Failed to initialize settings:', error);
+    //         this.emit('error', 'Failed to load settings');
+    //         return false;
+    //     }
+    // }
 
     // Settings validation
     validateSettings(settings) {
@@ -408,7 +510,7 @@ export class SettingsCore {
         return { ...this.originalSettings };
     }
     // Settings change listeners
-    setupRealTimeListeners() {
+        setupRealTimeListeners() {
         if (window.electronAPI?.onSettingsUpdated) {
             window.electronAPI.onSettingsUpdated((event, updatedSettings) => {
                 this.currentSettings = updatedSettings;
@@ -416,10 +518,45 @@ export class SettingsCore {
             });
         }
 
-        if (window.electronAPI?.onTimerEvent) {
-            window.electronAPI.onTimerEvent((event, data) => {
-                this.emit('timerEvent', data);
+        // Listen for settings updates from main process
+        if (window.electronAPI) {
+            // Create these listeners if they don't exist
+            const listeners = [
+                'app-settings-ready',
+                'app-settings-updated', 
+                'timer-settings-updated'
+            ];
+
+            listeners.forEach(eventName => {
+                if (!window.electronAPI[`on${eventName.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')}`]) {
+                    // Create the listener
+                    window.addEventListener(eventName, (event) => {
+                        if (event.detail) {
+                            this.handleExternalSettingsUpdate(event.detail);
+                        }
+                    });
+                }
             });
         }
     }
+    handleExternalSettingsUpdate(data) {
+        if (data.settings) {
+            this.currentSettings = data.settings;
+            this.emit('settingsUpdated', data.settings);
+        }
+    }
+    // setupRealTimeListeners() {
+    //     if (window.electronAPI?.onSettingsUpdated) {
+    //         window.electronAPI.onSettingsUpdated((event, updatedSettings) => {
+    //             this.currentSettings = updatedSettings;
+    //             this.emit('settingsUpdatedFromExternal', updatedSettings);
+    //         });
+    //     }
+
+    //     if (window.electronAPI?.onTimerEvent) {
+    //         window.electronAPI.onTimerEvent((event, data) => {
+    //             this.emit('timerEvent', data);
+    //         });
+    //     }
+    // }
 }

@@ -44,6 +44,23 @@ const images = {
         tantrum: stitchTantrum
     }
 };
+(async () => {
+    console.log('🚀 Timer page starting...');
+    
+    // Initialize SettingsCore first if not already done
+    if (!window.settingsCore) {
+        const { SettingsCore } = await import('@components/settings.js');
+        window.settingsCore = new SettingsCore();
+        await window.settingsCore.init();
+    } else if (!window.settingsCore.isInitialized) {
+        await window.settingsCore.init();
+    }
+    
+    // Now initialize timer and other components
+    // Your existing timer initialization code goes here
+    
+    console.log('✅ Timer page fully initialized');
+})();
 
 // Global timer instance for this window
 let timerInstance = null;

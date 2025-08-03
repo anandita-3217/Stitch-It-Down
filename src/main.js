@@ -97,9 +97,20 @@ class SettingsStore {
         this.currentSettings = { ...this.defaultSettings };
         return this.saveSettings();
     }
+    // broadcastSettingsUpdate() {
+    //     BrowserWindow.getAllWindows().forEach(window => {
+    //         window.webContents.send('settings-updated', this.currentSettings);
+    //     });
+    // }
     broadcastSettingsUpdate() {
         BrowserWindow.getAllWindows().forEach(window => {
             window.webContents.send('settings-updated', this.currentSettings);
+            window.webContents.send('app-settings-updated', this.currentSettings);
+            
+            // Send specific timer settings
+            if (this.currentSettings.timer) {
+                window.webContents.send('timer-settings-updated', this.currentSettings.timer);
+            }
         });
     }
 }
@@ -304,15 +315,22 @@ class WindowManager {
             const window = new BrowserWindow({
                 ...config,
                 show: false,
-                icon: path.join(__dirname, 'assets/icon.png'),
+                icon: path.join(__dirname, '@assets/images/icons/stitch-wink.ico'),
                 titleBarStyle: 'default'
             });
             window.loadURL(entryPoint.url);
             window.once('ready-to-show', () => {
                 window.show();
+                this.sendInitialSettingsToWindow(window);
                 if (pageName === 'index') {
                     window.focus();
                 }
+            });
+                // Send settings when the DOM is ready too
+            window.webContents.once('dom-ready', () => {
+                setTimeout(() => {
+                    this.sendInitialSettingsToWindow(window);
+                }, 100);
             });
             window.on('closed', () => {
                 this.windows.delete(pageName);
@@ -329,6 +347,35 @@ class WindowManager {
             console.error(`Error creating window for ${pageName}:`, error);
             return null;
         }
+    }    // NEW METHOD: Send initial settings to window
+    sendInitialSettingsToWindow(window) {
+        try {
+            const currentSettings = settingsStore.getSettings();
+            
+            // Send complete settings
+            window.webContents.send('app-settings-ready', {
+                settings: currentSettings,
+                timestamp: Date.now()
+            });
+            
+            // Send timer-specific settings
+            if (currentSettings.timer) {
+                window.webContents.send('timer-settings-ready', currentSettings.timer);
+            }
+            
+            console.log('Sent initial settings to window');
+        } catch (error) {
+            console.error('Failed to send initial settings:', error);
+        }
+    }
+
+    // NEW METHOD: Broadcast settings to all windows
+    broadcastSettingsToAllWindows(settings) {
+        this.windows.forEach((window, pageName) => {
+            if (!window.isDestroyed()) {
+                this.sendInitialSettingsToWindow(window);
+            }
+        });
     }
     async navigateToPage(pageName) {
         try {
@@ -448,8 +495,21 @@ class WindowManager {
             this.settings.set(key, value);
             return { success: true };
         });
+        // ipcMain.handle('save-settings', async (event, settings) => {
+        //     return await settingsStore.saveSettings(settings);
+        // });
+        // UPDATED: Enhanced save settings handler
         ipcMain.handle('save-settings', async (event, settings) => {
-            return await settingsStore.saveSettings(settings);
+            const success = await settingsStore.saveSettings(settings);
+            if (success) {
+                // Broadcast to all windows immediately
+                this.broadcastSettingsToAllWindows(settings);
+            }
+            return success;
+        });
+        // NEW: Get settings synchronously
+        ipcMain.handle('get-settings-sync', async () => {
+            return settingsStore.getSettings();
         });
         ipcMain.handle('load-settings', async () => {
             return settingsStore.getSettings();
@@ -541,16 +601,34 @@ class WindowManager {
             
             return { success: false, cancelled: true };
         });
+        // ipcMain.handle('update-timer-settings', async (event, settings) => {
+        //     const currentSettings = settingsStore.getSettings();
+        //     currentSettings.timer = { ...currentSettings.timer, ...settings };
+        //     BrowserWindow.getAllWindows().forEach(window => {
+        //         if (window.webContents.getURL().includes('timer')) {
+        //             window.webContents.send('timer-settings-updated', currentSettings.timer);
+        //         }
+        //     });            
+        //     return await settingsStore.saveSettings(currentSettings);
+        // });
+        
         ipcMain.handle('update-timer-settings', async (event, settings) => {
             const currentSettings = settingsStore.getSettings();
             currentSettings.timer = { ...currentSettings.timer, ...settings };
-            BrowserWindow.getAllWindows().forEach(window => {
-                if (window.webContents.getURL().includes('timer')) {
+            
+            const success = await settingsStore.saveSettings(currentSettings);
+            
+            if (success) {
+                // Broadcast to ALL windows, not just timer
+                BrowserWindow.getAllWindows().forEach(window => {
                     window.webContents.send('timer-settings-updated', currentSettings.timer);
-                }
-            });            
-            return await settingsStore.saveSettings(currentSettings);
+                    window.webContents.send('app-settings-updated', currentSettings);
+                });
+            }
+            
+            return success;
         });
+        
         ipcMain.handle('update-task-settings', async (event, settings) => {
             const currentSettings = settingsStore.getSettings();
             currentSettings.tasks = { ...currentSettings.tasks, ...settings };
