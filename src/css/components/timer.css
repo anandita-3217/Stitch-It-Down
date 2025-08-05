@@ -76,11 +76,12 @@
     font-size: 2rem;
     cursor: pointer;
     color: var(--text-secondary);
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .close-btn:hover {
     color: var(--text-primary);
+    transform: rotate(90deg);
 }
 
 .settings-content {
@@ -90,14 +91,6 @@
 .setting-group {
     margin-bottom: 1rem;
 }
-
-/* .setting-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 0.2rem;
-    color: var(--text-primary);
-} */
-
 .setting-group input[type="range"] {
     width: 100%;
     margin: 1rem 0;
