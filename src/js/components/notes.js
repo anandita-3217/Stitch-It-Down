@@ -82,8 +82,7 @@ class NotesManager {
         const addNoteBtn = document.getElementById('addNoteBtn');
         const noteInput = document.getElementById('noteInput');
         const bulkActionsBtn = document.getElementById('bulkActionsBtn');
-        const notesContainer = document.getElementById('notesContainer');        
-        // console.log('Setting up event listeners...');        
+        const notesContainer = document.getElementById('notesContainer');         
         if (addNoteBtn) {
             addNoteBtn.addEventListener('click', () => this.handleAddNote());
         }
@@ -98,7 +97,7 @@ class NotesManager {
             if (bulkActionsBtn) {
         bulkActionsBtn.addEventListener('click', () => this.toggleBulkMode());
     }
-    // ADD BULK CONTROL LISTENERS
+    
         this.setupBulkControlListeners();
         const searchInput = document.getElementById('note-search');
         const clearSearchBtn = document.getElementById('clearSearch');
@@ -124,14 +123,10 @@ class NotesManager {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const inputValue = e.target.value;
-            
-            // Check if input is empty or only whitespace
             if (inputValue.trim() === '') {
                 this.shakeInput(searchInput);
                 return;
             }
-            
-            // Clear any existing timeout
             clearTimeout(searchTimeout);
             this.searchQuery = inputValue.toLowerCase();
             this.applyFilters();
@@ -158,35 +153,66 @@ class NotesManager {
             });
         }
         this.setupFilterListeners();
+        // if (notesContainer) {
+        //     notesContainer.addEventListener('click', (e) => {
+        //         const button = e.target.closest('button');
+        //         if (button) {
+        //             e.preventDefault();
+        //             e.stopPropagation();
+        //             const noteId = parseInt(button.getAttribute('data-note-id'));
+        //             if (button.classList.contains('edit-note') || e.target.classList.contains('bi-pencil')) {
+        //                 // console.log('Edit button clicked for note:', noteId);
+        //                 this.editNote(noteId);
+        //             } else if (button.classList.contains('delete-note') || e.target.classList.contains('bi-trash')) {
+        //                 // console.log('Delete button clicked for note:', noteId);
+        //                 this.deleteNote(noteId);
+        //             } else if (button.classList.contains('pin-note') || e.target.classList.contains('bi-pin-angle')) {
+        //                 // console.log('Pin button clicked for note:', noteId);
+        //                 this.togglePinNote(noteId);
+        //             } else if (button.classList.contains('archive-note') || e.target.classList.contains('bi-archive')) {
+        //                 // console.log('Archive button clicked for note:', noteId);
+        //                 this.toggleArchiveNote(noteId);
+        //             }
+        //         }
+        //         // ADD THIS NEW SECTION FOR EXPAND/COLLAPSE
+        //         if (e.target.classList.contains('expand-note-btn')) {
+        //             e.preventDefault();
+        //             e.stopPropagation();
+        //             this.showNoteModal(e.target);
+        //         }
+        //     });
+        // }
         if (notesContainer) {
-            notesContainer.addEventListener('click', (e) => {
-                const button = e.target.closest('button');
-                if (button) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const noteId = parseInt(button.getAttribute('data-note-id'));
-                    if (button.classList.contains('edit-note') || e.target.classList.contains('bi-pencil')) {
-                        // console.log('Edit button clicked for note:', noteId);
-                        this.editNote(noteId);
-                    } else if (button.classList.contains('delete-note') || e.target.classList.contains('bi-trash')) {
-                        // console.log('Delete button clicked for note:', noteId);
-                        this.deleteNote(noteId);
-                    } else if (button.classList.contains('pin-note') || e.target.classList.contains('bi-pin-angle')) {
-                        // console.log('Pin button clicked for note:', noteId);
-                        this.togglePinNote(noteId);
-                    } else if (button.classList.contains('archive-note') || e.target.classList.contains('bi-archive')) {
-                        // console.log('Archive button clicked for note:', noteId);
-                        this.toggleArchiveNote(noteId);
-                    }
-                }
-                // ADD THIS NEW SECTION FOR EXPAND/COLLAPSE
-                if (e.target.classList.contains('expand-note-btn')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.showNoteModal(e.target);
-                }
-            });
+    notesContainer.addEventListener('click', (e) => {
+        const button = e.target.closest('button');
+        if (button) {
+            e.preventDefault();
+            e.stopPropagation();
+            const noteId = parseInt(button.getAttribute('data-note-id'));
+            
+            if (button.classList.contains('edit-note') || e.target.classList.contains('bi-pencil')) {
+                console.log('Edit button clicked for note:', noteId);
+                this.editNote(noteId);
+            } else if (button.classList.contains('delete-note') || e.target.classList.contains('bi-trash')) {
+                console.log('Delete button clicked for note:', noteId);
+                this.deleteNote(noteId);
+            } else if (button.classList.contains('pin-note') || e.target.classList.contains('bi-pin-angle')) {
+                console.log('Pin button clicked for note:', noteId);
+                this.togglePinNote(noteId);
+            } else if (button.classList.contains('archive-note') || e.target.classList.contains('bi-archive')) {
+                console.log('Archive button clicked for note:', noteId);
+                this.toggleArchiveNote(noteId);
+            }
         }
+        
+        // Handle expand button separately (this should only be for long notes)
+        if (e.target.classList.contains('expand-note-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.showNoteModal(e.target);
+        }
+    });
+}
     }
     setupBulkControlListeners() {
     const setupBulkListeners = () => {
