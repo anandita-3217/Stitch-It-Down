@@ -710,7 +710,7 @@
     width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
+    /* transition: left 0.5s; */
 }
 .cal-btn:hover::before {
     left: 100%;
@@ -723,7 +723,6 @@
 .btn-primary:hover {
     background: var(--dark-blue);
     border-color: var(--dark-blue);
-    transform: scale(1.01);
     box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.4);
 }
 .btn-secondary {
@@ -734,7 +733,6 @@
 .btn-secondary:hover {
     background: var(--medium-purple);
     border-color: var(--medium-purple);
-    transform: scale(1.01);
 }
 .btn-danger {
     background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-hover) 100%);
