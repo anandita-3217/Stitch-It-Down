@@ -566,7 +566,7 @@
 }
 /* Task Modal Styling - Matching Calendar Modal Design */
 
-.task-modal-overlay {
+/*.task-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -978,8 +978,8 @@
         visibility: hidden;
         transform: scale(0.95);
     }
-} 
-/* .task-edit-modal {
+} */
+.task-edit-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -1150,7 +1150,7 @@
 
 .edit-sections .deadline-section {
     grid-column: 1 / -1;
-} */
+} 
 
 /* Empty State */
 .empty-state {
