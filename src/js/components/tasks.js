@@ -314,18 +314,18 @@ class TaskManager {
         }
         if (tasksContainer) {
             tasksContainer.addEventListener('click', (e) => {
-                const target = e.target;                
-                if (target.type === 'checkbox' && target.classList.contains('task-checkbox')) {
-                    console.log('Checkbox clicked:', target);
-                    const taskId = parseInt(target.getAttribute('data-task-id'));
-                    console.log('Toggling task ID:', taskId);                    
+                const target = e.target;
+                const progressCircle = target.closest('.progress-circle');
+                if (progressCircle) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const taskId = parseInt(progressCircle.getAttribute('data-task-id'));
+                    console.log('Progress circle clicked for task:', taskId);
                     if (taskId && !isNaN(taskId)) {
-                        setTimeout(() => {
-                            this.toggleTask(taskId);
-                        }, 10);
+                        this.toggleTask(taskId);
                     }
                     return;
-                }                
+                }
                 const button = target.closest('button');
                 if (button) {
                     e.preventDefault();
@@ -337,16 +337,6 @@ class TaskManager {
                     } else if (button.classList.contains('delete-task') || target.classList.contains('bi-trash')) {
                         console.log('Delete button clicked for task:', taskId);
                         this.deleteTask(taskId);
-                    }
-                }
-            });
-            tasksContainer.addEventListener('change', (e) => {
-                console.log('Change event detected:', e.target);                
-                if (e.target.type === 'checkbox' && e.target.classList.contains('task-checkbox')) {
-                    const taskId = parseInt(e.target.getAttribute('data-task-id'));
-                    console.log('Change event - toggling task ID:', taskId, 'Checked:', e.target.checked);                    
-                    if (taskId && !isNaN(taskId)) {
-                        this.toggleTask(taskId);
                     }
                 }
             });
@@ -574,65 +564,79 @@ class TaskManager {
         }
     }
     createTaskElement(task, searchTerm = '') {
-    const div = document.createElement('div');
-    div.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
-    const isOverdue = task.deadline && this.isOverdue(task.deadline);
-    if (isOverdue) div.classList.add('overdue');
-    
-    let displayText = task.text;
-    if (searchTerm) {
-        const regex = new RegExp(`(${searchTerm})`, 'gi');
-        displayText = displayText.replace(regex, '<span class="search-highlight">$1</span>');
-    }
-    div.innerHTML = `
-        <div class="task-content">
-            <input type="checkbox" 
-                ${task.completed ? 'checked' : ''} 
-                data-task-id="${task.id}" 
-                class="task-checkbox"
-                id="checkbox-${task.id}">
-            <div class="task-text ${task.completed ? 'completed-text' : ''}">
-                ${task.completed ? 
-                    `<del>${detectAndCreateLinks(displayText)}</del>` : 
-                    detectAndCreateLinks(displayText)
-                }
+        const div = document.createElement('div');
+        div.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+        const isOverdue = task.deadline && this.isOverdue(task.deadline);
+        if (isOverdue) div.classList.add('overdue');
+
+        let displayText = task.text;
+        if (searchTerm) {
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            displayText = displayText.replace(regex, '<span class="search-highlight">$1</span>');
+        }
+
+        div.innerHTML = `
+            <div class="task-content">
+                <!-- Hidden checkbox for form compatibility -->
+                <input type="checkbox" 
+                    ${task.completed ? 'checked' : ''} 
+                    data-task-id="${task.id}" 
+                    class="task-checkbox"
+                    id="checkbox-${task.id}">
+
+                <!-- Progress Circle replacing the checkbox -->
+                <div class="progress-circle ${task.completed ? 'completed' : ''}" 
+                     data-task-id="${task.id}">
+                    <svg class="progress-svg" width="30" height="30">
+                        <circle class="progress-bg" cx="15" cy="15" r="12"></circle>
+                        <circle class="progress-fill" cx="15" cy="15" r="12"></circle>
+                    </svg>
+                    <div class="checkmark">✓</div>
+                </div>
+
+                <div class="task-text ${task.completed ? 'completed-text' : ''}">
+                    ${task.completed ? 
+                        `<del>${detectAndCreateLinks(displayText)}</del>` : 
+                        detectAndCreateLinks(displayText)
+                    }
+                </div>
+                <div class="task-meta">
+                    <span class="task-frequency">${task.frequency}</span>
+                    <span class="task-priority priority-${task.priority}">${task.priority}</span>
+                    ${task.deadline ? `
+                        <div class="deadline-info ${isOverdue ? 'overdue' : ''}">
+                            📅 ${this.formatDeadline(task.deadline)}
+                        </div>
+                    ` : ''}
+                </div>
             </div>
-            <div class="task-meta">
-                <span class="task-frequency">${task.frequency}</span>
-                <span class="task-priority priority-${task.priority}">${task.priority}</span>
-                ${task.deadline ? `
-                    <div class="deadline-info ${isOverdue ? 'overdue' : ''}">
-                        📅 ${this.formatDeadline(task.deadline)}
-                    </div>
-                ` : ''}
+            <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
+            <div class="task-actions">
+                <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button">
+                    <i class="bi bi-trash"></i>
+                </button>
             </div>
-        </div>
-        <div class="task-timestamp">${formatTimestamp(task.timestamp)}</div>
-        <div class="task-actions">
-            <button class="edit-task" data-task-id="${task.id}" title="Edit" type="button">
-                <i class="bi bi-pencil"></i>
-            </button>
-            <button class="delete-task" data-task-id="${task.id}" title="Delete" type="button">
-                <i class="bi bi-trash"></i>
-            </button>
-        </div>
-    `;
-    
-    const checkbox = div.querySelector('.task-checkbox');
-    if (checkbox) {
-        checkbox.addEventListener('change', (e) => {
-            this.toggleTask(task.id);
-        });
+        `;
+                    
+        // Add click event to progress circle
+        const progressCircle = div.querySelector('.progress-circle');
+        if (progressCircle) {
+            progressCircle.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent event bubbling
+                this.toggleTask(task.id);
+            });
+        }
+
+        return div;
     }
-    
-    return div;
-}
     toggleTask(taskId) {    
     if (!taskId || isNaN(taskId)) {
         console.error('Invalid task ID provided to toggleTask:', taskId);
         return;
-    }    
-    try {
+    }try {
         const tasks = this.getTasks();
         const taskIndex = tasks.findIndex(task => task.id === taskId);        
         if (taskIndex !== -1) {
@@ -646,25 +650,39 @@ class TaskManager {
                 delete tasks[taskIndex].alerted;
             }
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
+            const progressCircle = document.querySelector(`[data-task-id="${taskId}"].progress-circle`);
+            const taskItem = document.querySelector(`[data-task-id="${taskId}"]`).closest('.task-item');
             const checkbox = document.querySelector(`input[data-task-id="${taskId}"]`);
-            if (checkbox) {
-                checkbox.checked = newStatus;
-                console.log('✓ Checkbox visual state updated');
+            
+            if (progressCircle) {
+                if (newStatus) {
+                    progressCircle.classList.add('completed');
+                    if (taskItem) taskItem.classList.add('completed');
+                } else {
+                    progressCircle.classList.remove('completed');
+                    if (taskItem) taskItem.classList.remove('completed');
+                }
             }
-            this.displayTasks();
-            this.updateProgress();
+            if (checkbox) checkbox.checked = newStatus;
+            
+            setTimeout(() => {
+                this.displayTasks();
+                this.updateProgress();
+            }, 100);
+            
             this.emitTaskUpdate('task-toggled', tasks[taskIndex]);
             
         } else {
             console.error('Task not found with ID:', taskId);
         }
+        
         document.dispatchEvent(new CustomEvent('taskUpdate', {
-                detail: { type: 'task-completed', task: task }
-            }));
+            detail: { type: 'task-completed', task: tasks[taskIndex] }
+        }));
     } catch (error) {
         console.error('Error in toggleTask:', error);
     }
-    }
+}
     deleteTask(taskId) {
         console.log('deleteTask called with ID:', taskId);
         if (!taskId || isNaN(taskId)) {
