@@ -583,17 +583,14 @@ class TaskManager {
                     data-task-id="${task.id}" 
                     class="task-checkbox"
                     id="checkbox-${task.id}">
-
                 <!-- Progress Circle replacing the checkbox -->
-                <div class="progress-circle ${task.completed ? 'completed' : ''}" 
-                     data-task-id="${task.id}">
-                    <svg class="progress-svg" width="30" height="30">
-                        <circle class="progress-bg" cx="15" cy="15" r="12"></circle>
-                        <circle class="progress-fill" cx="15" cy="15" r="12"></circle>
+                <div class="progress-circle ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
+                    <svg class="progress-svg" width="20" height="20">
+                        <circle class="progress-bg" cx="10" cy="10" r="8"></circle>
+                        <circle class="progress-fill" cx="10" cy="10" r="8"></circle>
                     </svg>
                     <div class="checkmark">✓</div>
                 </div>
-
                 <div class="task-text ${task.completed ? 'completed-text' : ''}">
                     ${task.completed ? 
                         `<del>${detectAndCreateLinks(displayText)}</del>` : 

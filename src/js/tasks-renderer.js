@@ -167,9 +167,9 @@ document.addEventListener('taskUpdate', errorHandler.wrapFunction((event) => {
         case 'task-deleted':
             showNotification('Task deleted', 'info');
             break;
-        case 'task-completed':
-            showNotification(task.completed ? 'Task completed! 🎉' : 'Task marked as incomplete', 'success');
-            break;
+        // case 'task-completed':
+        //     showNotification(task.completed ? 'Task completed! 🎉' : 'Task marked as incomplete', 'success');
+        //     break;
         case 'task-priority-changed':
             showNotification(`Task priority changed to ${task.priority}`, 'info');
             break;
