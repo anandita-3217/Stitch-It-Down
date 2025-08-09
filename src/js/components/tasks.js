@@ -352,69 +352,199 @@ class TaskManager {
         this.showFrequencyModal(taskText);
         taskInput.value = '';
     }
-    showFrequencyModal(taskText) {
-        const modal = document.createElement('div');
-        modal.className = 'task-frequency-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h3>Task Settings</h3>
-                <div class="task-text-preview">
-                    <strong>Task:</strong> ${taskText}
-                </div>                
-                <div class="frequency-section">
-                    <label>Frequency:</label>
-                    <select id="task-frequency">
-                        <option value="once">One-time</option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="biweekly">Bi-weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
-                </div>                
-                <div class="deadline-section">
-                    <label for="task-deadline">Deadline (optional):</label>
-                    <input type="datetime-local" id="task-deadline" min="${new Date().toISOString().slice(0, 16)}">
-                </div>                
-                <div class="alert-section">
-                    <label for="alert-time">Alert before deadline:</label>
-                    <select id="alert-time">
-                        <option value="0">No alert</option>
-                        <option value="15">15 minutes</option>
-                        <option value="60">1 hour</option>
-                        <option value="1440">1 day</option>
-                        <option value="10080">1 week</option>
-                    </select>
-                </div>                
-                <div class="priority-section">
-                    <label for="task-priority">Priority:</label>
-                    <select id="task-priority">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                    </select>
-                </div>                
-                <div class="modal-actions">
-                    <button data-action="create">Create Task</button>
-                    <button data-action="cancel">Cancel</button>
-                </div>
-            </div>
-        `;
+    // showFrequencyModal(taskText) {
+    //     const modal = document.createElement('div');
+    //     modal.className = 'task-frequency-modal';
+    //     modal.innerHTML = `
+    //         <div class="modal-content">
+    //             <h3>Task Settings</h3>
+    //             <div class="task-text-preview">
+    //                 <strong>Task:</strong> ${taskText}
+    //             </div>                
+    //             <div class="frequency-section">
+    //                 <label>Frequency:</label>
+    //                 <select id="task-frequency">
+    //                     <option value="once">One-time</option>
+    //                     <option value="daily">Daily</option>
+    //                     <option value="weekly">Weekly</option>
+    //                     <option value="biweekly">Bi-weekly</option>
+    //                     <option value="monthly">Monthly</option>
+    //                 </select>
+    //             </div>                
+    //             <div class="deadline-section">
+    //                 <label for="task-deadline">Deadline (optional):</label>
+    //                 <input type="datetime-local" id="task-deadline" min="${new Date().toISOString().slice(0, 16)}">
+    //             </div>                
+    //             <div class="alert-section">
+    //                 <label for="alert-time">Alert before deadline:</label>
+    //                 <select id="alert-time">
+    //                     <option value="0">No alert</option>
+    //                     <option value="15">15 minutes</option>
+    //                     <option value="60">1 hour</option>
+    //                     <option value="1440">1 day</option>
+    //                     <option value="10080">1 week</option>
+    //                 </select>
+    //             </div>                
+    //             <div class="priority-section">
+    //                 <label for="task-priority">Priority:</label>
+    //                 <select id="task-priority">
+    //                     <option value="low">Low</option>
+    //                     <option value="medium" selected>Medium</option>
+    //                     <option value="high">High</option>
+    //                     <option value="urgent">Urgent</option>
+    //                 </select>
+    //             </div>                
+    //             <div class="modal-actions">
+    //                 <button data-action="create">Create Task</button>
+    //                 <button data-action="cancel">Cancel</button>
+    //             </div>
+    //         </div>
+    //     `;
         
-        document.body.appendChild(modal);
-        this.tempTaskData = { text: taskText };
-        const buttons = modal.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                const action = e.target.getAttribute('data-action');
-                if (action === 'create') {
-                    this.createTaskFromModal();
-                } else if (action === 'cancel') {
-                    this.cancelTaskCreation(taskText);
-                }
-            });
-        });
-    }
+    //     document.body.appendChild(modal);
+    //     this.tempTaskData = { text: taskText };
+    //     const buttons = modal.querySelectorAll('button');
+    //     buttons.forEach(button => {
+    //         button.addEventListener('click', (e) => {
+    //             const action = e.target.getAttribute('data-action');
+    //             if (action === 'create') {
+    //                 this.createTaskFromModal();
+    //             } else if (action === 'cancel') {
+    //                 this.cancelTaskCreation(taskText);
+    //             }
+    //         });
+    //     });
+    // }
+    showFrequencyModal(taskText) {
+    const modal = document.createElement('div');
+    modal.className = 'task-modal-overlay';
+    modal.innerHTML = `
+        <div class="task-modal-content">
+            <div class="task-modal-header">
+                <h3 class="task-modal-h3">Create Task</h3>
+                <button id="closeTaskModal" class="close-task-btn" type="button">&times;</button>
+            </div>
+            <div class="task-modal-body">
+                <div id="taskValidationErrors" class="validation-errors" style="display: none;"></div>
+                <form id="taskForm" class="task-form">
+                    <div class="task-form-group">
+                        <label for="taskTextPreview">Task Description</label>
+                        <div class="task-text-preview">
+                            <strong>${taskText}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="task-form-row">
+                        <div class="task-form-group">
+                            <label for="task-frequency">Frequency</label>
+                            <select id="task-frequency" class="task-form-select">
+                                <option value="once">One-time</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="biweekly">Bi-weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="task-form-group">
+                            <label for="task-priority">Priority</label>
+                            <select id="task-priority" class="task-form-select">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="task-form-group">
+                        <label for="task-deadline">Deadline (optional)</label>
+                        <input type="datetime-local" id="task-deadline" class="task-form-input" 
+                               min="${new Date().toISOString().slice(0, 16)}">
+                    </div>
+                    
+                    <div class="task-form-group">
+                        <label for="alert-time">Alert before deadline</label>
+                        <select id="alert-time" class="task-form-select">
+                            <option value="0">No alert</option>
+                            <option value="15">15 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="1440">1 day</option>
+                            <option value="10080">1 week</option>
+                        </select>
+                    </div>
+                    
+                    <div class="task-form-options">
+                        <div class="task-toggle-label" data-toggle="isRecurring">
+                            <span class="task-toggle-text">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Recurring task
+                            </span>
+                            <div>
+                                <input type="checkbox" id="isRecurring" class="task-toggle-input">
+                                <div class="task-toggle-switch"></div>
+                            </div>
+                        </div>
+                        <div class="task-toggle-label" data-toggle="hasReminder">
+                            <span class="task-toggle-text">
+                                <i class="bi bi-bell"></i>
+                                Set reminder
+                            </span>
+                            <div>
+                                <input type="checkbox" id="hasReminder" class="task-toggle-input">
+                                <div class="task-toggle-switch"></div>
+                            </div>
+                        </div>
+                        <div class="task-toggle-label" data-toggle="isHighPriority">
+                            <span class="task-toggle-text">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                High priority
+                            </span>
+                            <div>
+                                <input type="checkbox" id="isHighPriority" class="task-toggle-input">
+                                <div class="task-toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="task-form-actions">
+                        <button type="button" id="createTask" class="task-btn btn-primary">
+                            <i class="bi bi-check-lg"></i>
+                            Create Task
+                        </button>
+                        <button type="button" id="cancelTask" class="task-btn btn-secondary">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    this.tempTaskData = { text: taskText };
+    
+    // Add show class for animation
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    // Event listeners
+    const closeBtn = modal.querySelector('#closeTaskModal');
+    const createBtn = modal.querySelector('#createTask');
+    const cancelBtn = modal.querySelector('#cancelTask');
+    
+    closeBtn.addEventListener('click', () => this.closeTaskModal(modal));
+    createBtn.addEventListener('click', () => this.createTaskFromModal(modal));
+    cancelBtn.addEventListener('click', () => this.cancelTaskCreation(taskText, modal));
+    
+    // Click outside to close
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            this.cancelTaskCreation(taskText, modal);
+        }
+    });
+    
+    // Initialize toggle switches
+    this.initializeToggleSwitches(modal);
+}
     createTaskFromModal() {
         if (!this.tempTaskData) return;
         const frequency = document.getElementById('task-frequency').value;
@@ -735,62 +865,63 @@ class TaskManager {
         this.editingTask = task;
         this.showEditModal(task);
     }
-    showEditModal(task) {
-        closeModal();
-        const modal = document.createElement('div');
-        modal.className = 'task-edit-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h3>Edit Task</h3>
-                <textarea id="editTaskText" rows="3">${task.text}</textarea>
-                <div class="edit-sections">
-                    <div class="frequency-section">
-                        <label>Frequency:</label>
-                        <select id="editFrequency">
-                            <option value="once" ${task.frequency === 'once' ? 'selected' : ''}>One-time</option>
-                            <option value="daily" ${task.frequency === 'daily' ? 'selected' : ''}>Daily</option>
-                            <option value="weekly" ${task.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
-                            <option value="biweekly" ${task.frequency === 'biweekly' ? 'selected' : ''}>Bi-weekly</option>
-                            <option value="monthly" ${task.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
-                        </select>
-                    </div>                    
-                    <div class="priority-section">
-                        <label>Priority:</label>
-                        <select id="editPriority">
-                            <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
-                            <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Medium</option>
-                            <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
-                            <option value="urgent" ${task.priority === 'urgent' ? 'selected' : ''}>Urgent</option>
-                        </select>
-                    </div>                    
-                    <div class="deadline-section">
-                        <label for="edit-deadline">Deadline:</label>
-                        <input type="datetime-local" id="edit-deadline" 
-                            value="${task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : ''}">
-                    </div>
-                </div>                
-                <div class="modal-actions">
-                    <button data-action="save" type="button">Save Changes</button>
-                    <button data-action="cancel" type="button">Cancel</button>
-                </div>
-            </div>
-        `;        
-        document.body.appendChild(modal);        
-        const buttons = modal.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const action = e.target.getAttribute('data-action');
-                if (action === 'save') {
-                    this.saveEditedTask();
-                } else if (action === 'cancel') {
-                    closeModal();
-                    this.editingTask = null;
-                    this.restoreFocus();
-                }
-            });
-        });
-    }
+    // showEditModal(task) {
+    //     closeModal();
+    //     const modal = document.createElement('div');
+    //     modal.className = 'task-edit-modal';
+    //     modal.innerHTML = `
+    //         <div class="modal-content">
+    //             <h3>Edit Task</h3>
+    //             <textarea id="editTaskText" rows="3">${task.text}</textarea>
+    //             <div class="edit-sections">
+    //                 <div class="frequency-section">
+    //                     <label>Frequency:</label>
+    //                     <select id="editFrequency">
+    //                         <option value="once" ${task.frequency === 'once' ? 'selected' : ''}>One-time</option>
+    //                         <option value="daily" ${task.frequency === 'daily' ? 'selected' : ''}>Daily</option>
+    //                         <option value="weekly" ${task.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
+    //                         <option value="biweekly" ${task.frequency === 'biweekly' ? 'selected' : ''}>Bi-weekly</option>
+    //                         <option value="monthly" ${task.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
+    //                     </select>
+    //                 </div>                    
+    //                 <div class="priority-section">
+    //                     <label>Priority:</label>
+    //                     <select id="editPriority">
+    //                         <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
+    //                         <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Medium</option>
+    //                         <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
+    //                         <option value="urgent" ${task.priority === 'urgent' ? 'selected' : ''}>Urgent</option>
+    //                     </select>
+    //                 </div>                    
+    //                 <div class="deadline-section">
+    //                     <label for="edit-deadline">Deadline:</label>
+    //                     <input type="datetime-local" id="edit-deadline" 
+    //                         value="${task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : ''}">
+    //                 </div>
+    //             </div>                
+    //             <div class="modal-actions">
+    //                 <button data-action="save" type="button">Save Changes</button>
+    //                 <button data-action="cancel" type="button">Cancel</button>
+    //             </div>
+    //         </div>
+    //     `;        
+    //     document.body.appendChild(modal);        
+    //     const buttons = modal.querySelectorAll('button');
+    //     buttons.forEach(button => {
+    //         button.addEventListener('click', (e) => {
+    //             e.preventDefault();
+    //             const action = e.target.getAttribute('data-action');
+    //             if (action === 'save') {
+    //                 this.saveEditedTask();
+    //             } else if (action === 'cancel') {
+    //                 closeModal();
+    //                 this.editingTask = null;
+    //                 this.restoreFocus();
+    //             }
+    //         });
+    //     });
+    // }
+    
     // Improved Task Modal Structure (JavaScript)
 // showEditModal(task) {
 //     closeModal();
@@ -918,6 +1049,146 @@ class TaskManager {
 //     // Focus management
 //     modal.querySelector('#editTaskText').focus();
 // }
+showEditModal(task) {
+    closeModal();
+    const modal = document.createElement('div');
+    modal.className = 'task-modal-overlay';
+    modal.innerHTML = `
+        <div class="task-modal-content">
+            <div class="task-modal-header">
+                <h3 class="task-modal-h3">Edit Task</h3>
+                <button id="closeTaskModal" class="close-task-btn" type="button">&times;</button>
+            </div>
+            <div class="task-modal-body">
+                <div id="taskValidationErrors" class="validation-errors" style="display: none;"></div>
+                <form id="taskForm" class="task-form">
+                    <div class="task-form-group">
+                        <label for="editTaskText">Task Description</label>
+                        <textarea id="editTaskText" placeholder="Enter task description..." 
+                                  class="task-form-textarea" rows="3" required>${task.text}</textarea>
+                    </div>
+                    
+                    <div class="task-form-row">
+                        <div class="task-form-group">
+                            <label for="editFrequency">Frequency</label>
+                            <select id="editFrequency" class="task-form-select">
+                                <option value="once" ${task.frequency === 'once' ? 'selected' : ''}>One-time</option>
+                                <option value="daily" ${task.frequency === 'daily' ? 'selected' : ''}>Daily</option>
+                                <option value="weekly" ${task.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
+                                <option value="biweekly" ${task.frequency === 'biweekly' ? 'selected' : ''}>Bi-weekly</option>
+                                <option value="monthly" ${task.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
+                            </select>
+                        </div>
+                        <div class="task-form-group">
+                            <label for="editPriority">Priority</label>
+                            <select id="editPriority" class="task-form-select">
+                                <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
+                                <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                                <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
+                                <option value="urgent" ${task.priority === 'urgent' ? 'selected' : ''}>Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="task-form-group">
+                        <label for="edit-deadline">Deadline</label>
+                        <input type="datetime-local" id="edit-deadline" class="task-form-input" 
+                               value="${task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : ''}">
+                    </div>
+                    
+                    <div class="task-form-options">
+                        <div class="task-toggle-label" data-toggle="isRecurring">
+                            <span class="task-toggle-text">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Recurring task
+                            </span>
+                            <div>
+                                <input type="checkbox" id="isRecurring" class="task-toggle-input" 
+                                       ${task.frequency !== 'once' ? 'checked' : ''}>
+                                <div class="task-toggle-switch"></div>
+                            </div>
+                        </div>
+                        <div class="task-toggle-label" data-toggle="hasReminder">
+                            <span class="task-toggle-text">
+                                <i class="bi bi-bell"></i>
+                                Set reminder
+                            </span>
+                            <div>
+                                <input type="checkbox" id="hasReminder" class="task-toggle-input" 
+                                       ${task.alertTime ? 'checked' : ''}>
+                                <div class="task-toggle-switch"></div>
+                            </div>
+                        </div>
+                        <div class="task-toggle-label" data-toggle="isHighPriority">
+                            <span class="task-toggle-text">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                High priority
+                            </span>
+                            <div>
+                                <input type="checkbox" id="isHighPriority" class="task-toggle-input" 
+                                       ${task.priority === 'high' || task.priority === 'urgent' ? 'checked' : ''}>
+                                <div class="task-toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="task-form-actions">
+                        <button type="button" id="saveTask" class="task-btn btn-primary">
+                            <i class="bi bi-check-lg"></i>
+                            Save Changes
+                        </button>
+                        <button type="button" id="deleteTask" class="task-btn btn-danger">
+                            <i class="bi bi-trash"></i>
+                            Delete Task
+                        </button>
+                        <button type="button" id="cancelTask" class="task-btn btn-secondary">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add show class for animation
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    // Event listeners
+    const closeBtn = modal.querySelector('#closeTaskModal');
+    const saveBtn = modal.querySelector('#saveTask');
+    const deleteBtn = modal.querySelector('#deleteTask');
+    const cancelBtn = modal.querySelector('#cancelTask');
+    
+    closeBtn.addEventListener('click', () => this.closeTaskModal(modal));
+    saveBtn.addEventListener('click', () => this.saveEditedTask(modal));
+    cancelBtn.addEventListener('click', () => this.closeTaskModal(modal));
+    deleteBtn.addEventListener('click', () => this.deleteTaskFromModal(task.id, modal));
+    
+    // Click outside to close
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            this.closeTaskModal(modal);
+        }
+    });
+    
+    // Focus management
+    modal.querySelector('#editTaskText').focus();
+    
+    // Initialize toggle switches
+    this.initializeToggleSwitches(modal);
+}
+// closeTaskModal(modal) {
+//     modal.classList.remove('show');
+//     setTimeout(() => {
+//         if (modal.parentNode) {
+//             modal.parentNode.removeChild(modal);
+//         }
+//         this.editingTask = null;
+//         this.restoreFocus();
+//     }, 300);
+// }
 
 closeTaskModal(modal) {
     modal.classList.remove('show');
@@ -930,6 +1201,36 @@ closeTaskModal(modal) {
     }, 300);
 }
 
+initializeToggleSwitches(modal) {
+    const toggleLabels = modal.querySelectorAll('.task-toggle-label');
+    toggleLabels.forEach(label => {
+        label.addEventListener('click', (e) => {
+            if (e.target.type !== 'checkbox') {
+                const checkbox = label.querySelector('.task-toggle-input');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+    });
+}
+
+showValidationError(modal, message) {
+    const errorDiv = modal.querySelector('#taskValidationErrors');
+    errorDiv.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${message}`;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+deleteTaskFromModal(taskId, modal) {
+    if (confirm('Are you sure you want to delete this task?')) {
+        this.deleteTask(taskId);
+        this.closeTaskModal(modal);
+    }
+}
 // Helper methods you'll need to implement
 saveEditedTask(modal) {
     const taskText = modal.querySelector('#editTaskText').value.trim();
