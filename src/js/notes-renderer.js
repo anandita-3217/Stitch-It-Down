@@ -237,12 +237,12 @@ document.addEventListener('noteUpdate', (event) => {
         case 'note-deleted':
             showNotification('Note deleted', 'info');
             break;
-        case 'note-pinned':
-            showNotification(note.pinned ? 'Note pinned' : 'Note unpinned', 'info');
-            break;
-        case 'note-archived':
-            showNotification(note.archived ? 'Note archived' : 'Note unarchived', 'info');
-            break;
+        // case 'note-pinned':
+        //     showNotification(note.pinned ? 'Note pinned' : 'Note unpinned', 'info');
+        //     break;
+        // case 'note-archived':
+        //     showNotification(note.archived ? 'Note archived' : 'Note unarchived', 'info');
+        //     break;
     }
 });
 
