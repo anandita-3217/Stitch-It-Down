@@ -473,39 +473,6 @@ class TaskManager {
                         </select>
                     </div>
                     
-                    <div class="task-form-options">
-                        <div class="task-toggle-label" data-toggle="isRecurring">
-                            <span class="task-toggle-text">
-                                <i class="bi bi-arrow-repeat"></i>
-                                Recurring task
-                            </span>
-                            <div>
-                                <input type="checkbox" id="isRecurring" class="task-toggle-input">
-                                <div class="task-toggle-switch"></div>
-                            </div>
-                        </div>
-                        <div class="task-toggle-label" data-toggle="hasReminder">
-                            <span class="task-toggle-text">
-                                <i class="bi bi-bell"></i>
-                                Set reminder
-                            </span>
-                            <div>
-                                <input type="checkbox" id="hasReminder" class="task-toggle-input">
-                                <div class="task-toggle-switch"></div>
-                            </div>
-                        </div>
-                        <div class="task-toggle-label" data-toggle="isHighPriority">
-                            <span class="task-toggle-text">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                High priority
-                            </span>
-                            <div>
-                                <input type="checkbox" id="isHighPriority" class="task-toggle-input">
-                                <div class="task-toggle-switch"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div class="task-form-actions">
                         <button type="button" id="createTask" class="task-btn btn-primary">
                             <i class="bi bi-check-lg"></i>
@@ -923,132 +890,7 @@ class TaskManager {
     // }
     
     // Improved Task Modal Structure (JavaScript)
-// showEditModal(task) {
-//     closeModal();
-//     const modal = document.createElement('div');
-//     modal.className = 'task-modal-overlay';
-//     modal.innerHTML = `
-//         <div class="task-modal-content">
-//             <div class="task-modal-header">
-//                 <h3 class="task-modal-h3">Edit Task</h3>
-//                 <button id="closeTaskModal" class="close-task-btn" type="button">&times;</button>
-//             </div>
-//             <div class="task-modal-body">
-//                 <div id="taskValidationErrors" class="validation-errors" style="display: none;"></div>
-//                 <form id="taskForm" class="task-form">
-//                     <div class="task-form-group">
-//                         <label for="editTaskText">Task Description</label>
-//                         <textarea id="editTaskText" placeholder="Enter task description..." class="task-form-textarea" rows="3" required>${task.text}</textarea>
-//                     </div>
-                    
-//                     <div class="task-form-row">
-//                         <div class="task-form-group">
-//                             <label for="editFrequency">Frequency</label>
-//                             <select id="editFrequency" class="task-form-select">
-//                                 <option value="once" ${task.frequency === 'once' ? 'selected' : ''}>One-time</option>
-//                                 <option value="daily" ${task.frequency === 'daily' ? 'selected' : ''}>Daily</option>
-//                                 <option value="weekly" ${task.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
-//                                 <option value="biweekly" ${task.frequency === 'biweekly' ? 'selected' : ''}>Bi-weekly</option>
-//                                 <option value="monthly" ${task.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
-//                             </select>
-//                         </div>
-//                         <div class="task-form-group">
-//                             <label for="editPriority">Priority</label>
-//                             <select id="editPriority" class="task-form-select">
-//                                 <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
-//                                 <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Medium</option>
-//                                 <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
-//                                 <option value="urgent" ${task.priority === 'urgent' ? 'selected' : ''}>Urgent</option>
-//                             </select>
-//                         </div>
-//                     </div>
-                    
-//                     <div class="task-form-group">
-//                         <label for="editDeadline">Deadline</label>
-//                         <input type="datetime-local" id="editDeadline" class="task-form-input" 
-//                             value="${task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : ''}">
-//                     </div>
-                    
-//                     <div class="task-form-options">
-//                         <div class="task-toggle-label" data-toggle="isHighPriority">
-//                             <span class="task-toggle-text">
-//                                 <i class="bi bi-exclamation-triangle"></i>
-//                                 Mark as high priority
-//                             </span>
-//                             <div>
-//                                 <input type="checkbox" id="isHighPriority" class="task-toggle-input" ${task.priority === 'high' || task.priority === 'urgent' ? 'checked' : ''}>
-//                                 <div class="task-toggle-switch"></div>
-//                             </div>
-//                         </div>
-//                         <div class="task-toggle-label" data-toggle="hasReminder">
-//                             <span class="task-toggle-text">
-//                                 <i class="bi bi-bell"></i>
-//                                 Set reminder
-//                             </span>
-//                             <div>
-//                                 <input type="checkbox" id="hasTaskReminder" class="task-toggle-input" ${task.hasReminder ? 'checked' : ''}>
-//                                 <div class="task-toggle-switch"></div>
-//                             </div>
-//                         </div>
-//                         <div class="task-toggle-label" data-toggle="isRecurring">
-//                             <span class="task-toggle-text">
-//                                 <i class="bi bi-arrow-repeat"></i>
-//                                 Recurring task
-//                             </span>
-//                             <div>
-//                                 <input type="checkbox" id="isTaskRecurring" class="task-toggle-input" ${task.frequency !== 'once' ? 'checked' : ''}>
-//                                 <div class="task-toggle-switch"></div>
-//                             </div>
-//                         </div>
-//                     </div>
-                    
-//                     <div class="task-form-actions">
-//                         <button type="button" id="saveTask" class="task-btn btn-primary">
-//                             <i class="bi bi-check-lg"></i>
-//                             Save Changes
-//                         </button>
-//                         <button type="button" id="deleteTask" class="task-btn btn-danger" ${!task.id ? 'style="display: none;"' : ''}>
-//                             <i class="bi bi-trash"></i>
-//                             Delete Task
-//                         </button>
-//                         <button type="button" id="cancelTask" class="task-btn btn-secondary">
-//                             Cancel
-//                         </button>
-//                     </div>
-//                 </form>
-//             </div>
-//         </div>
-//     `;
-    
-//     document.body.appendChild(modal);
-    
-//     // Add show class for animation
-//     setTimeout(() => modal.classList.add('show'), 10);
-    
-//     // Event listeners
-//     const closeBtn = modal.querySelector('#closeTaskModal');
-//     const saveBtn = modal.querySelector('#saveTask');
-//     const deleteBtn = modal.querySelector('#deleteTask');
-//     const cancelBtn = modal.querySelector('#cancelTask');
-    
-//     closeBtn.addEventListener('click', () => this.closeTaskModal(modal));
-//     saveBtn.addEventListener('click', () => this.saveEditedTask(modal));
-//     cancelBtn.addEventListener('click', () => this.closeTaskModal(modal));
-    
-//     if (deleteBtn.style.display !== 'none') {
-//         deleteBtn.addEventListener('click', () => this.deleteTask(task, modal));
-//     }
-    
-//     // Click outside to close
-//     modal.addEventListener('click', (e) => {
-//         if (e.target === modal) {
-//             this.closeTaskModal(modal);
-//         }
-//     });
-    
-//     // Focus management
-//     modal.querySelector('#editTaskText').focus();
-// }
+
 showEditModal(task) {
     closeModal();
     const modal = document.createElement('div');
@@ -1095,43 +937,6 @@ showEditModal(task) {
                         <input type="datetime-local" id="edit-deadline" class="task-form-input" 
                                value="${task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : ''}">
                     </div>
-                    
-                    <div class="task-form-options">
-                        <div class="task-toggle-label" data-toggle="isRecurring">
-                            <span class="task-toggle-text">
-                                <i class="bi bi-arrow-repeat"></i>
-                                Recurring task
-                            </span>
-                            <div>
-                                <input type="checkbox" id="isRecurring" class="task-toggle-input" 
-                                       ${task.frequency !== 'once' ? 'checked' : ''}>
-                                <div class="task-toggle-switch"></div>
-                            </div>
-                        </div>
-                        <div class="task-toggle-label" data-toggle="hasReminder">
-                            <span class="task-toggle-text">
-                                <i class="bi bi-bell"></i>
-                                Set reminder
-                            </span>
-                            <div>
-                                <input type="checkbox" id="hasReminder" class="task-toggle-input" 
-                                       ${task.alertTime ? 'checked' : ''}>
-                                <div class="task-toggle-switch"></div>
-                            </div>
-                        </div>
-                        <div class="task-toggle-label" data-toggle="isHighPriority">
-                            <span class="task-toggle-text">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                High priority
-                            </span>
-                            <div>
-                                <input type="checkbox" id="isHighPriority" class="task-toggle-input" 
-                                       ${task.priority === 'high' || task.priority === 'urgent' ? 'checked' : ''}>
-                                <div class="task-toggle-switch"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div class="task-form-actions">
                         <button type="button" id="saveTask" class="task-btn btn-primary">
                             <i class="bi bi-check-lg"></i>
@@ -1179,17 +984,6 @@ showEditModal(task) {
     // Initialize toggle switches
     this.initializeToggleSwitches(modal);
 }
-// closeTaskModal(modal) {
-//     modal.classList.remove('show');
-//     setTimeout(() => {
-//         if (modal.parentNode) {
-//             modal.parentNode.removeChild(modal);
-//         }
-//         this.editingTask = null;
-//         this.restoreFocus();
-//     }, 300);
-// }
-
 closeTaskModal(modal) {
     modal.classList.remove('show');
     setTimeout(() => {
