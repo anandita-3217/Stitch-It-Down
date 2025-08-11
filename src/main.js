@@ -363,7 +363,7 @@ class WindowManager {
                 window.webContents.send('timer-settings-ready', currentSettings.timer);
             }
             
-            console.log('Sent initial settings to window');
+            // console.log('Sent initial settings to window');
         } catch (error) {
             console.error('Failed to send initial settings:', error);
         }
