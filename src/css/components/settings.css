@@ -1,206 +1,3 @@
-
-/* .settings-container {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-.settings-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-.settings-content {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-}
-.settings-tabs {
-    display: flex;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 30px;
-    background: var(--card-bg);
-    border-radius: 10px 10px 0 0;
-    padding: 0 20px;
-}
-.settings-tab {
-    background: none;
-    border: none;
-    padding: 15px 30px;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
-    color: var(--text-secondary);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-        .settings-tab.active {
-            border-bottom-color: var(--dark-purple);
-            color: var(--dark-purple);
-            background: rgba(106, 182, 255, 0.1);
-        }
-
-        .settings-tab:hover {
-            background: rgba(106, 182, 255, 0.05);
-            color: var(--dark-purple);
-        }
-
-        .settings-section {
-            margin-bottom: 30px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 20px var(--shadow);
-            border: 1px solid var(--border-color);
-        }
-
-        .settings-section h3 {
-            color: var(--dark-purple);
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-
-        .setting-info {
-            flex: 1;
-        }
-
-        .setting-info strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .setting-info small {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .toggle-switch {
-            width: 50px;
-            height: 25px;
-            background: var(--border-color);
-            border-radius: 25px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid var(--border-color);
-        }
-
-        .toggle-switch.active {
-            background: var(--dark-purple);
-            border-color: var(--dark-purple);
-        }
-
-        .toggle-switch::after {
-            content: '';
-            width: 19px;
-            height: 19px;
-            background: var(--white);
-            border-radius: 50%;
-            position: absolute;
-            top: 1px;
-            left: 2px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px var(--shadow);
-        }
-
-        .toggle-switch.active::after {
-            left: 25px;
-        }
-
-        .settings-select {
-            padding: 8px 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 14px;
-            min-width: 120px;
-            transition: all 0.3s ease;
-        }
-
-        .settings-select:focus {
-            outline: none;
-            border-color: var(--dark-purple);
-            box-shadow: 0 0 0 3px rgba(106, 182, 255, 0.1);
-        }
-
-        .settings-input {
-            padding: 8px 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 14px;
-            min-width: 120px;
-            transition: all 0.3s ease;
-        }
-
-        .settings-input:focus {
-            outline: none;
-            border-color: var(--dark-purple);
-            box-shadow: 0 0 0 3px rgba(106, 182, 255, 0.1);
-        }
-
-        .settings-button {
-            background: var(--dark-purple);
-            color: var(--white);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .settings-button:hover {
-            background: var(--darker-blue);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px var(--shadow-hover);
-        }
-
-        .danger-button {
-            background: #ff4757;
-            color: white;
-        }
-
-        .danger-button:hover {
-            background: #ff3742;
-        }
-
-        @media (max-width: 768px) {
-            .settings-tabs {
-                flex-wrap: wrap;
-                padding: 10px;
-            }
-            
-            .settings-tab {
-                padding: 10px 15px;
-                font-size: 12px;
-            }
-            
-            .setting-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-        } */
-
-/* New Code */
-/* Settings Page Styles */
-/* Settings Container */
 .settings-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -230,7 +27,7 @@
 
 .unsaved-indicator {
     background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
+    color: var(--white);
     padding: 0.5rem 1rem;
     border-radius: 2rem;
     font-size: 0.875rem;
@@ -608,47 +405,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
     padding-top: 2rem;
     border-top: 2px solid var(--border-color);
 }
-
-/* Message Container */
-/* .message-container {
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    z-index: 1000;
-    max-width: 400px;
-}
-
-.message {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 8px 32px var(--shadow);
-    transform: translateX(100%);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.message.show {
-    transform: translateX(0);
-}
-
-.message.success {
-    border-left: 4px solid #10b981;
-    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1), var(--card-bg));
-}
-
-.message.error {
-    border-left: 4px solid #ef4444;
-    background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), var(--card-bg));
-}
-
-.message.warning {
-    border-left: 4px solid #f59e0b;
-    background: linear-gradient(90deg, rgba(245, 158, 11, 0.1), var(--card-bg));
-} */
-/* Add this CSS to your settings.css file or in a <style> tag in your HTML */
-
 .message-container {
     position: fixed;
     top: 20px;
@@ -673,6 +429,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     line-height: 1.4;
     backdrop-filter: blur(10px);
     border: 1px solid;
+    border-radius: 12%;
     animation: slideIn 0.3s ease-out;
     word-wrap: break-word;
     max-width: 100%;
@@ -680,26 +437,27 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .message-error {
     background-color: rgba(239, 68, 68, 0.95);
-    color: white;
+    color: var(--white);;
     border-color: rgba(239, 68, 68, 1);
 }
 
 .message-success {
     background-color: rgba(34, 197, 94, 0.95);
-    color: white;
+    color: var(--white);
     border-color: rgba(34, 197, 94, 1);
 }
 
 .message-info {
     background-color: rgba(59, 130, 246, 0.95);
-    color: white;
+    color: var(--white);
     border-color: rgba(59, 130, 246, 1);
 }
 
 .message-warning {
     background-color: rgba(245, 158, 11, 0.95);
-    color: white;
+    color: var(--white);
     border-color: rgba(245, 158, 11, 1);
+    
 }
 
 .message-icon {
@@ -811,7 +569,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
         scrollbar-width: none;
         -ms-overflow-style: none;
     }
-    
+    .tab-button{
+        font-size: 0.5rem;
+    }
     .tabs::-webkit-scrollbar {
         display: none;
     }

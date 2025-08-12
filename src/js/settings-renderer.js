@@ -87,7 +87,7 @@ class SettingsRenderer {
         });
 
         this.settingsCore.on('soundTestSuccess', ({ soundType, volume }) => {
-            this.showMessage('✅ Sound played successfully!', 'success');
+            this.showMessage('Sound played successfully!', 'success');
         });
 
         this.settingsCore.on('soundTestError', (error) => {
@@ -120,7 +120,7 @@ class SettingsRenderer {
 
         this.settingsCore.on('settingsUpdatedFromExternal', (settings) => {
             this.populateUI(settings);
-            this.showMessage('Settings updated from another window', 'info');
+            this.showMessage('Settings updated', 'info');
         });
 
         this.settingsCore.on('timerEvent', (data) => {
