@@ -702,12 +702,8 @@ showEventModal(date = null, event = null, defaultTime = null) {
     if (modalTitle) {
         modalTitle.textContent = event ? 'Edit Event' : 'Create Event';
     }
-
-    // Get the time input fields first
     const startTimeInput = document.getElementById('eventStartTime');
     const endTimeInput = document.getElementById('eventEndTime');
-    
-    // Make sure the input fields are visible and styled
     if (startTimeInput) {
         startTimeInput.style.display = 'block';
         startTimeInput.placeholder = 'Start time';

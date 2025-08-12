@@ -259,7 +259,10 @@ class NotesManager {
         modal.className = 'note-category-modal';
         modal.innerHTML = `
             <div class="modal-content">
-                <h3>Note Settings</h3>
+                <div class="modal-header">
+                    <h3 class="modal-h3">Create Note</h3>
+                    <button id="closeNoteModal" class="close-note-btn" type="button">&times;</button>
+                </div>
                 <div class="note-text-preview">
                     <strong>Note:</strong> ${noteText.length > 100 ? noteText.substring(0, 100) + '...' : noteText}
                 </div>
@@ -470,7 +473,7 @@ showNoteModal(button) {
         modal.innerHTML = `
             <div class="modal-content note-modal-content">
                 <div class="modal-header">
-                    <h3>View/Edit Note</h3>
+                    <h3 class=modal-h3>View/Edit Note</h3>
                     <button class="modal-close-btn" type="button">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -511,7 +514,7 @@ showNoteModal(button) {
                     </div>
                     <div class="modal-save-actions">
                         <button class="save-modal-note" data-note-id="${note.id}" type="button">Save Changes</button>
-                        <button class="cancel-modal" type="button">Close</button>
+                        <button class="cancel-modal" type="button">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -730,7 +733,10 @@ showNoteModal(button) {
         modal.className = 'note-edit-modal';
         modal.innerHTML = `
             <div class="modal-content">
-                <h3>Edit Note</h3>
+                <div class="modal-header">
+                    <h3 class="modal-h3" id="modalTitle">Edit Note</h3>
+                    <button id="closeNoteModal" class="close-note-btn" type="button">&times;</button>
+                </div>
                 <textarea id="editNoteText" rows="6">${note.text}</textarea>                
                 <div class="edit-sections">
                     <div class="category-section">
