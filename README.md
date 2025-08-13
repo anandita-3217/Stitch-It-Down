@@ -293,6 +293,8 @@ Would you like wireframes or implementation suggestions for any of these?
 
  -->
 # Stitch It Down 🌺
+
+TODO: Add a feature in the tasks to check progress of daily,weekly and monthly tasks
 *"Ohana means family, and family means nobody gets left behind or forgotten."*
 A Lilo & Stitch inspired desktop productivity application built with Electron Forge and Webpack.
 
