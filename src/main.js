@@ -1,4 +1,6 @@
 // main.js
+// const stitchIcon = require('./assets/images/icons/stitch-wink.ico')
+const stitchIcon = require('@assets/images/icons/stitch-wink.ico');
 const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
@@ -97,11 +99,6 @@ class SettingsStore {
         this.currentSettings = { ...this.defaultSettings };
         return this.saveSettings();
     }
-    // broadcastSettingsUpdate() {
-    //     BrowserWindow.getAllWindows().forEach(window => {
-    //         window.webContents.send('settings-updated', this.currentSettings);
-    //     });
-    // }
     broadcastSettingsUpdate() {
         BrowserWindow.getAllWindows().forEach(window => {
             window.webContents.send('settings-updated', this.currentSettings);
@@ -315,7 +312,7 @@ class WindowManager {
             const window = new BrowserWindow({
                 ...config,
                 show: false,
-                icon: path.join(__dirname, '@assets/images/icons/stitch-wink.ico'),
+                icon: stitchIcon,
                 titleBarStyle: 'default'
             });
             window.loadURL(entryPoint.url);
