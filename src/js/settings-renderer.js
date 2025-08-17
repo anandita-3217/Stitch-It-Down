@@ -4,11 +4,13 @@ import '@css/components/settings.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
 import { SettingsCore, SOUND_REGISTRY } from '@components/settings.js';
+import { TimerSettings, TIMER_SOUND_REGISTRY } from '@components/settings/settings-timer.js'
 import { setImage, setDailyQuote, setRandomGif, loadAllImages, initTheme, setTheme, toggleTheme, updateDate, updateClock } from '@components/utils.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 class SettingsRenderer {
     constructor() {
         this.settingsCore = new SettingsCore();
+        this.timerModule = new TimerSettings();
         this.setupCoreEventListeners();
     }
     async init() {
@@ -140,12 +142,27 @@ class SettingsRenderer {
         this.bindButton('select-custom-sound', () => this.handleSelectCustomSound());
 
         // Volume slider
-        const volumeSlider = document.getElementById('timer-volume');
-        if (volumeSlider) {
-            volumeSlider.addEventListener('input', (e) => {
-                this.settingsCore.updateVolume(e.target.value);
-            });
+        // const volumeSlider = document.getElementById('timer-volume');
+        // if (volumeSlider) {
+        //     volumeSlider.addEventListener('input', (e) => {
+        //         this.settingsCore.updateVolume(e.target.value);
+        //     });
+        // }
+
+        // NEW CODE:
+const volumeSlider = document.getElementById('timer-volume');
+if (volumeSlider) {
+    volumeSlider.addEventListener('input', (e) => {
+        // Try the new way first, fallback to old if it breaks
+        try {
+            this.timerModule.updateVolume(e.target.value); // NEW way!
+            console.log('✅ Using new timer module for volume');
+        } catch (error) {
+            console.log('❌ New module failed, using old method:', error);
+            this.settingsCore.updateVolume(e.target.value); // OLD way as backup
         }
+    });
+}
 
         // Form change detection
         const form = document.getElementById('settings-form');
@@ -578,3 +595,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Add debug helper
     window.debugSettings = () => settingsRenderer.logCurrentState();
 });
+

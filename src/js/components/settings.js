@@ -1,9 +1,11 @@
 // settings.js - Core Settings Logic
 import { detectAndCreateLinks, formatTimestamp, closeModal } from '@components/utils.js';
+import { TimerSettings } from '@components/settings/settings-timer.js';
 import bellSound from '@assets/sounds/bell.wav';
 import chimeSound from '@assets/sounds/chime.wav';
 import gongSound from '@assets/sounds/gong.wav';
 import tweetSound from '@assets/sounds/tweet.wav';
+
 
 export const SOUND_REGISTRY = {
     bell: {
@@ -34,7 +36,9 @@ export class SettingsCore {
         this.originalSettings = {};
         this.eventCallbacks = new Map();
         this.isInitialized = false;
-        this.initPromise = null
+        this.initPromise = null;
+        this.timerModule = new TimerSettings();
+
         // Make globally available immediately
         if (typeof window !== 'undefined') {
             window.settingsCore = this;
@@ -151,20 +155,6 @@ export class SettingsCore {
             }, timeout);
         });
     }
-    // async init() {
-    //     try {
-    //         this.currentSettings = await window.electronAPI.loadSettings();
-    //         this.originalSettings = JSON.parse(JSON.stringify(this.currentSettings));
-            
-    //         this.emit('settingsLoaded', this.currentSettings);
-    //         console.log('Settings loaded:', this.currentSettings);
-    //         return true;
-    //     } catch (error) {
-    //         console.error('Failed to initialize settings:', error);
-    //         this.emit('error', 'Failed to load settings');
-    //         return false;
-    //     }
-    // }
 
     // Settings validation
     validateSettings(settings) {
@@ -272,21 +262,27 @@ export class SettingsCore {
 
     // Volume management
     updateVolume(volume) {
-        const volumeValue = Math.max(0, Math.min(1, parseFloat(volume)));
+        // const volumeValue = Math.max(0, Math.min(1, parseFloat(volume)));
         
-        if (!this.currentSettings.timer) {
-            this.currentSettings.timer = {};
+        // if (!this.currentSettings.timer) {
+        //     this.currentSettings.timer = {};
+        // }
+        
+        // this.currentSettings.timer.volume = volumeValue;
+        
+        // // Update Electron API
+        // if (window.electronAPI?.setTimerVolume) {
+        //     window.electronAPI.setTimerVolume(volumeValue);
+        // }
+        
+        // this.emit('volumeChanged', volumeValue);
+        // return volumeValue;
+        try {
+            return this.timerModule.updateVolume(volume);
+        } catch (error) {
+            console.log('New method failed, using old:', error);
+            // Your old updateVolume code here as backup
         }
-        
-        this.currentSettings.timer.volume = volumeValue;
-        
-        // Update Electron API
-        if (window.electronAPI?.setTimerVolume) {
-            window.electronAPI.setTimerVolume(volumeValue);
-        }
-        
-        this.emit('volumeChanged', volumeValue);
-        return volumeValue;
     }
 
     // Sound management
