@@ -9,8 +9,20 @@ export class TimerSettings {
     constructor() {
         // Just copy your existing timer methods here
         this.currentSettings = {};
+        this.eventCallbacks = new Map(); 
     }
-
+    emit(event,data){
+        if(this.eventCallbacks.has(event)){
+            this.eventCallbacks.get(event).forEach(callback =>(callback(data)));
+        }
+        console.log(`Timer event: ${event}`,data);
+    }
+    on(event,callback){
+        if(!this.eventCallbacks.has(event)){
+            this.eventCallbacks.set(event,[]);
+        }
+        this.eventCallbacks.get(event).push(callback);
+    }
     
         // Volume management
         updateVolume(volume) {
