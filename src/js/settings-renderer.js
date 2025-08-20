@@ -4,7 +4,7 @@ import '@css/components/settings.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
 import { SettingsCore, SOUND_REGISTRY } from '@components/settings.js';
-import { TimerSettings, TIMER_SOUND_REGISTRY } from '@components/settings/settings-timer.js'
+import { TimerSettings} from '@components/settings/settings-timer.js'
 import { setImage, setDailyQuote, setRandomGif, loadAllImages, initTheme, setTheme, toggleTheme, updateDate, updateClock } from '@components/utils.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 class SettingsRenderer {
@@ -248,8 +248,13 @@ if (volumeSlider) {
         const soundSelect = document.getElementById('sound-type');
         const soundType = soundSelect?.value || 'bell';
         const currentVolume = parseFloat(document.getElementById('timer-volume')?.value || 0.8);
-        
-        this.settingsCore.testSound(soundType, currentVolume);
+        try {
+            this.timerModule.testSound(soundType,currentVolume);
+            console.log('✅ Using new timer module for sound test')
+        } catch (error) {
+            console.log('❌ New sound test failed, using old method.Error: ',error);
+            this.settingsCore.testSound(soundType, currentVolume);
+        }
     }
 
     async handleSelectCustomSound() {
@@ -414,40 +419,86 @@ if (volumeSlider) {
     }
 
     // Sound management UI
+    // loadAvailableSounds() {
+    //     try {
+    //         const sounds = this.settingsCore.getAvailableSounds();
+    //         const soundSelect = document.getElementById('sound-type');
+            
+    //         if (!soundSelect) return;
+
+    //         // Clear existing options except the first one (usually a placeholder)
+    //         while (soundSelect.children.length > 1) {
+    //             soundSelect.removeChild(soundSelect.lastChild);
+    //         }
+
+    //         // Add sound options
+    //         sounds.forEach((sound) => {
+    //             const option = document.createElement('option');
+    //             option.value = sound.id;
+    //             option.textContent = sound.name;
+    //             soundSelect.appendChild(option);
+    //         });
+
+    //         // Set current value
+    //         const currentSoundType = this.settingsCore.currentSettings.timer?.soundType || 'bell';
+    //         soundSelect.value = currentSoundType;
+
+    //         // Add custom sound option if it exists
+    //         if (currentSoundType === 'custom') {
+    //             this.addCustomSoundOption();
+    //         }
+
+    //     } catch (error) {
+    //         console.error('Failed to load sounds:', error);
+    //         this.showMessage(`Failed to load sounds: ${error.message}`, 'error');
+    //     }
+    // }
     loadAvailableSounds() {
+    try {
+        // NEW: Use the timer module
+        const sounds = this.timerModule.getAvailableSounds();
+        console.log('✅ Using new timer module for available sounds');
+        console.log('🔊 Sounds found:', sounds); // Debug line
+        
+        const soundSelect = document.getElementById('sound-type');
+        
+        if (!soundSelect) return;
+
+        // FIXED: Don't clear options, replace them properly
+        soundSelect.innerHTML = ''; // Clear ALL options first
+        
+        // Add sound options
+        sounds.forEach((sound) => {
+            const option = document.createElement('option');
+            option.value = sound.id;
+            option.textContent = sound.name;
+            soundSelect.appendChild(option);
+            console.log('➕ Added sound:', sound.name); // Debug line
+        });
+
+        // Set current value
+        const currentSoundType = this.settingsCore.currentSettings.timer?.soundType || 'bell';
+        soundSelect.value = currentSoundType;
+
+        // Add custom sound option if it exists
+        if (currentSoundType === 'custom') {
+            this.addCustomSoundOption();
+        }
+
+    } catch (error) {
+        console.error('❌ Failed to load sounds:', error);
+        this.showMessage(`Failed to load sounds: ${error.message}`, 'error');
+        
+        // FALLBACK: Try the old way
         try {
             const sounds = this.settingsCore.getAvailableSounds();
-            const soundSelect = document.getElementById('sound-type');
-            
-            if (!soundSelect) return;
-
-            // Clear existing options except the first one (usually a placeholder)
-            while (soundSelect.children.length > 1) {
-                soundSelect.removeChild(soundSelect.lastChild);
-            }
-
-            // Add sound options
-            sounds.forEach((sound) => {
-                const option = document.createElement('option');
-                option.value = sound.id;
-                option.textContent = sound.name;
-                soundSelect.appendChild(option);
-            });
-
-            // Set current value
-            const currentSoundType = this.settingsCore.currentSettings.timer?.soundType || 'bell';
-            soundSelect.value = currentSoundType;
-
-            // Add custom sound option if it exists
-            if (currentSoundType === 'custom') {
-                this.addCustomSoundOption();
-            }
-
-        } catch (error) {
-            console.error('Failed to load sounds:', error);
-            this.showMessage(`Failed to load sounds: ${error.message}`, 'error');
+            console.log('🔄 Using fallback method');
+            // ... rest of the logic with sounds from old method
+        } catch (fallbackError) {
+            console.error('💥 Even fallback failed:', fallbackError);
         }
     }
+}
 
     addCustomSoundOption() {
         const soundSelect = document.getElementById('sound-type');

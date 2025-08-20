@@ -1,8 +1,8 @@
 export const TIMER_SOUND_REGISTRY = {
-    bell: { id: 'bell', name: 'Bell', path: '@assets/sounds/bell.wav' },
-    chime: { id: 'chime', name: 'Chime', path: '@assets/sounds/chime.wav' },
-    gong: { id: 'gong', name: 'Gong', path: '@assets/sounds/gong.wav' },
-    tweet: { id: 'tweet', name: 'Tweet', path: '@assets/sounds/tweet.wav' }
+    bell: { id: 'bell', name: 'Bell', path: '../../assets/sounds/bell.wav' },
+    chime: { id: 'chime', name: 'Chime', path: '../../assets/sounds/chime.wav' },
+    gong: { id: 'gong', name: 'Gong', path: '../../assets/sounds/gong.wav' },
+    tweet: { id: 'tweet', name: 'Tweet', path: '../../assets/sounds/tweet.wav' }
 };
 
 export class TimerSettings {
