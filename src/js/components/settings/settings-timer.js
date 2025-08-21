@@ -23,6 +23,10 @@ export class TimerSettings {
         }
         this.eventCallbacks.get(event).push(callback);
     }
+    // Add this method to TimerSettings class
+setCurrentSettings(settings) {
+    this.currentSettings = settings;
+}
     
         // Volume management
         updateVolume(volume) {
@@ -48,28 +52,62 @@ export class TimerSettings {
             return Object.values(TIMER_SOUND_REGISTRY);
         }
     
-        async testSound(soundType, volume = null) {
-            try {
-                const currentVolume = volume !== null ? volume : 
-                    (this.currentSettings.timer?.volume || 0.8);
+        // async testSound(soundType, volume = null) {
+        //     try {
+        //         const currentVolume = volume !== null ? volume : 
+        //             (this.currentSettings.timer?.volume || 0.8);
                 
-                const sound = TIMER_SOUND_REGISTRY[soundType];
-                if (!sound) {
-                    throw new Error(`Sound "${soundType}" not found`);
-                }
+        //         const sound = TIMER_SOUND_REGISTRY[soundType];
+        //         if (!sound) {
+        //             throw new Error(`Sound "${soundType}" not found`);
+        //         }
     
-                const audio = new Audio(sound.path);
-                audio.volume = currentVolume;
-                await audio.play();
+        //         const audio = new Audio(sound.path);
+        //         audio.volume = currentVolume;
+        //         await audio.play();
                 
-                this.emit('soundTestSuccess', { soundType, volume: currentVolume });
-                return true;
-            } catch (error) {
-                console.error('Sound test failed:', error);
-                this.emit('soundTestError', error.message);
-                return false;
+        //         this.emit('soundTestSuccess', { soundType, volume: currentVolume });
+        //         return true;
+        //     } catch (error) {
+        //         console.error('Sound test failed:', error);
+        //         this.emit('soundTestError', error.message);
+        //         return false;
+        //     }
+        // }
+        async testSound(soundType, volume = null) {
+    try {
+        const currentVolume = volume !== null ? volume : 
+            (this.currentSettings.timer?.volume || 0.8);
+        
+        let soundPath;
+        
+        // Handle custom sounds
+        if (soundType === 'custom') {
+            soundPath = this.currentSettings.timer?.customSoundPath;
+            if (!soundPath) {
+                throw new Error('No custom sound file selected');
             }
+        } else {
+            // Handle built-in sounds
+            const sound = TIMER_SOUND_REGISTRY[soundType];
+            if (!sound) {
+                throw new Error(`Sound "${soundType}" not found`);
+            }
+            soundPath = sound.path;
         }
+
+        const audio = new Audio(soundPath);
+        audio.volume = currentVolume;
+        await audio.play();
+        
+        this.emit('soundTestSuccess', { soundType, volume: currentVolume });
+        return true;
+    } catch (error) {
+        console.error('Sound test failed:', error);
+        this.emit('soundTestError', error.message);
+        return false;
+    }
+}
     
         async selectCustomSound() {
             try {
@@ -92,5 +130,45 @@ export class TimerSettings {
                 return null;
             }
         }
+            // Audio diagnostics
+    checkSystemAudio() {
+        const diagnostics = {
+            timestamp: new Date().toISOString(),
+            permissions: {},
+            audioContext: {},
+            currentSettings: {}
+        };
 
+        if (navigator.permissions) {
+            navigator.permissions.query({name: 'microphone'}).then(result => {
+                diagnostics.permissions.microphone = result.state;
+            }).catch(e => {
+                diagnostics.permissions.microphone = 'unavailable';
+            });
+        }
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                const testContext = new AudioContext();
+                diagnostics.audioContext = {
+                    state: testContext.state,
+                    sampleRate: testContext.sampleRate,
+                    hasDestination: !!testContext.destination
+                };
+                testContext.close();
+            } catch (e) {
+                diagnostics.audioContext.error = e.message;
+            }
+        }
+
+        diagnostics.currentSettings = {
+            volume: this.currentSettings.timer?.volume,
+            soundEnabled: this.currentSettings.timer?.soundEnabled,
+            soundType: this.currentSettings.timer?.soundType
+        };
+
+        this.emit('systemAudioCheck', diagnostics);
+        return diagnostics;
+    }
 }

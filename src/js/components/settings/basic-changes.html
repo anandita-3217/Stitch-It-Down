@@ -1,0 +1,329 @@
+<script>
+// ========== STEP 1: Complete settings-timer.js ==========
+// js/components/settings/settings-timer.js
+
+import bellSound from '../../assets/sounds/bell.wav';
+import chimeSound from '../../assets/sounds/chime.wav';
+import gongSound from '../../assets/sounds/gong.wav';
+import tweetSound from '../../assets/sounds/tweet.wav';
+
+export const TIMER_SOUND_REGISTRY = {
+    bell: { id: 'bell', name: 'Bell', path: bellSound },
+    chime: { id: 'chime', name: 'Chime', path: chimeSound },
+    gong: { id: 'gong', name: 'Gong', path: gongSound },
+    tweet: { id: 'tweet', name: 'Tweet', path: tweetSound }
+};
+
+export class TimerSettings {
+    constructor() {
+        this.currentSettings = {};
+        this.eventCallbacks = new Map();
+    }
+
+    // Event system
+    emit(event, data) {
+        if (this.eventCallbacks.has(event)) {
+            this.eventCallbacks.get(event).forEach(callback => callback(data));
+        }
+        console.log(`🎯 Timer event: ${event}`, data);
+    }
+
+    on(event, callback) {
+        if (!this.eventCallbacks.has(event)) {
+            this.eventCallbacks.set(event, []);
+        }
+        this.eventCallbacks.get(event).push(callback);
+    }
+
+    // Volume management
+    updateVolume(volume) {
+        const volumeValue = Math.max(0, Math.min(1, parseFloat(volume)));
+        
+        if (!this.currentSettings.timer) {
+            this.currentSettings.timer = {};
+        }
+        
+        this.currentSettings.timer.volume = volumeValue;
+        
+        // Update Electron API
+        if (window.electronAPI?.setTimerVolume) {
+            window.electronAPI.setTimerVolume(volumeValue);
+        }
+        
+        this.emit('volumeChanged', volumeValue);
+        return volumeValue;
+    }
+
+    // Sound management
+    getAvailableSounds() {
+        return Object.values(TIMER_SOUND_REGISTRY);
+    }
+
+    async testSound(soundType, volume = null) {
+        try {
+            const currentVolume = volume !== null ? volume : 
+                (this.currentSettings.timer?.volume || 0.8);
+            
+            const sound = TIMER_SOUND_REGISTRY[soundType];
+            if (!sound) {
+                throw new Error(`Sound "${soundType}" not found`);
+            }
+
+            const audio = new Audio(sound.path);
+            audio.volume = currentVolume;
+            await audio.play();
+            
+            this.emit('soundTestSuccess', { soundType, volume: currentVolume });
+            return true;
+        } catch (error) {
+            console.error('Sound test failed:', error);
+            this.emit('soundTestError', error.message);
+            return false;
+        }
+    }
+
+    async selectCustomSound() {
+        try {
+            const sound = await window.electronAPI.selectCustomSound();
+            if (sound) {
+                if (!this.currentSettings.timer) {
+                    this.currentSettings.timer = {};
+                }
+                
+                this.currentSettings.timer.customSoundPath = sound.path;
+                this.currentSettings.timer.soundType = 'custom';
+                
+                this.emit('customSoundSelected', sound);
+                return sound;
+            }
+            return null;
+        } catch (error) {
+            console.error('Failed to select custom sound:', error);
+            this.emit('error', 'Failed to select custom sound');
+            return null;
+        }
+    }
+
+    // Audio diagnostics
+    checkSystemAudio() {
+        const diagnostics = {
+            timestamp: new Date().toISOString(),
+            permissions: {},
+            audioContext: {},
+            currentSettings: {}
+        };
+
+        if (navigator.permissions) {
+            navigator.permissions.query({name: 'microphone'}).then(result => {
+                diagnostics.permissions.microphone = result.state;
+            }).catch(e => {
+                diagnostics.permissions.microphone = 'unavailable';
+            });
+        }
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                const testContext = new AudioContext();
+                diagnostics.audioContext = {
+                    state: testContext.state,
+                    sampleRate: testContext.sampleRate,
+                    hasDestination: !!testContext.destination
+                };
+                testContext.close();
+            } catch (e) {
+                diagnostics.audioContext.error = e.message;
+            }
+        }
+
+        diagnostics.currentSettings = {
+            volume: this.currentSettings.timer?.volume,
+            soundEnabled: this.currentSettings.timer?.soundEnabled,
+            soundType: this.currentSettings.timer?.soundType
+        };
+
+        this.emit('systemAudioCheck', diagnostics);
+        return diagnostics;
+    }
+}
+
+// ========== STEP 2: Update settings-renderer.js ==========
+// Replace these methods in your SettingsRenderer class:
+
+// IN CONSTRUCTOR - ADD THIS LINE:
+constructor() {
+    this.settingsCore = new SettingsCore();
+    this.timerModule = new TimerSettings(); // ADD THIS LINE
+    this.setupCoreEventListeners();
+}
+
+// REPLACE setupUIEventListeners() - UPDATE VOLUME SLIDER PART:
+setupUIEventListeners() {
+    // Button event listeners
+    this.bindButton('save-settings', () => this.handleSaveSettings());
+    this.bindButton('reset-settings', () => this.handleResetSettings());
+    this.bindButton('cancel-settings', () => this.handleCancelSettings());
+    this.bindButton('export-data', () => this.handleExportData());
+    this.bindButton('import-data', () => this.handleImportData());
+    this.bindButton('test-sound', () => this.handleTestSound());
+    this.bindButton('select-custom-sound', () => this.handleSelectCustomSound());
+
+    // Volume slider - UPDATED
+    const volumeSlider = document.getElementById('timer-volume');
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            try {
+                this.timerModule.updateVolume(e.target.value);
+                console.log('✅ Using new timer module for volume');
+            } catch (error) {
+                console.log('❌ New module failed, using old method:', error);
+                this.settingsCore.updateVolume(e.target.value);
+            }
+        });
+    }
+
+    // Form change detection
+    const form = document.getElementById('settings-form');
+    if (form) {
+        form.addEventListener('change', () => this.updateChangeDetection());
+        form.addEventListener('input', () => this.updateChangeDetection());
+    }
+}
+
+// REPLACE handleTestSound() method:
+handleTestSound() {
+    const soundSelect = document.getElementById('sound-type');
+    const soundType = soundSelect?.value || 'bell';
+    const currentVolume = parseFloat(document.getElementById('timer-volume')?.value || 0.8);
+    
+    try {
+        this.timerModule.testSound(soundType, currentVolume);
+        console.log('✅ Using new timer module for sound test');
+    } catch (error) {
+        console.log('❌ New sound test failed, using old method:', error);
+        this.settingsCore.testSound(soundType, currentVolume);
+    }
+}
+
+// REPLACE handleSelectCustomSound() method:
+async handleSelectCustomSound() {
+    try {
+        await this.timerModule.selectCustomSound();
+        console.log('✅ Using new timer module for custom sound');
+    } catch (error) {
+        console.log('❌ New custom sound failed, using old method:', error);
+        await this.settingsCore.selectCustomSound();
+    }
+}
+
+// REPLACE loadAvailableSounds() method:
+loadAvailableSounds() {
+    try {
+        const sounds = this.timerModule.getAvailableSounds();
+        console.log('✅ Using new timer module for available sounds');
+        console.log('🔊 Sounds found:', sounds);
+        
+        const soundSelect = document.getElementById('sound-type');
+        
+        if (!soundSelect) return;
+
+        // Clear ALL options first
+        soundSelect.innerHTML = '';
+        
+        // Add sound options
+        sounds.forEach((sound) => {
+            const option = document.createElement('option');
+            option.value = sound.id;
+            option.textContent = sound.name;
+            soundSelect.appendChild(option);
+            console.log('➕ Added sound:', sound.name);
+        });
+
+        // Set current value
+        const currentSoundType = this.settingsCore.currentSettings.timer?.soundType || 'bell';
+        soundSelect.value = currentSoundType;
+
+        // Add custom sound option if it exists
+        if (currentSoundType === 'custom') {
+            this.addCustomSoundOption();
+        }
+
+    } catch (error) {
+        console.error('❌ Failed to load sounds:', error);
+        this.showMessage(`Failed to load sounds: ${error.message}`, 'error');
+        
+        // FALLBACK: Try the old way
+        try {
+            const sounds = this.settingsCore.getAvailableSounds();
+            console.log('🔄 Using fallback method');
+            // ... same DOM logic with old sounds
+        } catch (fallbackError) {
+            console.error('💥 Even fallback failed:', fallbackError);
+        }
+    }
+}
+
+// REPLACE addCustomSoundOption() method:
+addCustomSoundOption() {
+    const soundSelect = document.getElementById('sound-type');
+    if (!soundSelect) return;
+
+    let customOption = soundSelect.querySelector('option[value="custom"]');
+    if (!customOption) {
+        customOption = document.createElement('option');
+        customOption.value = 'custom';
+        customOption.textContent = 'Custom Sound';
+        soundSelect.appendChild(customOption);
+    }
+}
+
+// REPLACE updateVolumeDisplay() method:
+updateVolumeDisplay() {
+    const volumeDisplay = document.getElementById('volume-display');
+    const volumeSlider = document.getElementById('timer-volume');
+
+    if (volumeDisplay && volumeSlider) {
+        const volume = Math.round(volumeSlider.value * 100);
+        volumeDisplay.textContent = `${volume}%`;
+    }
+}
+
+// ADD timer module event listeners to setupCoreEventListeners():
+setupCoreEventListeners() {
+    // Your existing core listeners...
+    
+    // ADD THESE NEW TIMER MODULE LISTENERS:
+    this.timerModule.on('volumeChanged', (volume) => {
+        this.updateVolumeDisplay();
+    });
+
+    this.timerModule.on('customSoundSelected', (sound) => {
+        this.addCustomSoundOption();
+        this.setSelectValue('sound-type', 'custom');
+        this.showMessage(`Custom sound selected: ${sound.name}`, 'success');
+        this.updateChangeDetection();
+    });
+
+    this.timerModule.on('soundTestSuccess', ({ soundType, volume }) => {
+        this.showMessage('Sound played successfully!', 'success');
+    });
+
+    this.timerModule.on('soundTestError', (error) => {
+        this.showMessage(`Sound test failed: ${error}`, 'error');
+    });
+
+    this.timerModule.on('systemAudioCheck', (diagnostics) => {
+        this.showMessage('System audio check completed - see console for details', 'info');
+        console.log('=== SYSTEM AUDIO DIAGNOSTICS ===', diagnostics);
+    });
+
+    this.timerModule.on('error', (error) => {
+        this.showError(`Timer: ${error}`);
+    });
+}
+
+// ========== STEP 3: Don't forget the import! ==========
+// At the top of settings-renderer.js, add:
+import { TimerSettings, TIMER_SOUND_REGISTRY } from '@components/settings/settings-timer.js';
+
+</script>

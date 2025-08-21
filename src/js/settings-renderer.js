@@ -128,6 +128,34 @@ class SettingsRenderer {
         this.settingsCore.on('timerEvent', (data) => {
             console.log('Timer event received:', data);
         });
+            // ADD THESE NEW TIMER MODULE LISTENERS:
+    this.timerModule.on('volumeChanged', (volume) => {
+        this.updateVolumeDisplay();
+    });
+
+    this.timerModule.on('customSoundSelected', (sound) => {
+        this.addCustomSoundOption();
+        this.setSelectValue('sound-type', 'custom');
+        this.showMessage(`Custom sound selected: ${sound.name}`, 'success');
+        this.updateChangeDetection();
+    });
+
+    this.timerModule.on('soundTestSuccess', ({ soundType, volume }) => {
+        this.showMessage('Sound played successfully!', 'success');
+    });
+
+    this.timerModule.on('soundTestError', (error) => {
+        this.showMessage(`Sound test failed: ${error}`, 'error');
+    });
+
+    this.timerModule.on('systemAudioCheck', (diagnostics) => {
+        this.showMessage('System audio check completed - see console for details', 'info');
+        console.log('=== SYSTEM AUDIO DIAGNOSTICS ===', diagnostics);
+    });
+
+    this.timerModule.on('error', (error) => {
+        this.showError(`Timer: ${error}`);
+    });
     }
 
     // Setup UI event listeners
@@ -258,7 +286,13 @@ if (volumeSlider) {
     }
 
     async handleSelectCustomSound() {
-        await this.settingsCore.selectCustomSound();
+        try {
+            await this.timerModule.selectCustomSound();
+            console.log('✅ Using new timer module for custom sound');
+        } catch (error) {
+            console.log('❌ New custom sound failed, using old method:', error);
+            await this.settingsCore.selectCustomSound();
+        }
     }
 
     // UI Population and Updates
@@ -271,6 +305,8 @@ if (volumeSlider) {
         this.setSelectValue('auto-save-interval', settings.general?.autoSaveInterval);
 
         // Timer settings
+        this.timerModule.setCurrentSettings(settings);
+
         this.setInputValue('work-duration', settings.timer?.workDuration);
         this.setInputValue('short-break', settings.timer?.shortBreak);
         this.setInputValue('long-break', settings.timer?.longBreak);
@@ -473,7 +509,7 @@ if (volumeSlider) {
             option.value = sound.id;
             option.textContent = sound.name;
             soundSelect.appendChild(option);
-            console.log('➕ Added sound:', sound.name); // Debug line
+            console.log('Added sound:', sound.name); // Debug line
         });
 
         // Set current value
@@ -500,6 +536,18 @@ if (volumeSlider) {
     }
 }
 
+    // addCustomSoundOption() {
+    //     const soundSelect = document.getElementById('sound-type');
+    //     if (!soundSelect) return;
+
+    //     let customOption = soundSelect.querySelector('option[value="custom"]');
+    //     if (!customOption) {
+    //         customOption = document.createElement('option');
+    //         customOption.value = 'custom';
+    //         customOption.textContent = 'Custom Sound';
+    //         soundSelect.appendChild(customOption);
+    //     }
+    // }
     addCustomSoundOption() {
         const soundSelect = document.getElementById('sound-type');
         if (!soundSelect) return;
@@ -512,7 +560,7 @@ if (volumeSlider) {
             soundSelect.appendChild(customOption);
         }
     }
-
+    // REPLACE updateVolumeDisplay() method:
     updateVolumeDisplay() {
         const volumeDisplay = document.getElementById('volume-display');
         const volumeSlider = document.getElementById('timer-volume');
@@ -522,7 +570,6 @@ if (volumeSlider) {
             volumeDisplay.textContent = `${volume}%`;
         }
     }
-
     // Change detection UI
     updateChangeDetection() {
         const formData = this.getFormData();
