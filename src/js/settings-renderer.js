@@ -4,13 +4,15 @@ import '@css/components/settings.css';
 import '@css/components/sidebar.css';
 import '@components/sidebar.js';
 import { SettingsCore, SOUND_REGISTRY } from '@components/settings.js';
-import { TimerSettings} from '@components/settings/settings-timer.js'
+import { TimerSettings} from '@components/settings/settings-timer.js';
+import { TaskSettings } from '@components/settings/settings-tasks.js';
 import { setImage, setDailyQuote, setRandomGif, loadAllImages, initTheme, setTheme, toggleTheme, updateDate, updateClock } from '@components/utils.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 class SettingsRenderer {
     constructor() {
         this.settingsCore = new SettingsCore();
         this.timerModule = new TimerSettings();
+        this.taskModule = new TaskSettings();
         this.setupCoreEventListeners();
     }
     async init() {
@@ -156,6 +158,35 @@ class SettingsRenderer {
     this.timerModule.on('error', (error) => {
         this.showError(`Timer: ${error}`);
     });
+    // ADD THESE TASK MODULE LISTENERS after the timer module listeners:
+this.taskModule.on('taskCompleted', (task) => {
+    this.showMessage(`Task completed: ${task.title}`, 'success');
+});
+
+this.taskModule.on('settingsApplied', (settings) => {
+    this.showMessage('Task settings applied successfully!', 'success');
+    this.updateChangeDetection();
+});
+
+this.taskModule.on('settingsReset', (settings) => {
+    this.populateUI(settings);
+    this.showMessage('Task settings reset to defaults', 'info');
+    this.updateChangeDetection();
+});
+
+this.taskModule.on('settingsImported', (settings) => {
+    this.populateUI(settings);
+    this.showMessage('Task settings imported successfully!', 'success');
+    this.updateChangeDetection();
+});
+
+this.taskModule.on('validationError', (errors) => {
+    errors.forEach(error => this.showError(`Task: ${error}`));
+});
+
+this.taskModule.on('error', (error) => {
+    this.showError(`Task: ${error}`);
+});
     }
 
     // Setup UI event listeners
@@ -316,6 +347,8 @@ if (volumeSlider) {
         this.setInputValue('do-not-disturb', settings.timer?.doNotDisturb);
 
         // Task settings
+        this.taskModule.setCurrentSettings(settings); // ADD THIS LINE
+
         this.setSelectValue('default-priority', settings.tasks?.defaultPriority);
         this.setSelectValue('default-sort', settings.tasks?.defaultSort);
         this.setInputValue('reminder-days', settings.tasks?.reminderDays);
@@ -452,6 +485,7 @@ if (volumeSlider) {
                 crashReporting: this.getInputValue('crash-reporting')
             }
         };
+    
     }
 
     // Sound management UI
@@ -675,6 +709,39 @@ if (volumeSlider) {
         console.log('Form Data:', this.getFormData());
         console.log('Has Changes:', this.settingsCore.hasUnsavedChanges(this.getFormData()));
     }
+
+    // Add after existing methods
+updateTaskStatistics(tasks = []) {
+    try {
+        const stats = this.taskModule.getTaskStatistics(tasks);
+        const metrics = this.taskModule.calculateProductivityMetrics(tasks);
+        
+        // Update UI elements if they exist
+        const statsElement = document.getElementById('task-stats');
+        if (statsElement) {
+            statsElement.innerHTML = `
+                <div class="stat-item">
+                    <span class="stat-label">Completed Today:</span>
+                    <span class="stat-value">${metrics.completedToday}/${metrics.dailyGoal}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Progress:</span>
+                    <span class="stat-value">${Math.round(metrics.progressPercentage)}%</span>
+                </div>
+            `;
+        }
+        
+        console.log('✅ Using new task module for statistics');
+    } catch (error) {
+        console.log('❌ Task statistics update failed:', error);
+    }
+}
+
+getTaskModule() {
+    return this.taskModule;
+}
+
+
 }
 
 // Initialize when DOM is loaded
@@ -688,7 +755,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Make available globally for debugging
     window.settingsRenderer = settingsRenderer;
     window.settingsCore = settingsRenderer.getSettingsCore();
-    window.SOUND_REGISTRY = SOUND_REGISTRY;
+    window.taskModule = settingsRenderer.taskModule
+    // window.SOUND_REGISTRY = SOUND_REGISTRY;
 
     // Add debug helper
     window.debugSettings = () => settingsRenderer.logCurrentState();
