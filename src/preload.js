@@ -81,9 +81,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     removeTimerSettingsListener: () => {
         ipcRenderer.removeAllListeners('timer-settings-updated');
     },
+    // ADD these to your existing electronAPI object in preload.js:
+    getTaskSettings: () => ipcRenderer.invoke('get-task-settings'),
     
+    // Listen for task-specific events  
+    onTaskSettingsUpdated: (callback) => {
+        ipcRenderer.on('task-settings-updated', (event, settings) => callback(settings));
+    },
+    
+    removeTaskSettingsListener: () => {
+        ipcRenderer.removeAllListeners('task-settings-updated');
+    },
     // Broadcast events to all windows
     broadcastEvent: (eventName, data) => {
         ipcRenderer.invoke('broadcast-event', eventName, data);
     }
+    
 });

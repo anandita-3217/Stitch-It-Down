@@ -492,18 +492,46 @@ class WindowManager {
             this.settings.set(key, value);
             return { success: true };
         });
-        // ipcMain.handle('save-settings', async (event, settings) => {
-        //     return await settingsStore.saveSettings(settings);
-        // });
         // UPDATED: Enhanced save settings handler
+        // ipcMain.handle('save-settings', async (event, settings) => {
+        //     const success = await settingsStore.saveSettings(settings);
+        //     if (success) {
+        //         // Broadcast to all windows immediately
+        //         this.broadcastSettingsToAllWindows(settings);
+        //     }
+        //     return success;
+        // });
         ipcMain.handle('save-settings', async (event, settings) => {
             const success = await settingsStore.saveSettings(settings);
             if (success) {
+                // Get the updated settings
+                const currentSettings = settingsStore.getSettings();
+                
                 // Broadcast to all windows immediately
-                this.broadcastSettingsToAllWindows(settings);
+                BrowserWindow.getAllWindows().forEach(window => {
+                    window.webContents.send('settings-updated', currentSettings);
+                    window.webContents.send('app-settings-updated', currentSettings);
+                    
+                    // Send specific module updates
+                    if (currentSettings.timer) {
+                        window.webContents.send('timer-settings-updated', currentSettings.timer);
+                    }
+                    if (currentSettings.tasks) {
+                        window.webContents.send('task-settings-updated', currentSettings.tasks);
+                    }
+                    if (currentSettings.notes) {
+                        window.webContents.send('notes-settings-updated', currentSettings.notes);
+                    }
+                    if (currentSettings.calendar) {
+                        window.webContents.send('calendar-settings-updated', currentSettings.calendar);
+                    }
+                });
+                
+                this.broadcastSettingsToAllWindows(currentSettings);
             }
             return success;
         });
+
         // NEW: Get settings synchronously
         ipcMain.handle('get-settings-sync', async () => {
             return settingsStore.getSettings();
@@ -598,16 +626,7 @@ class WindowManager {
             
             return { success: false, cancelled: true };
         });
-        // ipcMain.handle('update-timer-settings', async (event, settings) => {
-        //     const currentSettings = settingsStore.getSettings();
-        //     currentSettings.timer = { ...currentSettings.timer, ...settings };
-        //     BrowserWindow.getAllWindows().forEach(window => {
-        //         if (window.webContents.getURL().includes('timer')) {
-        //             window.webContents.send('timer-settings-updated', currentSettings.timer);
-        //         }
-        //     });            
-        //     return await settingsStore.saveSettings(currentSettings);
-        // });
+
         
         ipcMain.handle('update-timer-settings', async (event, settings) => {
             const currentSettings = settingsStore.getSettings();
@@ -629,7 +648,22 @@ class WindowManager {
         ipcMain.handle('update-task-settings', async (event, settings) => {
             const currentSettings = settingsStore.getSettings();
             currentSettings.tasks = { ...currentSettings.tasks, ...settings };
-            return await settingsStore.saveSettings(currentSettings);
+
+            const success = await settingsStore.saveSettings(currentSettings);
+
+            if (success) {
+                // Broadcast to ALL windows, including tasks
+                BrowserWindow.getAllWindows().forEach(window => {
+                    window.webContents.send('task-settings-updated', currentSettings.tasks);
+                    window.webContents.send('app-settings-updated', currentSettings);
+                });
+            }
+            return success;
+        });
+
+        // ADD these new handlers after your existing ones:
+        ipcMain.handle('get-task-settings', async () => {
+            return settingsStore.getSettings().tasks;
         });
         ipcMain.handle('update-notes-settings', async (event, settings) => {
             const currentSettings = settingsStore.getSettings();

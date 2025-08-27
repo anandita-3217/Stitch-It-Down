@@ -277,12 +277,15 @@ if (volumeSlider) {
         });
     }
 
-    // Event handlers
     async handleSaveSettings() {
         const formData = this.getFormData();
         await this.settingsCore.saveSettings(formData);
+        
+        // ADD: Notify about task settings specifically
+        if (formData.tasks && window.electronAPI?.updateTaskSettings) {
+            await window.electronAPI.updateTaskSettings(formData.tasks);
+        }
     }
-
     async handleResetSettings() {
         if (confirm('Are you sure you want to reset all settings to default values? This cannot be undone.')) {
             await this.settingsCore.resetSettings();
