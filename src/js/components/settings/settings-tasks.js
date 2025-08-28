@@ -1,400 +1,423 @@
-// settings-tasks.js - Task-specific settings management
-import { EventEmitter } from 'events';
+// settings-tasks.js - Task-specific settings logic
+export const TASK_PRIORITIES = {
+    low: { id: 'low', name: 'Low', value: 1, color: '#28a745' },
+    medium: { id: 'medium', name: 'Medium', value: 2, color: '#ffc107' },
+    high: { id: 'high', name: 'High', value: 3, color: '#dc3545' },
+    urgent: { id: 'urgent', name: 'Urgent', value: 4, color: '#6f42c1' }
+};
 
-export class TaskSettings extends EventEmitter {
+export const TASK_SORT_OPTIONS = {
+    'due-date': { id: 'due-date', name: 'Due Date', sortFn: (a, b) => new Date(a.dueDate) - new Date(b.dueDate) },
+    'priority': { id: 'priority', name: 'Priority', sortFn: (a, b) => (TASK_PRIORITIES[b.priority]?.value || 0) - (TASK_PRIORITIES[a.priority]?.value || 0) },
+    'created': { id: 'created', name: 'Created Date', sortFn: (a, b) => new Date(b.createdAt) - new Date(a.createdAt) },
+    'alphabetical': { id: 'alphabetical', name: 'Alphabetical', sortFn: (a, b) => a.title.localeCompare(b.title) },
+    'completion': { id: 'completion', name: 'Completion Status', sortFn: (a, b) => a.completed - b.completed }
+};
+
+export class TaskSettings {
     constructor() {
-        super();
         this.currentSettings = {};
-        this.originalSettings = {};
-        this.validationRules = this.initializeValidationRules();
+        this.eventCallbacks = new Map();
+        this.tasks = [];
     }
 
-    /**
-     * Initialize validation rules for task settings
-     */
-    initializeValidationRules() {
-        return {
-            defaultPriority: {
-                type: 'enum',
-                values: ['low', 'medium', 'high'],
-                default: 'medium'
-            },
-            defaultSort: {
-                type: 'enum',
-                values: ['due-date', 'priority', 'created', 'alphabetical'],
-                default: 'due-date'
-            },
-            reminderDays: {
-                type: 'number',
-                min: 0,
-                max: 30,
-                default: 3
-            },
-            dailyGoal: {
-                type: 'number',
-                min: 1,
-                max: 50,
-                default: 5
-            },
-            timeEstimation: {
-                type: 'boolean',
-                default: true
-            },
-            completionTracking: {
-                type: 'boolean',
-                default: true
-            }
-        };
+    // Event system
+    emit(event, data) {
+        if (this.eventCallbacks.has(event)) {
+            this.eventCallbacks.get(event).forEach(callback => callback(data));
+        }
+        console.log(`Task settings event: ${event}`, data);
     }
 
-    /**
-     * Set current settings (called from main settings renderer)
-     */
+    on(event, callback) {
+        if (!this.eventCallbacks.has(event)) {
+            this.eventCallbacks.set(event, []);
+        }
+        this.eventCallbacks.get(event).push(callback);
+    }
+
+    // Settings management
     setCurrentSettings(settings) {
         this.currentSettings = settings;
-        this.originalSettings = JSON.parse(JSON.stringify(settings));
+        this.applyTaskSettings();
     }
 
-    /**
-     * Get current task settings
-     */
-    getCurrentTaskSettings() {
+    getCurrentSettings() {
         return this.currentSettings.tasks || {};
     }
 
-    /**
-     * Validate task settings
-     */
-    validateSettings(taskSettings) {
-        const errors = [];
-        
-        for (const [key, rule] of Object.entries(this.validationRules)) {
-            const value = taskSettings[key];
-            
-            if (value === undefined || value === null) continue;
-
-            try {
-                switch (rule.type) {
-                    case 'enum':
-                        if (!rule.values.includes(value)) {
-                            errors.push(`Invalid ${key}: must be one of ${rule.values.join(', ')}`);
-                        }
-                        break;
-                    
-                    case 'number':
-                        const numValue = Number(value);
-                        if (isNaN(numValue)) {
-                            errors.push(`Invalid ${key}: must be a number`);
-                        } else if (rule.min !== undefined && numValue < rule.min) {
-                            errors.push(`Invalid ${key}: minimum value is ${rule.min}`);
-                        } else if (rule.max !== undefined && numValue > rule.max) {
-                            errors.push(`Invalid ${key}: maximum value is ${rule.max}`);
-                        }
-                        break;
-                    
-                    case 'boolean':
-                        if (typeof value !== 'boolean') {
-                            errors.push(`Invalid ${key}: must be true or false`);
-                        }
-                        break;
-                }
-            } catch (error) {
-                errors.push(`Error validating ${key}: ${error.message}`);
-            }
-        }
-
-        return errors;
-    }
-
-    /**
-     * Get default task settings
-     */
     getDefaultSettings() {
-        const defaults = {};
-        for (const [key, rule] of Object.entries(this.validationRules)) {
-            defaults[key] = rule.default;
+        return {
+            defaultPriority: 'medium',
+            defaultSort: 'priority',
+            reminderDays: 3,
+            dailyGoal: 5,
+            timeEstimation: true,
+            completionTracking: true,
+            autoArchive: false,
+            archiveDays: 30,
+            showCompletedTasks: true,
+            enableSubtasks: true,
+            enableTags: true,
+            enableDueDates: true,
+            enableTimeTracking: false,
+            enableRecurringTasks: false
+        };
+    }
+
+    // Task operations
+    createTask(taskData) {
+        const task = {
+            id: this.generateTaskId(),
+            title: taskData.title || 'New Task',
+            description: taskData.description || '',
+            priority: taskData.priority || this.getCurrentSettings().defaultPriority || 'medium',
+            dueDate: taskData.dueDate || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            completed: false,
+            completedAt: null,
+            tags: taskData.tags || [],
+            subtasks: taskData.subtasks || [],
+            timeEstimate: taskData.timeEstimate || null,
+            timeSpent: 0,
+            recurring: taskData.recurring || null,
+            project: taskData.project || null,
+            notes: taskData.notes || ''
+        };
+
+        this.tasks.push(task);
+        this.emit('taskCreated', task);
+        return task;
+    }
+
+    updateTask(taskId, updates) {
+        const taskIndex = this.tasks.findIndex(task => task.id === taskId);
+        if (taskIndex === -1) {
+            this.emit('error', `Task with ID ${taskId} not found`);
+            return null;
         }
-        return defaults;
+
+        const task = this.tasks[taskIndex];
+        const updatedTask = {
+            ...task,
+            ...updates,
+            updatedAt: new Date().toISOString()
+        };
+
+        this.tasks[taskIndex] = updatedTask;
+        this.emit('taskUpdated', updatedTask);
+        return updatedTask;
     }
 
-    /**
-     * Get priority options for UI
-     */
-    getPriorityOptions() {
-        return [
-            { value: 'low', label: 'Low', color: '#22c55e' },
-            { value: 'medium', label: 'Medium', color: '#f59e0b' },
-            { value: 'high', label: 'High', color: '#ef4444' }
-        ];
+    completeTask(taskId) {
+        const task = this.updateTask(taskId, {
+            completed: true,
+            completedAt: new Date().toISOString()
+        });
+
+        if (task) {
+            this.emit('taskCompleted', task);
+            this.checkDailyGoal();
+        }
+        return task;
     }
 
-    /**
-     * Get sort options for UI
-     */
-    getSortOptions() {
-        return [
-            { value: 'due-date', label: 'Due Date' },
-            { value: 'priority', label: 'Priority' },
-            { value: 'created', label: 'Created Date' },
-            { value: 'alphabetical', label: 'Alphabetical' }
-        ];
+    deleteTask(taskId) {
+        const taskIndex = this.tasks.findIndex(task => task.id === taskId);
+        if (taskIndex === -1) {
+            this.emit('error', `Task with ID ${taskId} not found`);
+            return false;
+        }
+
+        const task = this.tasks.splice(taskIndex, 1)[0];
+        this.emit('taskDeleted', task);
+        return true;
     }
 
-    /**
-     * Calculate productivity metrics based on current settings
-     */
-    calculateProductivityMetrics(tasks = []) {
-        const settings = this.getCurrentTaskSettings();
+    // Task filtering and sorting
+    getTasksByFilter(filter = {}) {
+        let filteredTasks = [...this.tasks];
+
+        if (filter.completed !== undefined) {
+            filteredTasks = filteredTasks.filter(task => task.completed === filter.completed);
+        }
+
+        if (filter.priority) {
+            filteredTasks = filteredTasks.filter(task => task.priority === filter.priority);
+        }
+
+        if (filter.dueDate) {
+            const targetDate = new Date(filter.dueDate);
+            filteredTasks = filteredTasks.filter(task => {
+                if (!task.dueDate) return false;
+                const taskDate = new Date(task.dueDate);
+                return taskDate.toDateString() === targetDate.toDateString();
+            });
+        }
+
+        if (filter.overdue) {
+            const now = new Date();
+            filteredTasks = filteredTasks.filter(task => {
+                if (!task.dueDate || task.completed) return false;
+                return new Date(task.dueDate) < now;
+            });
+        }
+
+        if (filter.tags && filter.tags.length > 0) {
+            filteredTasks = filteredTasks.filter(task =>
+                filter.tags.some(tag => task.tags.includes(tag))
+            );
+        }
+
+        return this.sortTasks(filteredTasks, filter.sortBy);
+    }
+
+    sortTasks(tasks, sortBy = null) {
+        const sortOption = sortBy || this.getCurrentSettings().defaultSort || 'priority';
+        const sortConfig = TASK_SORT_OPTIONS[sortOption];
+        
+        if (sortConfig && sortConfig.sortFn) {
+            return [...tasks].sort(sortConfig.sortFn);
+        }
+        
+        return tasks;
+    }
+
+    // Statistics and analytics
+    getTaskStatistics(tasks = this.tasks) {
+        const stats = {
+            total: tasks.length,
+            completed: tasks.filter(t => t.completed).length,
+            pending: tasks.filter(t => !t.completed).length,
+            overdue: 0,
+            dueToday: 0,
+            dueThisWeek: 0,
+            byPriority: {},
+            byStatus: {
+                completed: 0,
+                pending: 0,
+                overdue: 0
+            }
+        };
+
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const endOfWeek = new Date(today.getTime() + (7 - today.getDay()) * 24 * 60 * 60 * 1000);
+
+        tasks.forEach(task => {
+            // Priority stats
+            if (!stats.byPriority[task.priority]) {
+                stats.byPriority[task.priority] = 0;
+            }
+            stats.byPriority[task.priority]++;
+
+            // Due date stats
+            if (task.dueDate && !task.completed) {
+                const dueDate = new Date(task.dueDate);
+                
+                if (dueDate < now) {
+                    stats.overdue++;
+                    stats.byStatus.overdue++;
+                } else if (dueDate.toDateString() === today.toDateString()) {
+                    stats.dueToday++;
+                } else if (dueDate <= endOfWeek) {
+                    stats.dueThisWeek++;
+                }
+            }
+
+            // Status stats
+            if (task.completed) {
+                stats.byStatus.completed++;
+            } else {
+                stats.byStatus.pending++;
+            }
+        });
+
+        return stats;
+    }
+
+    calculateProductivityMetrics(tasks = this.tasks) {
+        const settings = this.getCurrentSettings();
         const dailyGoal = settings.dailyGoal || 5;
         
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         
-        const todaysTasks = tasks.filter(task => {
-            const taskDate = new Date(task.completedAt || task.createdAt);
-            taskDate.setHours(0, 0, 0, 0);
-            return taskDate.getTime() === today.getTime();
-        });
+        const completedToday = tasks.filter(task => {
+            if (!task.completed || !task.completedAt) return false;
+            const completedDate = new Date(task.completedAt);
+            return completedDate >= startOfDay;
+        }).length;
 
-        const completedToday = todaysTasks.filter(task => task.completed).length;
-        const progressPercentage = Math.min((completedToday / dailyGoal) * 100, 100);
+        const progressPercentage = Math.min(100, (completedToday / dailyGoal) * 100);
+        
+        // Calculate completion rate for the week
+        const startOfWeek = new Date(startOfDay.getTime() - startOfDay.getDay() * 24 * 60 * 60 * 1000);
+        const completedThisWeek = tasks.filter(task => {
+            if (!task.completed || !task.completedAt) return false;
+            const completedDate = new Date(task.completedAt);
+            return completedDate >= startOfWeek;
+        }).length;
 
         return {
             dailyGoal,
             completedToday,
             progressPercentage,
-            tasksRemaining: Math.max(dailyGoal - completedToday, 0)
+            completedThisWeek,
+            isGoalMet: completedToday >= dailyGoal
         };
     }
 
-    /**
-     * Get tasks that need reminders based on current settings
-     */
-    getTasksNeedingReminders(tasks = []) {
-        const settings = this.getCurrentTaskSettings();
-        const reminderDays = settings.reminderDays || 3;
+    // Goal tracking
+    checkDailyGoal() {
+        const metrics = this.calculateProductivityMetrics();
         
-        const now = new Date();
-        const reminderThreshold = new Date();
-        reminderThreshold.setDate(now.getDate() + reminderDays);
+        if (metrics.isGoalMet) {
+            this.emit('dailyGoalAchieved', {
+                completed: metrics.completedToday,
+                goal: metrics.dailyGoal
+            });
+        }
 
-        return tasks.filter(task => {
+        return metrics;
+    }
+
+    // Reminder system
+    getTaskReminders() {
+        const settings = this.getCurrentSettings();
+        const reminderDays = settings.reminderDays || 3;
+        const reminderDate = new Date();
+        reminderDate.setDate(reminderDate.getDate() + reminderDays);
+
+        return this.tasks.filter(task => {
             if (task.completed || !task.dueDate) return false;
-            
             const dueDate = new Date(task.dueDate);
-            return dueDate <= reminderThreshold && dueDate >= now;
+            return dueDate <= reminderDate && dueDate >= new Date();
         });
     }
 
-    /**
-     * Sort tasks based on current settings
-     */
-    sortTasks(tasks = []) {
-        const settings = this.getCurrentTaskSettings();
-        const sortBy = settings.defaultSort || 'due-date';
+    // Settings validation
+    validateTaskSettings(settings) {
+        const errors = [];
 
-        const sortedTasks = [...tasks];
-
-        switch (sortBy) {
-            case 'due-date':
-                sortedTasks.sort((a, b) => {
-                    if (!a.dueDate && !b.dueDate) return 0;
-                    if (!a.dueDate) return 1;
-                    if (!b.dueDate) return -1;
-                    return new Date(a.dueDate) - new Date(b.dueDate);
-                });
-                break;
-
-            case 'priority':
-                const priorityOrder = { high: 3, medium: 2, low: 1 };
-                sortedTasks.sort((a, b) => {
-                    const aPriority = priorityOrder[a.priority] || 1;
-                    const bPriority = priorityOrder[b.priority] || 1;
-                    return bPriority - aPriority;
-                });
-                break;
-
-            case 'created':
-                sortedTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                break;
-
-            case 'alphabetical':
-                sortedTasks.sort((a, b) => a.title.localeCompare(b.title));
-                break;
-        }
-
-        return sortedTasks;
-    }
-
-    /**
-     * Estimate time for task completion based on settings and history
-     */
-    estimateTaskTime(task, completedTasks = []) {
-        const settings = this.getCurrentTaskSettings();
-        
-        if (!settings.timeEstimation) {
-            return null;
-        }
-
-        // If task already has an estimation, return it
-        if (task.estimatedTime) {
-            return task.estimatedTime;
-        }
-
-        // Find similar completed tasks for estimation
-        const similarTasks = completedTasks.filter(completedTask => 
-            completedTask.priority === task.priority &&
-            completedTask.category === task.category &&
-            completedTask.actualTime
-        );
-
-        if (similarTasks.length === 0) {
-            // Default estimates based on priority
-            const defaultEstimates = {
-                high: 120, // 2 hours
-                medium: 60, // 1 hour
-                low: 30    // 30 minutes
-            };
-            return defaultEstimates[task.priority] || 60;
-        }
-
-        // Calculate average time for similar tasks
-        const totalTime = similarTasks.reduce((sum, t) => sum + t.actualTime, 0);
-        return Math.round(totalTime / similarTasks.length);
-    }
-
-    /**
-     * Track task completion time
-     */
-    trackTaskCompletion(task, timeSpent) {
-        const settings = this.getCurrentTaskSettings();
-        
-        if (!settings.completionTracking) {
-            return task;
-        }
-
-        const updatedTask = {
-            ...task,
-            completed: true,
-            completedAt: new Date().toISOString(),
-            actualTime: timeSpent
-        };
-
-        // Calculate accuracy if there was an estimate
-        if (task.estimatedTime) {
-            const accuracy = Math.abs(task.estimatedTime - timeSpent) / task.estimatedTime;
-            updatedTask.estimationAccuracy = Math.max(0, 1 - accuracy);
-        }
-
-        this.emit('taskCompleted', updatedTask);
-        return updatedTask;
-    }
-
-    /**
-     * Get task statistics for the current settings
-     */
-    getTaskStatistics(tasks = []) {
-        const completedTasks = tasks.filter(task => task.completed);
-        const pendingTasks = tasks.filter(task => !task.completed);
-        
-        const stats = {
-            total: tasks.length,
-            completed: completedTasks.length,
-            pending: pendingTasks.length,
-            completionRate: tasks.length > 0 ? (completedTasks.length / tasks.length) * 100 : 0
-        };
-
-        // Priority breakdown
-        stats.byPriority = {
-            high: tasks.filter(task => task.priority === 'high').length,
-            medium: tasks.filter(task => task.priority === 'medium').length,
-            low: tasks.filter(task => task.priority === 'low').length
-        };
-
-        // Time estimation accuracy (if tracking is enabled)
-        const settings = this.getCurrentTaskSettings();
-        if (settings.completionTracking) {
-            const tasksWithEstimates = completedTasks.filter(task => 
-                task.estimatedTime && task.actualTime
-            );
-            
-            if (tasksWithEstimates.length > 0) {
-                const totalAccuracy = tasksWithEstimates.reduce((sum, task) => 
-                    sum + (task.estimationAccuracy || 0), 0
-                );
-                stats.estimationAccuracy = (totalAccuracy / tasksWithEstimates.length) * 100;
+        if (settings.reminderDays !== undefined) {
+            if (typeof settings.reminderDays !== 'number' || settings.reminderDays < 0 || settings.reminderDays > 365) {
+                errors.push('Reminder days must be between 0 and 365');
             }
         }
 
-        return stats;
+        if (settings.dailyGoal !== undefined) {
+            if (typeof settings.dailyGoal !== 'number' || settings.dailyGoal < 1 || settings.dailyGoal > 100) {
+                errors.push('Daily goal must be between 1 and 100');
+            }
+        }
+
+        if (settings.archiveDays !== undefined) {
+            if (typeof settings.archiveDays !== 'number' || settings.archiveDays < 1 || settings.archiveDays > 365) {
+                errors.push('Archive days must be between 1 and 365');
+            }
+        }
+
+        if (settings.defaultPriority && !TASK_PRIORITIES[settings.defaultPriority]) {
+            errors.push('Invalid default priority');
+        }
+
+        if (settings.defaultSort && !TASK_SORT_OPTIONS[settings.defaultSort]) {
+            errors.push('Invalid default sort option');
+        }
+
+        return errors;
     }
 
-    /**
-     * Export task settings for backup
-     */
-    exportSettings() {
+    // Apply settings
+    applyTaskSettings() {
+        const settings = this.getCurrentSettings();
+        
+        // Apply auto-archive if enabled
+        if (settings.autoArchive && settings.archiveDays) {
+            this.autoArchiveCompletedTasks(settings.archiveDays);
+        }
+
+        this.emit('settingsApplied', settings);
+    }
+
+    // Auto-archive completed tasks
+    autoArchiveCompletedTasks(archiveDays) {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - archiveDays);
+
+        const tasksToArchive = this.tasks.filter(task => {
+            if (!task.completed || !task.completedAt) return false;
+            return new Date(task.completedAt) < cutoffDate;
+        });
+
+        tasksToArchive.forEach(task => {
+            task.archived = true;
+            task.archivedAt = new Date().toISOString();
+        });
+
+        if (tasksToArchive.length > 0) {
+            this.emit('tasksArchived', tasksToArchive);
+        }
+    }
+
+    // Utility methods
+    generateTaskId() {
+        return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    exportTasks() {
         return {
-            tasks: this.getCurrentTaskSettings(),
-            validationRules: this.validationRules,
+            tasks: this.tasks,
+            settings: this.getCurrentSettings(),
             exportedAt: new Date().toISOString()
         };
     }
 
-    /**
-     * Import task settings from backup
-     */
-    importSettings(importedData) {
-        try {
-            if (importedData.tasks) {
-                const errors = this.validateSettings(importedData.tasks);
-                if (errors.length > 0) {
-                    this.emit('error', `Invalid task settings: ${errors.join(', ')}`);
-                    return false;
-                }
-                
-                this.currentSettings.tasks = importedData.tasks;
-                this.emit('settingsImported', this.currentSettings);
-                return true;
-            }
-            return false;
-        } catch (error) {
-            this.emit('error', `Failed to import task settings: ${error.message}`);
-            return false;
+    importTasks(data) {
+        if (data.tasks) {
+            this.tasks = data.tasks;
+            this.emit('tasksImported', data);
         }
-    }
-
-    /**
-     * Check if current settings differ from original
-     */
-    hasUnsavedChanges(formData) {
-        if (!formData.tasks) return false;
         
-        const originalTasks = this.originalSettings.tasks || {};
-        const currentTasks = formData.tasks;
-
-        return JSON.stringify(originalTasks) !== JSON.stringify(currentTasks);
-    }
-
-    /**
-     * Reset to original settings
-     */
-    resetToOriginal() {
-        this.currentSettings.tasks = JSON.parse(JSON.stringify(this.originalSettings.tasks || {}));
-        this.emit('settingsReset', this.currentSettings);
-    }
-
-    /**
-     * Apply new settings
-     */
-    applySettings(newSettings) {
-        const errors = this.validateSettings(newSettings);
-        if (errors.length > 0) {
-            this.emit('validationError', errors);
-            return false;
+        if (data.settings) {
+            this.currentSettings.tasks = { ...this.currentSettings.tasks, ...data.settings };
+            this.emit('settingsImported', data.settings);
         }
+    }
 
-        this.currentSettings.tasks = newSettings;
-        this.emit('settingsApplied', this.currentSettings);
-        return true;
+    resetSettings() {
+        const defaultSettings = this.getDefaultSettings();
+        this.currentSettings.tasks = defaultSettings;
+        this.applyTaskSettings();
+        this.emit('settingsReset', defaultSettings);
+        return defaultSettings;
+    }
+
+    // Integration with other modules
+    linkTaskToCalendar(taskId, eventId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.calendarEventId = eventId;
+            this.emit('taskLinkedToCalendar', { task, eventId });
+        }
+    }
+
+    startTaskTimer(taskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.timerStarted = new Date().toISOString();
+            this.emit('taskTimerStarted', task);
+        }
+    }
+
+    stopTaskTimer(taskId, timeSpent) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.timeSpent = (task.timeSpent || 0) + timeSpent;
+            task.timerStarted = null;
+            this.emit('taskTimerStopped', { task, timeSpent });
+        }
     }
 }
