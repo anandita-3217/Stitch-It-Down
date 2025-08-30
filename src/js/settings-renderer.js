@@ -158,79 +158,242 @@ class SettingsRenderer {
     this.timerModule.on('error', (error) => {
         this.showError(`Timer: ${error}`);
     });
-    // ADD THESE TASK MODULE LISTENERS after the timer module listeners:
-this.taskModule.on('taskCompleted', (task) => {
-    this.showMessage(`Task completed: ${task.title}`, 'success');
-});
+    // ADD THESE TASK MODULE LISTENERS in setupCoreEventListeners() method
+// Place these after the timer module listeners
+    this.taskModule.on('taskCreated', (task) => {
+        this.showMessage(`Task created: ${task.title}`, 'success');
+        this.updateChangeDetection();
+    });
 
-this.taskModule.on('settingsApplied', (settings) => {
-    this.showMessage('Task settings applied successfully!', 'success');
-    this.updateChangeDetection();
-});
+    this.taskModule.on('taskUpdated', (task) => {
+        this.showMessage(`Task updated: ${task.title}`, 'info');
+        this.updateChangeDetection();
+    });
 
-this.taskModule.on('settingsReset', (settings) => {
-    this.populateUI(settings);
-    this.showMessage('Task settings reset to defaults', 'info');
-    this.updateChangeDetection();
-});
+    this.taskModule.on('taskCompleted', (task) => {
+        this.showMessage(`Task completed: ${task.title}`, 'success');
+        this.updateTaskStatistics();
+    });
 
-this.taskModule.on('settingsImported', (settings) => {
-    this.populateUI(settings);
-    this.showMessage('Task settings imported successfully!', 'success');
-    this.updateChangeDetection();
-});
+    this.taskModule.on('taskDeleted', (task) => {
+        this.showMessage(`Task deleted: ${task.title}`, 'info');
+        this.updateChangeDetection();
+    });
 
-this.taskModule.on('validationError', (errors) => {
-    errors.forEach(error => this.showError(`Task: ${error}`));
-});
+    this.taskModule.on('dailyGoalAchieved', (data) => {
+        this.showMessage(`Daily goal achieved! ${data.completed}/${data.goal} tasks completed`, 'success');
+    });
 
-this.taskModule.on('error', (error) => {
-    this.showError(`Task: ${error}`);
-});
-    }
+    this.taskModule.on('settingsApplied', (settings) => {
+        this.showMessage('Task settings applied successfully!', 'success');
+        this.updateChangeDetection();
+    });
+
+    this.taskModule.on('settingsReset', (settings) => {
+        this.populateTaskSettings(settings);
+        this.showMessage('Task settings reset to defaults', 'info');
+        this.updateChangeDetection();
+    });
+
+    this.taskModule.on('settingsImported', (settings) => {
+        this.populateTaskSettings(settings);
+        this.showMessage('Task settings imported successfully!', 'success');
+        this.updateChangeDetection();
+    });
+
+    this.taskModule.on('tasksArchived', (tasks) => {
+        this.showMessage(`${tasks.length} tasks archived automatically`, 'info');
+    });
+
+    this.taskModule.on('tasksImported', (data) => {
+        this.showMessage(`${data.tasks.length} tasks imported successfully!`, 'success');
+    });
+
+    this.taskModule.on('taskLinkedToCalendar', (data) => {
+        this.showMessage(`Task "${data.task.title}" linked to calendar`, 'info');
+    });
+
+    this.taskModule.on('taskTimerStarted', (task) => {
+        this.showMessage(`Timer started for: ${task.title}`, 'info');
+    });
+
+    this.taskModule.on('taskTimerStopped', (data) => {
+        const minutes = Math.round(data.timeSpent / 60000);
+        this.showMessage(`Timer stopped for "${data.task.title}": ${minutes} minutes`, 'info');
+    });
+
+    this.taskModule.on('validationError', (errors) => {
+        errors.forEach(error => this.showError(`Task: ${error}`));
+    });
+
+    this.taskModule.on('error', (error) => {
+        this.showError(`Task: ${error}`);
+    });
+        }
 
     // Setup UI event listeners
-    setupUIEventListeners() {
-        // Button event listeners
-        this.bindButton('save-settings', () => this.handleSaveSettings());
-        this.bindButton('reset-settings', () => this.handleResetSettings());
-        this.bindButton('cancel-settings', () => this.handleCancelSettings());
-        this.bindButton('export-data', () => this.handleExportData());
-        this.bindButton('import-data', () => this.handleImportData());
-        this.bindButton('test-sound', () => this.handleTestSound());
-        this.bindButton('select-custom-sound', () => this.handleSelectCustomSound());
+//     setupUIEventListeners() {
+//         // Button event listeners
+//         this.bindButton('save-settings', () => this.handleSaveSettings());
+//         this.bindButton('reset-settings', () => this.handleResetSettings());
+//         this.bindButton('cancel-settings', () => this.handleCancelSettings());
+//         this.bindButton('export-data', () => this.handleExportData());
+//         this.bindButton('import-data', () => this.handleImportData());
+//         this.bindButton('test-sound', () => this.handleTestSound());
+//         this.bindButton('select-custom-sound', () => this.handleSelectCustomSound());
+//         const volumeSlider = document.getElementById('timer-volume');
+//         if (volumeSlider) {
+//             volumeSlider.addEventListener('input', (e) => {
+//                 // Try the new way first, fallback to old if it breaks
+//                 try {
+//                     this.timerModule.updateVolume(e.target.value); // NEW way!
+//                     console.log('✅ Using new timer module for volume');
+//                 } catch (error) {
+//                     console.log('❌ New module failed, using old method:', error);
+//                     // this.settingsCore.updateVolume(e.target.value); // OLD way as backup
+//                 }
+//             });
+//         }
+//         // Form change detection
+//         const form = document.getElementById('settings-form');
+//         if (form) {
+//             form.addEventListener('change', () => this.updateChangeDetection());
+//             form.addEventListener('input', () => this.updateChangeDetection());
+//         }
+//         this.bindButton('reset-task-settings', () => this.handleResetTaskSettings());
+//         this.bindButton('export-task-data', () => this.handleExportTaskData());
+//         this.bindButton('import-task-data', () => this.handleImportTaskData());
+//         this.bindButton('check-daily-goal', () => this.handleCheckDailyGoal());
 
-        // Volume slider
-        // const volumeSlider = document.getElementById('timer-volume');
-        // if (volumeSlider) {
-        //     volumeSlider.addEventListener('input', (e) => {
-        //         this.settingsCore.updateVolume(e.target.value);
-        //     });
-        // }
+//         // Add change listeners for task form fields
+//         const taskFormFields = [
+//             'default-priority', 'default-sort', 'reminder-days', 
+//             'daily-goal', 'time-estimation', 'completion-tracking'
+//         ];
 
-        // NEW CODE:
-const volumeSlider = document.getElementById('timer-volume');
-if (volumeSlider) {
-    volumeSlider.addEventListener('input', (e) => {
-        // Try the new way first, fallback to old if it breaks
-        try {
-            this.timerModule.updateVolume(e.target.value); // NEW way!
-            console.log('✅ Using new timer module for volume');
-        } catch (error) {
-            console.log('❌ New module failed, using old method:', error);
-            this.settingsCore.updateVolume(e.target.value); // OLD way as backup
-        }
-    });
-}
+//         taskFormFields.forEach(fieldId => {
+//             const field = document.getElementById(fieldId);
+//             if (field) {
+//                 field.addEventListener('change', () => {
+//                     this.updateChangeDetection();
+//                     // Optionally validate in real-time
+//                     if (fieldId === 'reminder-days' || fieldId === 'daily-goal') {
+//                         this.validateTaskField(fieldId);
+//                     }
+//                 });
+//             }
+//         });
+//         // Simplified version if you're still getting syntax errors:
 
-        // Form change detection
-        const form = document.getElementById('settings-form');
-        if (form) {
-            form.addEventListener('change', () => this.updateChangeDetection());
-            form.addEventListener('input', () => this.updateChangeDetection());
-        }
+// validateTaskField(fieldId) {
+//     const field = document.getElementById(fieldId);
+//     if (!field) {
+//         return true;
+//     }
+
+//     const value = parseInt(field.value);
+//     let isValid = true;
+//     let errorMessage = '';
+
+//     if (fieldId === 'reminder-days') {
+//         if (value < 0 || value > 30) {
+//             isValid = false;
+//             errorMessage = 'Reminder days must be between 0 and 30';
+//         }
+//     } else if (fieldId === 'daily-goal') {
+//         if (value < 1 || value > 50) {
+//             isValid = false;
+//             errorMessage = 'Daily goal must be between 1 and 50';
+//         }
+//     }
+
+//     // Visual feedback
+//     if (isValid) {
+//         field.classList.remove('error');
+//     } else {
+//         field.classList.add('error');
+//     }
+    
+//     // Error message handling
+//     let errorDiv = field.parentNode.querySelector('.field-error');
+//     if (!isValid) {
+//         if (!errorDiv) {
+//             errorDiv = document.createElement('div');
+//             errorDiv.className = 'field-error';
+//             field.parentNode.appendChild(errorDiv);
+//         }
+//         errorDiv.textContent = errorMessage;
+//     } else {
+//         if (errorDiv) {
+//             errorDiv.remove();
+//         }
+//     }
+
+//     return isValid;
+// }
+
+
+    
+    
+    
+    
+//     }
+    // Setup UI event listeners
+setupUIEventListeners() {
+    // Button event listeners
+    this.bindButton('save-settings', () => this.handleSaveSettings());
+    this.bindButton('reset-settings', () => this.handleResetSettings());
+    this.bindButton('cancel-settings', () => this.handleCancelSettings());
+    this.bindButton('export-data', () => this.handleExportData());
+    this.bindButton('import-data', () => this.handleImportData());
+    this.bindButton('test-sound', () => this.handleTestSound());
+    this.bindButton('select-custom-sound', () => this.handleSelectCustomSound());
+
+    // Task-specific buttons
+    this.bindButton('reset-task-settings', () => this.handleResetTaskSettings());
+    this.bindButton('export-task-data', () => this.handleExportTaskData());
+    this.bindButton('import-task-data', () => this.handleImportTaskData());
+    this.bindButton('check-daily-goal', () => this.handleCheckDailyGoal());
+
+    // Volume slider for timer
+    const volumeSlider = document.getElementById('timer-volume');
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            try {
+                this.timerModule.updateVolume(e.target.value);
+                console.log('Using new timer module for volume');
+            } catch (error) {
+                console.log('New module failed, using old method:', error);
+            }
+        });
     }
 
+    // Task form field change listeners
+    const taskFormFields = [
+        'default-priority', 'default-sort', 'reminder-days', 
+        'daily-goal', 'time-estimation', 'completion-tracking'
+    ];
+
+    taskFormFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('change', () => {
+                this.updateChangeDetection();
+                // Real-time validation for numeric fields
+                if (fieldId === 'reminder-days' || fieldId === 'daily-goal') {
+                    this.validateTaskField(fieldId);
+                }
+            });
+        }
+    });
+
+    // Form change detection for all settings
+    const form = document.getElementById('settings-form');
+    if (form) {
+        form.addEventListener('change', () => this.updateChangeDetection());
+        form.addEventListener('input', () => this.updateChangeDetection());
+    }
+}
     // Helper method to bind button events
     bindButton(id, handler) {
         const button = document.getElementById(id);
@@ -277,15 +440,56 @@ if (volumeSlider) {
         });
     }
 
-    async handleSaveSettings() {
-        const formData = this.getFormData();
-        await this.settingsCore.saveSettings(formData);
+    // async handleSaveSettings() {
+    //     const formData = this.getFormData();
+    //     await this.settingsCore.saveSettings(formData);
         
-        // ADD: Notify about task settings specifically
-        if (formData.tasks && window.electronAPI?.updateTaskSettings) {
-            await window.electronAPI.updateTaskSettings(formData.tasks);
+    //     // ADD: Notify about task settings specifically
+    //     if (formData.tasks && window.electronAPI?.updateTaskSettings) {
+    //         await window.electronAPI.updateTaskSettings(formData.tasks);
+    //     }
+    // }
+    // REPLACE your existing handleSaveSettings method with this:
+
+async handleSaveSettings() {
+    // Validate task settings first
+    if (!this.validateTaskForm()) {
+        this.showError('Please fix task settings errors before saving');
+        return;
+    }
+
+    const formData = this.getFormData();
+    
+    // Apply task settings to the task module
+    if (formData.tasks) {
+        try {
+            const errors = this.taskModule.validateTaskSettings(formData.tasks);
+            if (errors.length > 0) {
+                errors.forEach(error => this.showError(error));
+                return;
+            }
+            
+            this.taskModule.setCurrentSettings(formData);
+            console.log('Task settings applied to module');
+        } catch (error) {
+            this.showError(`Failed to apply task settings: ${error.message}`);
+            return;
         }
     }
+    
+    // Save through core settings
+    await this.settingsCore.saveSettings(formData);
+    
+    // Notify Electron about task settings if available
+    if (formData.tasks && window.electronAPI?.updateTaskSettings) {
+        try {
+            await window.electronAPI.updateTaskSettings(formData.tasks);
+            console.log('Task settings sent to Electron main process');
+        } catch (error) {
+            console.warn('Failed to send task settings to main process:', error);
+        }
+    }
+}
     async handleResetSettings() {
         if (confirm('Are you sure you want to reset all settings to default values? This cannot be undone.')) {
             await this.settingsCore.resetSettings();
@@ -315,7 +519,7 @@ if (volumeSlider) {
             console.log('✅ Using new timer module for sound test')
         } catch (error) {
             console.log('❌ New sound test failed, using old method.Error: ',error);
-            this.settingsCore.testSound(soundType, currentVolume);
+            // this.settingsCore.testSound(soundType, currentVolume);
         }
     }
 
@@ -325,75 +529,134 @@ if (volumeSlider) {
             console.log('✅ Using new timer module for custom sound');
         } catch (error) {
             console.log('❌ New custom sound failed, using old method:', error);
-            await this.settingsCore.selectCustomSound();
+            // await this.settingsCore.selectCustomSound();
         }
     }
 
     // UI Population and Updates
-    populateUI(settings) {
-        // General settings
-        this.setInputValue('launch-on-startup', settings.general?.launchOnStartup);
-        this.setSelectValue('default-window', settings.general?.defaultWindow);
-        this.setInputValue('always-on-top', settings.general?.alwaysOnTop);
-        this.setInputValue('minimize-to-tray', settings.general?.minimizeToTray);
-        this.setSelectValue('auto-save-interval', settings.general?.autoSaveInterval);
+    // populateUI(settings) {
+    //     // General settings
+    //     this.setInputValue('launch-on-startup', settings.general?.launchOnStartup);
+    //     this.setSelectValue('default-window', settings.general?.defaultWindow);
+    //     this.setInputValue('always-on-top', settings.general?.alwaysOnTop);
+    //     this.setInputValue('minimize-to-tray', settings.general?.minimizeToTray);
+    //     this.setSelectValue('auto-save-interval', settings.general?.autoSaveInterval);
 
-        // Timer settings
-        this.timerModule.setCurrentSettings(settings);
+    //     // Timer settings
+    //     this.timerModule.setCurrentSettings(settings);
 
-        this.setInputValue('work-duration', settings.timer?.workDuration);
-        this.setInputValue('short-break', settings.timer?.shortBreak);
-        this.setInputValue('long-break', settings.timer?.longBreak);
-        this.setInputValue('sound-enabled', settings.timer?.soundEnabled);
-        this.setInputValue('timer-volume', settings.timer?.volume);
-        this.setSelectValue('sound-type', settings.timer?.soundType);
-        this.setInputValue('do-not-disturb', settings.timer?.doNotDisturb);
+    //     this.setInputValue('work-duration', settings.timer?.workDuration);
+    //     this.setInputValue('short-break', settings.timer?.shortBreak);
+    //     this.setInputValue('long-break', settings.timer?.longBreak);
+    //     this.setInputValue('sound-enabled', settings.timer?.soundEnabled);
+    //     this.setInputValue('timer-volume', settings.timer?.volume);
+    //     this.setSelectValue('sound-type', settings.timer?.soundType);
+    //     this.setInputValue('do-not-disturb', settings.timer?.doNotDisturb);
 
-        // Task settings
-        this.taskModule.setCurrentSettings(settings); // ADD THIS LINE
+    //     // Task settings
+    //     this.taskModule.setCurrentSettings(settings); // ADD THIS LINE
 
-        this.setSelectValue('default-priority', settings.tasks?.defaultPriority);
-        this.setSelectValue('default-sort', settings.tasks?.defaultSort);
-        this.setInputValue('reminder-days', settings.tasks?.reminderDays);
-        this.setInputValue('daily-goal', settings.tasks?.dailyGoal);
-        this.setInputValue('time-estimation', settings.tasks?.timeEstimation);
-        this.setInputValue('completion-tracking', settings.tasks?.completionTracking);
+    //     this.setSelectValue('default-priority', settings.tasks?.defaultPriority);
+    //     this.setSelectValue('default-sort', settings.tasks?.defaultSort);
+    //     this.setInputValue('reminder-days', settings.tasks?.reminderDays);
+    //     this.setInputValue('daily-goal', settings.tasks?.dailyGoal);
+    //     this.setInputValue('time-estimation', settings.tasks?.timeEstimation);
+    //     this.setInputValue('completion-tracking', settings.tasks?.completionTracking);
 
-        // Notes settings
-        this.setSelectValue('default-font', settings.notes?.defaultFont);
-        this.setInputValue('font-size', settings.notes?.fontSize);
-        this.setInputValue('markdown-enabled', settings.notes?.markdownEnabled);
-        this.setInputValue('spell-check', settings.notes?.spellCheck);
-        this.setInputValue('auto-save', settings.notes?.autoSave);
+    //     // Notes settings
+    //     this.setSelectValue('default-font', settings.notes?.defaultFont);
+    //     this.setInputValue('font-size', settings.notes?.fontSize);
+    //     this.setInputValue('markdown-enabled', settings.notes?.markdownEnabled);
+    //     this.setInputValue('spell-check', settings.notes?.spellCheck);
+    //     this.setInputValue('auto-save', settings.notes?.autoSave);
 
-        // Calendar settings
-        this.setSelectValue('default-view', settings.calendar?.defaultView);
-        this.setSelectValue('week-starts-on', settings.calendar?.weekStartsOn);
-        this.setSelectValue('time-format', settings.calendar?.timeFormat);
-        this.setSelectValue('default-event-duration', settings.calendar?.defaultEventDuration);
-        this.setSelectValue('default-reminder', settings.calendar?.defaultReminder);
+    //     // Calendar settings
+    //     this.setSelectValue('default-view', settings.calendar?.defaultView);
+    //     this.setSelectValue('week-starts-on', settings.calendar?.weekStartsOn);
+    //     this.setSelectValue('time-format', settings.calendar?.timeFormat);
+    //     this.setSelectValue('default-event-duration', settings.calendar?.defaultEventDuration);
+    //     this.setSelectValue('default-reminder', settings.calendar?.defaultReminder);
 
-        // Integration settings
-        this.setInputValue('link-tasks-to-calendar', settings.integration?.linkTasksToCalendar);
-        this.setInputValue('timer-integration', settings.integration?.timerIntegration);
-        this.setInputValue('note-linking', settings.integration?.noteLinking);
+    //     // Integration settings
+    //     this.setInputValue('link-tasks-to-calendar', settings.integration?.linkTasksToCalendar);
+    //     this.setInputValue('timer-integration', settings.integration?.timerIntegration);
+    //     this.setInputValue('note-linking', settings.integration?.noteLinking);
 
-        // Accessibility settings
-        this.setInputValue('high-contrast', settings.accessibility?.highContrast);
-        this.setSelectValue('font-scaling', settings.accessibility?.fontScaling);
-        this.setInputValue('keyboard-shortcuts', settings.accessibility?.keyboardShortcuts);
+    //     // Accessibility settings
+    //     this.setInputValue('high-contrast', settings.accessibility?.highContrast);
+    //     this.setSelectValue('font-scaling', settings.accessibility?.fontScaling);
+    //     this.setInputValue('keyboard-shortcuts', settings.accessibility?.keyboardShortcuts);
 
-        // Advanced settings
-        this.setInputValue('hardware-acceleration', settings.advanced?.hardwareAcceleration);
-        this.setInputValue('memory-management', settings.advanced?.memoryManagement);
-        this.setInputValue('data-encryption', settings.advanced?.dataEncryption);
-        this.setInputValue('analytics', settings.advanced?.analytics);
-        this.setInputValue('crash-reporting', settings.advanced?.crashReporting);
+    //     // Advanced settings
+    //     this.setInputValue('hardware-acceleration', settings.advanced?.hardwareAcceleration);
+    //     this.setInputValue('memory-management', settings.advanced?.memoryManagement);
+    //     this.setInputValue('data-encryption', settings.advanced?.dataEncryption);
+    //     this.setInputValue('analytics', settings.advanced?.analytics);
+    //     this.setInputValue('crash-reporting', settings.advanced?.crashReporting);
 
-        this.updateVolumeDisplay();
-        this.loadAvailableSounds();
-        this.updateChangeDetection();
-    }
+    //     this.updateVolumeDisplay();
+    //     this.loadAvailableSounds();
+    //     this.updateChangeDetection();
+    // }
+    // REPLACE your existing populateUI method with this updated version:
+
+populateUI(settings) {
+    // General settings
+    this.setInputValue('launch-on-startup', settings.general?.launchOnStartup);
+    this.setSelectValue('default-window', settings.general?.defaultWindow);
+    this.setInputValue('always-on-top', settings.general?.alwaysOnTop);
+    this.setInputValue('minimize-to-tray', settings.general?.minimizeToTray);
+    this.setSelectValue('auto-save-interval', settings.general?.autoSaveInterval);
+
+    // Timer settings - pass settings to timer module
+    this.timerModule.setCurrentSettings(settings);
+    this.setInputValue('work-duration', settings.timer?.workDuration);
+    this.setInputValue('short-break', settings.timer?.shortBreak);
+    this.setInputValue('long-break', settings.timer?.longBreak);
+    this.setInputValue('sound-enabled', settings.timer?.soundEnabled);
+    this.setInputValue('timer-volume', settings.timer?.volume);
+    this.setSelectValue('sound-type', settings.timer?.soundType);
+    this.setInputValue('do-not-disturb', settings.timer?.doNotDisturb);
+
+    // Task settings - use the new method
+    this.taskModule.setCurrentSettings(settings);
+    this.populateTaskSettings(settings);
+
+    // Notes settings
+    this.setSelectValue('default-font', settings.notes?.defaultFont);
+    this.setInputValue('font-size', settings.notes?.fontSize);
+    this.setInputValue('markdown-enabled', settings.notes?.markdownEnabled);
+    this.setInputValue('spell-check', settings.notes?.spellCheck);
+    this.setInputValue('auto-save', settings.notes?.autoSave);
+
+    // Calendar settings
+    this.setSelectValue('default-view', settings.calendar?.defaultView);
+    this.setSelectValue('week-starts-on', settings.calendar?.weekStartsOn);
+    this.setSelectValue('time-format', settings.calendar?.timeFormat);
+    this.setSelectValue('default-event-duration', settings.calendar?.defaultEventDuration);
+    this.setSelectValue('default-reminder', settings.calendar?.defaultReminder);
+
+    // Integration settings
+    this.setInputValue('link-tasks-to-calendar', settings.integration?.linkTasksToCalendar);
+    this.setInputValue('timer-integration', settings.integration?.timerIntegration);
+    this.setInputValue('note-linking', settings.integration?.noteLinking);
+
+    // Accessibility settings
+    this.setInputValue('high-contrast', settings.accessibility?.highContrast);
+    this.setSelectValue('font-scaling', settings.accessibility?.fontScaling);
+    this.setInputValue('keyboard-shortcuts', settings.accessibility?.keyboardShortcuts);
+
+    // Advanced settings
+    this.setInputValue('hardware-acceleration', settings.advanced?.hardwareAcceleration);
+    this.setInputValue('memory-management', settings.advanced?.memoryManagement);
+    this.setInputValue('data-encryption', settings.advanced?.dataEncryption);
+    this.setInputValue('analytics', settings.advanced?.analytics);
+    this.setInputValue('crash-reporting', settings.advanced?.crashReporting);
+
+    this.updateVolumeDisplay();
+    this.loadAvailableSounds();
+    this.updateChangeDetection();
+}
 
     // UI Helper Methods
     setInputValue(id, value) {
@@ -490,54 +753,16 @@ if (volumeSlider) {
         };
     
     }
-
-    // Sound management UI
-    // loadAvailableSounds() {
-    //     try {
-    //         const sounds = this.settingsCore.getAvailableSounds();
-    //         const soundSelect = document.getElementById('sound-type');
-            
-    //         if (!soundSelect) return;
-
-    //         // Clear existing options except the first one (usually a placeholder)
-    //         while (soundSelect.children.length > 1) {
-    //             soundSelect.removeChild(soundSelect.lastChild);
-    //         }
-
-    //         // Add sound options
-    //         sounds.forEach((sound) => {
-    //             const option = document.createElement('option');
-    //             option.value = sound.id;
-    //             option.textContent = sound.name;
-    //             soundSelect.appendChild(option);
-    //         });
-
-    //         // Set current value
-    //         const currentSoundType = this.settingsCore.currentSettings.timer?.soundType || 'bell';
-    //         soundSelect.value = currentSoundType;
-
-    //         // Add custom sound option if it exists
-    //         if (currentSoundType === 'custom') {
-    //             this.addCustomSoundOption();
-    //         }
-
-    //     } catch (error) {
-    //         console.error('Failed to load sounds:', error);
-    //         this.showMessage(`Failed to load sounds: ${error.message}`, 'error');
-    //     }
-    // }
     loadAvailableSounds() {
     try {
         // NEW: Use the timer module
         const sounds = this.timerModule.getAvailableSounds();
         console.log('✅ Using new timer module for available sounds');
-        console.log('🔊 Sounds found:', sounds); // Debug line
+        console.log('🔊 Sounds found:', sounds); 
         
         const soundSelect = document.getElementById('sound-type');
         
         if (!soundSelect) return;
-
-        // FIXED: Don't clear options, replace them properly
         soundSelect.innerHTML = ''; // Clear ALL options first
         
         // Add sound options
@@ -546,7 +771,7 @@ if (volumeSlider) {
             option.value = sound.id;
             option.textContent = sound.name;
             soundSelect.appendChild(option);
-            console.log('Added sound:', sound.name); // Debug line
+            console.log('Added sound:', sound.name); 
         });
 
         // Set current value
@@ -563,28 +788,15 @@ if (volumeSlider) {
         this.showMessage(`Failed to load sounds: ${error.message}`, 'error');
         
         // FALLBACK: Try the old way
-        try {
-            const sounds = this.settingsCore.getAvailableSounds();
-            console.log('🔄 Using fallback method');
-            // ... rest of the logic with sounds from old method
-        } catch (fallbackError) {
-            console.error('💥 Even fallback failed:', fallbackError);
-        }
+        // try {
+        //     const sounds = this.settingsCore.getAvailableSounds();
+        //     console.log('🔄 Using fallback method');
+        // } catch (fallbackError) {
+        //     console.error('💥 Even fallback failed:', fallbackError);
+        // }
     }
 }
 
-    // addCustomSoundOption() {
-    //     const soundSelect = document.getElementById('sound-type');
-    //     if (!soundSelect) return;
-
-    //     let customOption = soundSelect.querySelector('option[value="custom"]');
-    //     if (!customOption) {
-    //         customOption = document.createElement('option');
-    //         customOption.value = 'custom';
-    //         customOption.textContent = 'Custom Sound';
-    //         soundSelect.appendChild(customOption);
-    //     }
-    // }
     addCustomSoundOption() {
         const soundSelect = document.getElementById('sound-type');
         if (!soundSelect) return;
@@ -627,8 +839,6 @@ if (volumeSlider) {
             indicator.style.display = hasChanges ? 'block' : 'none';
         }
     }
-
-    // Message and notification system
     showMessage(message, type = 'info') {
         console.log(`[${type.toUpperCase()}] ${message}`);
 
@@ -639,8 +849,6 @@ if (volumeSlider) {
             messageContainer.className = 'message-container';
             document.body.appendChild(messageContainer);
         }
-
-        // Remove existing messages of the same type
         const existingMessages = messageContainer.querySelectorAll(`.message-${type}`);
         existingMessages.forEach(msg => msg.remove());
 
@@ -661,8 +869,6 @@ if (volumeSlider) {
         `;
 
         messageContainer.appendChild(messageElement);
-
-        // Auto-remove after 5 seconds
         setTimeout(() => {
             if (messageElement.parentNode) {
                 messageElement.classList.add('message-slide-out');
@@ -690,13 +896,9 @@ if (volumeSlider) {
     showWarning(message) {
         this.showMessage(message, 'warning');
     }
-
-    // System diagnostics UI
     checkSystemAudio() {
         this.settingsCore.checkSystemAudio();
     }
-
-    // Public methods for external access
     getSettingsCore() {
         return this.settingsCore;
     }
@@ -704,8 +906,6 @@ if (volumeSlider) {
     getCurrentSettings() {
         return this.settingsCore.getCurrentSettings();
     }
-
-    // Debug methods
     logCurrentState() {
         console.log('Current Settings:', this.settingsCore.getCurrentSettings());
         console.log('Original Settings:', this.settingsCore.getOriginalSettings());
@@ -713,7 +913,23 @@ if (volumeSlider) {
         console.log('Has Changes:', this.settingsCore.hasUnsavedChanges(this.getFormData()));
     }
 
-    // Add after existing methods
+// Add these methods to your SettingsRenderer class
+
+// Populate task settings specifically
+populateTaskSettings(settings) {
+    const taskSettings = settings.tasks || this.taskModule.getDefaultSettings();
+    
+    this.setSelectValue('default-priority', taskSettings.defaultPriority);
+    this.setSelectValue('default-sort', taskSettings.defaultSort);
+    this.setInputValue('reminder-days', taskSettings.reminderDays);
+    this.setInputValue('daily-goal', taskSettings.dailyGoal);
+    this.setInputValue('time-estimation', taskSettings.timeEstimation);
+    this.setInputValue('completion-tracking', taskSettings.completionTracking);
+    
+    console.log('Task settings populated:', taskSettings);
+}
+
+// Update task statistics display
 updateTaskStatistics(tasks = []) {
     try {
         const stats = this.taskModule.getTaskStatistics(tasks);
@@ -724,6 +940,10 @@ updateTaskStatistics(tasks = []) {
         if (statsElement) {
             statsElement.innerHTML = `
                 <div class="stat-item">
+                    <span class="stat-label">Total Tasks:</span>
+                    <span class="stat-value">${stats.total}</span>
+                </div>
+                <div class="stat-item">
                     <span class="stat-label">Completed Today:</span>
                     <span class="stat-value">${metrics.completedToday}/${metrics.dailyGoal}</span>
                 </div>
@@ -731,12 +951,46 @@ updateTaskStatistics(tasks = []) {
                     <span class="stat-label">Progress:</span>
                     <span class="stat-value">${Math.round(metrics.progressPercentage)}%</span>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-label">Overdue:</span>
+                    <span class="stat-value overdue">${stats.overdue}</span>
+                </div>
             `;
         }
         
-        console.log('✅ Using new task module for statistics');
+        console.log('Task statistics updated:', { stats, metrics });
     } catch (error) {
-        console.log('❌ Task statistics update failed:', error);
+        console.log('Task statistics update failed:', error);
+    }
+}
+
+// Add task validation to form submission
+validateTaskForm() {
+    const taskSettings = {
+        defaultPriority: this.getSelectValue('default-priority'),
+        defaultSort: this.getSelectValue('default-sort'),
+        reminderDays: parseInt(this.getInputValue('reminder-days')),
+        dailyGoal: parseInt(this.getInputValue('daily-goal')),
+        timeEstimation: this.getInputValue('time-estimation'),
+        completionTracking: this.getInputValue('completion-tracking')
+    };
+
+    const errors = this.taskModule.validateTaskSettings(taskSettings);
+    
+    if (errors.length > 0) {
+        errors.forEach(error => this.showError(error));
+        return false;
+    }
+    
+    return true;
+}
+
+// Handle task-specific reset
+async handleResetTaskSettings() {
+    if (confirm('Are you sure you want to reset task settings to defaults?')) {
+        const defaultSettings = this.taskModule.resetSettings();
+        this.populateTaskSettings({ tasks: defaultSettings });
+        this.showMessage('Task settings reset to defaults', 'info');
     }
 }
 
@@ -746,22 +1000,13 @@ getTaskModule() {
 
 
 }
-
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     const settingsRenderer = new SettingsRenderer();
     await settingsRenderer.init();
-
-    // Setup real-time listeners after initialization
     settingsRenderer.getSettingsCore().setupRealTimeListeners();
-
-    // Make available globally for debugging
     window.settingsRenderer = settingsRenderer;
     window.settingsCore = settingsRenderer.getSettingsCore();
     window.taskModule = settingsRenderer.taskModule
-    // window.SOUND_REGISTRY = SOUND_REGISTRY;
-
-    // Add debug helper
     window.debugSettings = () => settingsRenderer.logCurrentState();
 });
 

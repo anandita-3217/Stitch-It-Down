@@ -255,7 +255,63 @@
                             </select>
                         </div>
                     </div>
+                    <!-- ADD this section to your tasks-tab in settings.html, after the existing settings -->
 
+<div class="settings-section">
+    <h3 class="section-title">Task Management</h3>
+    
+    <div class="setting-item">
+        <div class="setting-label">
+            <h4>Daily Goal Progress</h4>
+            <p>Check your current progress toward daily goal</p>
+        </div>
+        <div class="setting-control">
+            <button type="button" id="check-daily-goal" class="btn btn-secondary">Check Progress</button>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-label">
+            <h4>Task Statistics</h4>
+            <p>View current task statistics</p>
+        </div>
+        <div class="setting-control">
+            <div id="task-stats" class="task-stats-display">
+                <!-- Statistics will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-label">
+            <h4>Reset Task Settings</h4>
+            <p>Reset only task settings to defaults</p>
+        </div>
+        <div class="setting-control">
+            <button type="button" id="reset-task-settings" class="btn btn-warning">Reset Tasks</button>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-label">
+            <h4>Export Task Data</h4>
+            <p>Export only your task data as backup</p>
+        </div>
+        <div class="setting-control">
+            <button type="button" id="export-task-data" class="btn btn-secondary">Export Tasks</button>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-label">
+            <h4>Import Task Data</h4>
+            <p>Import task data from backup file</p>
+        </div>
+        <div class="setting-control">
+            <button type="button" id="import-task-data" class="btn btn-secondary">Import Tasks</button>
+        </div>
+    </div>
+</div>
                     <div class="setting-item">
                         <div class="setting-label">
                             <h4>Default Sort</h4>
