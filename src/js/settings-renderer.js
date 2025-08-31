@@ -230,7 +230,54 @@ class SettingsRenderer {
         this.showError(`Task: ${error}`);
     });
         }
+// Add this method to your SettingsRenderer class
 
+validateTaskField(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) {
+        return true;
+    }
+
+    const value = parseInt(field.value);
+    let isValid = true;
+    let errorMessage = '';
+
+    if (fieldId === 'reminder-days') {
+        if (value < 0 || value > 365) {
+            isValid = false;
+            errorMessage = 'Reminder days must be between 0 and 365';
+        }
+    } else if (fieldId === 'daily-goal') {
+        if (value < 1 || value > 100) {
+            isValid = false;
+            errorMessage = 'Daily goal must be between 1 and 100';
+        }
+    }
+
+    // Visual feedback
+    if (isValid) {
+        field.classList.remove('error');
+    } else {
+        field.classList.add('error');
+    }
+    
+    // Error message handling
+    let errorDiv = field.parentNode.querySelector('.field-error');
+    if (!isValid) {
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            field.parentNode.appendChild(errorDiv);
+        }
+        errorDiv.textContent = errorMessage;
+    } else {
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+    }
+
+    return isValid;
+}
     // Setup UI event listeners
 //     setupUIEventListeners() {
 //         // Button event listeners
@@ -338,7 +385,10 @@ class SettingsRenderer {
     
     
 //     }
-    // Setup UI event listeners
+// Add this method to your SettingsRenderer class
+
+
+// Setup UI event listeners
 setupUIEventListeners() {
     // Button event listeners
     this.bindButton('save-settings', () => this.handleSaveSettings());
@@ -379,8 +429,8 @@ setupUIEventListeners() {
         if (field) {
             field.addEventListener('change', () => {
                 this.updateChangeDetection();
-                // Real-time validation for numeric fields
-                if (fieldId === 'reminder-days' || fieldId === 'daily-goal') {
+                // Real-time validation for numeric fields (only if method exists)
+                if ((fieldId === 'reminder-days' || fieldId === 'daily-goal') && this.validateTaskField) {
                     this.validateTaskField(fieldId);
                 }
             });
